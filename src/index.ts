@@ -76,9 +76,7 @@ export function createServer(): FastMCP {
       if (!request) return {}; // stdio transport is not network-exposed
       const raw = request.headers["authorization"];
       const headerValue = Array.isArray(raw) ? raw[0] : raw;
-      const provided = headerValue?.startsWith("Bearer ")
-        ? headerValue.slice("Bearer ".length)
-        : headerValue;
+      const provided = headerValue?.startsWith("Bearer ") ? headerValue.slice("Bearer ".length) : headerValue;
       if (!provided || !constantTimeEquals(provided, AUTH_TOKEN)) return null; // -> 401 Unauthorized
       return {};
     },
@@ -116,7 +114,9 @@ function startServer(): void {
 
   if (!isStdio) {
     logger.info(`sap-dm-pod2-mcp-server v${VERSION} listening on port ${PORT}`);
-    logger.info(`Auth: ${AUTH_TOKEN ? "enabled (Bearer token required)" : "disabled (set MCP_AUTH_TOKEN to require a Bearer token)"}`);
+    logger.info(
+      `Auth: ${AUTH_TOKEN ? "enabled (Bearer token required)" : "disabled (set MCP_AUTH_TOKEN to require a Bearer token)"}`,
+    );
   }
 }
 

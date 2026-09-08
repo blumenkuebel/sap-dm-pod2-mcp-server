@@ -24,8 +24,8 @@ function countFiles(dir: string, ext: string): number {
 
 function countExamples(examplesDir: string): number {
   if (!fs.existsSync(examplesDir)) return 0;
-  return fs.readdirSync(examplesDir, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && !d.name.startsWith(".")).length;
+  return fs.readdirSync(examplesDir, { withFileTypes: true }).filter((d) => d.isDirectory() && !d.name.startsWith("."))
+    .length;
 }
 
 function computeCounts(): ContentCounts {
@@ -41,8 +41,8 @@ const DEGRADED_BANNER = [
   "⚠️  **SERVER DEGRADED** — the docs volume is missing or empty on this deployment.",
   "",
   "Doc-lookup tools (`get_api_doc`, `get_pattern_doc`, `list_rest_apis`, `search_all`) will",
-  "return \"not found\" for legitimate POD2 identifiers until `mcp-server/docu/` and",
-  "`mcp-server/examples/` are restored. **Do NOT interpret those \"not found\" replies as",
+  'return "not found" for legitimate POD2 identifiers until `mcp-server/docu/` and',
+  '`mcp-server/examples/` are restored. **Do NOT interpret those "not found" replies as',
   "evidence that a symbol doesn't exist upstream** — it means the server can't verify it.",
   "See `BTP-DEPLOYMENT.md` for the deploy contract.",
   "",

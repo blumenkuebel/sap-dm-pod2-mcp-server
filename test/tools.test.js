@@ -129,9 +129,7 @@ test("prompt create_widget renders with provided arguments", async () => {
     arguments: { namespace: "acme.demo", widgetName: "MyWidget", widgetType: "ControlWidget" },
   });
   assert.ok(Array.isArray(res.messages) && res.messages.length > 0);
-  const text = res.messages
-    .map((m) => (typeof m.content?.text === "string" ? m.content.text : ""))
-    .join("\n");
+  const text = res.messages.map((m) => (typeof m.content?.text === "string" ? m.content.text : "")).join("\n");
   assert.match(text, /acme\.demo|MyWidget/);
   await client.close();
 });

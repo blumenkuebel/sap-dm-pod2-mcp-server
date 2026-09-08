@@ -1,16 +1,31 @@
 import { FastMCP } from "fastmcp";
 
 export function registerPrompts(server: FastMCP): void {
-
   server.addPrompt({
     name: "create_widget",
-    description: "Generates a complete POD2 Widget following the Best Practice pattern. Produces Widget class, i18n files, and extension.json entry.",
+    description:
+      "Generates a complete POD2 Widget following the Best Practice pattern. Produces Widget class, i18n files, and extension.json entry.",
     arguments: [
       { name: "namespace", description: "Company/project namespace (e.g. 'myCompany.myProject')", required: true },
-      { name: "widgetName", description: "Widget name in PascalCase (e.g. 'OrderDetails', 'ProductionMonitor')", required: true },
-      { name: "widgetType", description: "Widget subtype: ControlWidget | LayoutWidget | TableWidget | ContentHandler (default: LayoutWidget)", required: false, enum: ["ControlWidget", "LayoutWidget", "TableWidget", "ContentHandler"] },
+      {
+        name: "widgetName",
+        description: "Widget name in PascalCase (e.g. 'OrderDetails', 'ProductionMonitor')",
+        required: true,
+      },
+      {
+        name: "widgetType",
+        description:
+          "Widget subtype: ControlWidget | LayoutWidget | TableWidget | ContentHandler (default: LayoutWidget)",
+        required: false,
+        enum: ["ControlWidget", "LayoutWidget", "TableWidget", "ContentHandler"],
+      },
       { name: "description", description: "Short description of the widget's purpose", required: false },
-      { name: "hasProperties", description: "Whether the widget should have configurable properties: yes or no (default: yes)", required: false, enum: ["yes", "no"] },
+      {
+        name: "hasProperties",
+        description: "Whether the widget should have configurable properties: yes or no (default: yes)",
+        required: false,
+        enum: ["yes", "no"],
+      },
     ],
     load: async ({ namespace, widgetName, widgetType, description, hasProperties }) => {
       const ns = namespace ?? "";
@@ -82,11 +97,21 @@ ${type === "ContentHandler" ? '- Use `get_pattern_doc` with "dialog-patterns" fo
 
   server.addPrompt({
     name: "create_action",
-    description: "Generates a POD2 Action following the Best Practice pattern. Supports Validation and Execution action types.",
+    description:
+      "Generates a POD2 Action following the Best Practice pattern. Supports Validation and Execution action types.",
     arguments: [
       { name: "namespace", description: "Company/project namespace (e.g. 'myCompany.myProject')", required: true },
-      { name: "actionName", description: "Action name in PascalCase (e.g. 'ValidateOrder', 'SplitSfc')", required: true },
-      { name: "actionType", description: "Action type: ValidationAction or ExecutionAction (default: ExecutionAction)", required: false, enum: ["ValidationAction", "ExecutionAction"] },
+      {
+        name: "actionName",
+        description: "Action name in PascalCase (e.g. 'ValidateOrder', 'SplitSfc')",
+        required: true,
+      },
+      {
+        name: "actionType",
+        description: "Action type: ValidationAction or ExecutionAction (default: ExecutionAction)",
+        required: false,
+        enum: ["ValidationAction", "ExecutionAction"],
+      },
       { name: "description", description: "Short description of the action's purpose", required: false },
     ],
     load: async ({ namespace, actionName, description, actionType }) => {
@@ -110,15 +135,27 @@ Follow the Best Practice pattern:
 - Extend \`sap/dm/dme/pod2/action/Action\`
 - Use \`I18nResourceModel\` for static i18n
 - Implement static methods: \`getI18nModel()\`, \`getDisplayName()\`, \`getDescription()\`
-${actionType === "validation" ? `- In \`execute(oActionContext)\`: check preconditions, throw Error to stop action sequence
+${
+  actionType === "validation"
+    ? `- In \`execute(oActionContext)\`: check preconditions, throw Error to stop action sequence
 - Check PodContext.getSelectedWorkListItems() and other context values
-- Use descriptive i18n error messages` : ""}
-${actionType === "execution" ? `- In \`execute(oActionContext)\`: perform business logic (API calls, context updates)
+- Use descriptive i18n error messages`
+    : ""
+}
+${
+  actionType === "execution"
+    ? `- In \`execute(oActionContext)\`: perform business logic (API calls, context updates)
 - Can be async (return Promise)
 - Use try/catch with Logger for error handling
-- Update PodContext or Context singleton with results` : ""}
-${actionType === "standalone" ? `- In \`execute(oActionContext)\`: perform independent logic
-- Can be sync or async` : ""}
+- Update PodContext or Context singleton with results`
+    : ""
+}
+${
+  actionType === "standalone"
+    ? `- In \`execute(oActionContext)\`: perform independent logic
+- Can be sync or async`
+    : ""
+}
 - Use Logger instead of console.log
 
 ### 2. \`i18n/i18n.properties\` (+ i18n_de, i18n_en, i18n_en_US)
@@ -143,10 +180,21 @@ Module path: \`${nsPath}/action/${actionName}\`
 
   server.addPrompt({
     name: "create_extension",
-    description: "Generates a complete POD2 Extension with Widget, Validation Action, Execution Action, Context singleton, and i18n – the full Best Practice pattern. If no parameters are provided, reads POD2_PLUGIN_TEMPLATE.md from the working directory.",
+    description:
+      "Generates a complete POD2 Extension with Widget, Validation Action, Execution Action, Context singleton, and i18n – the full Best Practice pattern. If no parameters are provided, reads POD2_PLUGIN_TEMPLATE.md from the working directory.",
     arguments: [
-      { name: "namespace", description: "Company/project namespace (e.g. 'myCompany.myProject'). If omitted, read from POD2_PLUGIN_TEMPLATE.md.", required: false },
-      { name: "pluginName", description: "Plugin name in PascalCase (e.g. 'Split', 'OrderConfig'). If omitted, read from POD2_PLUGIN_TEMPLATE.md.", required: false },
+      {
+        name: "namespace",
+        description:
+          "Company/project namespace (e.g. 'myCompany.myProject'). If omitted, read from POD2_PLUGIN_TEMPLATE.md.",
+        required: false,
+      },
+      {
+        name: "pluginName",
+        description:
+          "Plugin name in PascalCase (e.g. 'Split', 'OrderConfig'). If omitted, read from POD2_PLUGIN_TEMPLATE.md.",
+        required: false,
+      },
       { name: "description", description: "Short description of the extension's purpose", required: false },
     ],
     load: async ({ namespace, pluginName, description, widgetType }) => {
@@ -363,11 +411,27 @@ Generate a comprehensive README with these sections:
 
   server.addPrompt({
     name: "migrate_widget",
-    description: "Migrates an EXISTING POD 2.0 widget OR an HTML5 monitoring/dashboard app (Chart.js/d3/plotly/echarts + fetch + inline handlers) into a clean POD 2.0 plugin following Best-Practice. Enforces a phased workflow with mandatory Feature-Inventory, Mapping, Verification and (for HTML5) Residue-Gate artifacts to prevent silent feature loss.",
+    description:
+      "Migrates an EXISTING POD 2.0 widget OR an HTML5 monitoring/dashboard app (Chart.js/d3/plotly/echarts + fetch + inline handlers) into a clean POD 2.0 plugin following Best-Practice. Enforces a phased workflow with mandatory Feature-Inventory, Mapping, Verification and (for HTML5) Residue-Gate artifacts to prevent silent feature loss.",
     arguments: [
-      { name: "sourceDir", description: "Relative path to the source directory (POD2 plugin folder OR HTML5 app folder). If omitted, the agent must ask the user.", required: false },
-      { name: "sourceFormat", description: "Source format: pod2 | html5 | auto (default: auto)", required: false, enum: ["pod2", "html5", "auto"] },
-      { name: "targetNamespace", description: "Target namespace for the migrated plugin (e.g. 'customer.custom.extensions.mywidget'). If omitted, read from POD2_PLUGIN_EXAMPLE.md or prompt the user.", required: false },
+      {
+        name: "sourceDir",
+        description:
+          "Relative path to the source directory (POD2 plugin folder OR HTML5 app folder). If omitted, the agent must ask the user.",
+        required: false,
+      },
+      {
+        name: "sourceFormat",
+        description: "Source format: pod2 | html5 | auto (default: auto)",
+        required: false,
+        enum: ["pod2", "html5", "auto"],
+      },
+      {
+        name: "targetNamespace",
+        description:
+          "Target namespace for the migrated plugin (e.g. 'customer.custom.extensions.mywidget'). If omitted, read from POD2_PLUGIN_EXAMPLE.md or prompt the user.",
+        required: false,
+      },
     ],
     load: async ({ sourceDir, sourceFormat, targetNamespace }) => {
       const fmt = sourceFormat ?? "auto";
@@ -939,7 +1003,8 @@ Post a concise summary in chat (do NOT repeat the artifacts):
 
   server.addPrompt({
     name: "validate_project",
-    description: "Validates the POD2 plugin in the current working directory against the latest MCP server standards: all 32+ common-mistakes, SAP DM REST API versions (v1/v2/v3), POD2 Public/Internal API usage, ModelPath constants, MDO/OData. Produces VALIDATION-REPORT.md with errors, warnings, info findings and an auto-fixable section.",
+    description:
+      "Validates the POD2 plugin in the current working directory against the latest MCP server standards: all 32+ common-mistakes, SAP DM REST API versions (v1/v2/v3), POD2 Public/Internal API usage, ModelPath constants, MDO/OData. Produces VALIDATION-REPORT.md with errors, warnings, info findings and an auto-fixable section.",
     arguments: [],
     load: async () => {
       return `Validate the POD 2.0 plugin in the **current working directory** against the latest pod2-mcp-server standards.
@@ -1304,5 +1369,4 @@ After writing the report, post a short summary in chat (do NOT repeat the full r
 `;
     },
   });
-
 }

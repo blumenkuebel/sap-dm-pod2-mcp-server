@@ -11,14 +11,16 @@ export function registerExamplesTools(server: FastMCP): void {
   server.addTool({
     name: "list_examples",
     annotations: READONLY_ANNOTATIONS,
-    description: "Lists all available POD2 reference example plugins with their file structure. These are production-grade Ground Truth examples showing correct patterns for Widgets, Actions, Context singletons, and i18n.",
+    description:
+      "Lists all available POD2 reference example plugins with their file structure. These are production-grade Ground Truth examples showing correct patterns for Widgets, Actions, Context singletons, and i18n.",
     parameters: undefined,
     execute: async () => {
       if (!fs.existsSync(EXAMPLES_DIR)) {
         throw new Error("[No examples directory found]");
       }
-      const entries = fs.readdirSync(EXAMPLES_DIR, { withFileTypes: true })
-        .filter(d => d.isDirectory() && !d.name.startsWith("."));
+      const entries = fs
+        .readdirSync(EXAMPLES_DIR, { withFileTypes: true })
+        .filter((d) => d.isDirectory() && !d.name.startsWith("."));
       if (entries.length === 0) {
         return "No example plugins found in examples/";
       }
@@ -40,8 +42,7 @@ export function registerExamplesTools(server: FastMCP): void {
           }
         }
         sections.push(
-          `📦 **${dir.name}**${description ? ` – ${description}` : ""}\n` +
-          files.map(f => `  ${f}`).join("\n")
+          `📦 **${dir.name}**${description ? ` – ${description}` : ""}\n` + files.map((f) => `  ${f}`).join("\n"),
         );
       }
       return `POD2 Reference Examples (${entries.length} plugins):\n\n${sections.join("\n\n")}\n\n→ Use 'get_example' with plugin name and optional file path to read source code.`;
@@ -51,10 +52,18 @@ export function registerExamplesTools(server: FastMCP): void {
   server.addTool({
     name: "get_example",
     annotations: READONLY_ANNOTATIONS,
-    description: "Returns the source code of a specific file from a POD2 reference example plugin. Use to see production-grade Ground Truth code patterns. If no file specified, returns all files concatenated.",
+    description:
+      "Returns the source code of a specific file from a POD2 reference example plugin. Use to see production-grade Ground Truth code patterns. If no file specified, returns all files concatenated.",
     parameters: z.object({
-      plugin: z.string().describe("Plugin directory name (e.g. 'Customer.Coating', 'Customer.TableView', 'Customer.Utils')"),
-      file: z.string().optional().describe("Optional: specific file path within the plugin (e.g. 'widget/CoatingWidget.js', 'action/CoatingValidationAction.js', 'extension.json')"),
+      plugin: z
+        .string()
+        .describe("Plugin directory name (e.g. 'Customer.Coating', 'Customer.TableView', 'Customer.Utils')"),
+      file: z
+        .string()
+        .optional()
+        .describe(
+          "Optional: specific file path within the plugin (e.g. 'widget/CoatingWidget.js', 'action/CoatingValidationAction.js', 'extension.json')",
+        ),
     }),
     execute: async ({ plugin, file }) => {
       const pluginPath = safePath(EXAMPLES_DIR, plugin);
@@ -63,9 +72,10 @@ export function registerExamplesTools(server: FastMCP): void {
       }
       if (!fs.existsSync(pluginPath)) {
         const available = fs.existsSync(EXAMPLES_DIR)
-          ? fs.readdirSync(EXAMPLES_DIR, { withFileTypes: true })
-              .filter(d => d.isDirectory() && !d.name.startsWith("."))
-              .map(d => d.name)
+          ? fs
+              .readdirSync(EXAMPLES_DIR, { withFileTypes: true })
+              .filter((d) => d.isDirectory() && !d.name.startsWith("."))
+              .map((d) => d.name)
           : [];
         throw new UserError(`Plugin "${plugin}" not found.\n\nAvailable: ${available.join(", ") || "(none)"}`);
       }
@@ -81,7 +91,7 @@ export function registerExamplesTools(server: FastMCP): void {
         return `// ═══ ${plugin}/${file} ═══\n\n${readFileContent(filePath)}`;
       }
       const allFiles = listPluginFiles(pluginPath, "");
-      const textFiles = allFiles.filter(f => isTextFile(f) || f.endsWith(".json") || f.endsWith(".properties"));
+      const textFiles = allFiles.filter((f) => isTextFile(f) || f.endsWith(".json") || f.endsWith(".properties"));
       const sections: string[] = [];
       for (const relFile of textFiles) {
         const absPath = path.join(pluginPath, relFile);

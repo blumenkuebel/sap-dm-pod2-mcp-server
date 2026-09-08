@@ -10,10 +10,7 @@ async function connect() {
   const server = createServer();
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   const client = new Client({ name: "test-client", version: "0.0.0" });
-  await Promise.all([
-    server.connect(serverTransport),
-    client.connect(clientTransport),
-  ]);
+  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
   return { client };
 }
 
@@ -28,7 +25,10 @@ test("registers tools, resources, and prompts", async () => {
   const { resources } = await client.listResources();
   assert.ok(resources.length > 0, "expected at least one resource");
   const { prompts } = await client.listPrompts();
-  assert.ok(prompts.some((p) => p.name === "create_widget"), "missing prompt: create_widget");
+  assert.ok(
+    prompts.some((p) => p.name === "create_widget"),
+    "missing prompt: create_widget",
+  );
   await client.close();
 });
 

@@ -10,9 +10,13 @@ const MDO_INDEX = path.join(MDO_DIR, "index.md");
 const MDO_SPECS_LABEL = "SAP DM MDO Extractor metadata";
 const MDO_SPECS_DIR_REL = "docu/sap-dm-mdo-specs/";
 
-let entityCache: Map<string, { startLine: number; endLine: number; navigations: number; properties: number }> | null = null;
+let entityCache: Map<string, { startLine: number; endLine: number; navigations: number; properties: number }> | null =
+  null;
 
-function ensureEntityIndex(): Map<string, { startLine: number; endLine: number; navigations: number; properties: number }> {
+function ensureEntityIndex(): Map<
+  string,
+  { startLine: number; endLine: number; navigations: number; properties: number }
+> {
   if (entityCache) return entityCache;
   const map = new Map<string, { startLine: number; endLine: number; navigations: number; properties: number }>();
   if (!fs.existsSync(MDO_INDEX)) {
@@ -72,14 +76,18 @@ function getEntityText(entityName: string): string | null {
   if (!entry) return null;
   const content = readFileContent(MDO_INDEX);
   const lines = content.split("\n");
-  return lines.slice(entry.startLine, entry.endLine + 1).join("\n").trim();
+  return lines
+    .slice(entry.startLine, entry.endLine + 1)
+    .join("\n")
+    .trim();
 }
 
 export function registerMdoTools(server: FastMCP): void {
   server.addTool({
     name: "list_mdo_entities",
     annotations: READONLY_ANNOTATIONS,
-    description: "Lists all SAP DM MDO Extractor (OData V4) entity types with property and navigation counts. The MDO Extractor exposes 53+ analytical entities (ORDER, SFC, MATERIAL, ROUTING, BOM, NON_CONFORMANCE, OEE, DOWNTIME, etc.) for reporting and integration use cases.",
+    description:
+      "Lists all SAP DM MDO Extractor (OData V4) entity types with property and navigation counts. The MDO Extractor exposes 53+ analytical entities (ORDER, SFC, MATERIAL, ROUTING, BOM, NON_CONFORMANCE, OEE, DOWNTIME, etc.) for reporting and integration use cases.",
     parameters: undefined,
     execute: async () => {
       if (!fs.existsSync(MDO_INDEX)) {
@@ -103,7 +111,9 @@ export function registerMdoTools(server: FastMCP): void {
         lines.push(`| \`${name}\` | ${info.properties} | ${info.navigations} |`);
       }
       lines.push("");
-      lines.push("→ Use 'get_mdo_entity' with the entity name (e.g. 'ORDER', 'SFC', 'MATERIAL') for the full property list.");
+      lines.push(
+        "→ Use 'get_mdo_entity' with the entity name (e.g. 'ORDER', 'SFC', 'MATERIAL') for the full property list.",
+      );
       lines.push("→ Use 'search_mdo_entities' for full-text search across all entities.");
       return lines.join("\n");
     },
@@ -112,9 +122,14 @@ export function registerMdoTools(server: FastMCP): void {
   server.addTool({
     name: "get_mdo_entity",
     annotations: READONLY_ANNOTATIONS,
-    description: "Returns the full property list, types, key fields and navigations for a specific SAP DM MDO entity (e.g. 'ORDER', 'SFC', 'MATERIAL'). Case-insensitive. Includes all properties with OData types (String, Decimal, DateTimeOffset, etc.).",
+    description:
+      "Returns the full property list, types, key fields and navigations for a specific SAP DM MDO entity (e.g. 'ORDER', 'SFC', 'MATERIAL'). Case-insensitive. Includes all properties with OData types (String, Decimal, DateTimeOffset, etc.).",
     parameters: z.object({
-      entityName: z.string().describe("Entity name (case-insensitive, e.g. 'ORDER', 'SFC', 'MATERIAL', 'ROUTING', 'BOM', 'NON_CONFORMANCE')"),
+      entityName: z
+        .string()
+        .describe(
+          "Entity name (case-insensitive, e.g. 'ORDER', 'SFC', 'MATERIAL', 'ROUTING', 'BOM', 'NON_CONFORMANCE')",
+        ),
     }),
     execute: async ({ entityName }) => {
       if (!fs.existsSync(MDO_INDEX)) {
@@ -126,18 +141,28 @@ export function registerMdoTools(server: FastMCP): void {
       const map = ensureEntityIndex();
       const fuzzy = [...map.keys()].filter((k) => k.includes(upperName) || upperName.includes(k));
       if (fuzzy.length > 0) {
-        return `Entity "${entityName}" not found exactly.\n\nDid you mean one of these?\n${fuzzy.slice(0, 15).map((n) => `  • ${n}`).join("\n")}`;
+        return `Entity "${entityName}" not found exactly.\n\nDid you mean one of these?\n${fuzzy
+          .slice(0, 15)
+          .map((n) => `  • ${n}`)
+          .join("\n")}`;
       }
-      throw new UserError(`Entity "${entityName}" not found.\n\nUse 'list_mdo_entities' to see all ${map.size} available entities.`);
+      throw new UserError(
+        `Entity "${entityName}" not found.\n\nUse 'list_mdo_entities' to see all ${map.size} available entities.`,
+      );
     },
   });
 
   server.addTool({
     name: "search_mdo_entities",
     annotations: READONLY_ANNOTATIONS,
-    description: "Searches across all SAP DM MDO entity definitions for matching property names, types, or entity names. Returns the entity names that contain the query and a snippet of the matching properties.",
+    description:
+      "Searches across all SAP DM MDO entity definitions for matching property names, types, or entity names. Returns the entity names that contain the query and a snippet of the matching properties.",
     parameters: z.object({
-      query: z.string().describe("Search term (case-insensitive) – e.g. property name like 'BATCH_NUMBER', type like 'DateTimeOffset', or partial entity name"),
+      query: z
+        .string()
+        .describe(
+          "Search term (case-insensitive) – e.g. property name like 'BATCH_NUMBER', type like 'DateTimeOffset', or partial entity name",
+        ),
       maxResults: z.number().optional().describe("Maximum number of entities to return (default: 15)"),
     }),
     execute: async ({ query, maxResults }) => {
@@ -172,8 +197,8 @@ export function registerMdoTools(server: FastMCP): void {
       if (limited.length === 0) {
         return `No MDO entities or properties match "${query}".\n\nTip: Try 'list_mdo_entities' to see available entities.`;
       }
-      const sections = limited.map((r) =>
-        `📦 \`${r.entity}\` (${r.matchCount} matches):\n${r.snippet.map((l) => `  ${l}`).join("\n")}`,
+      const sections = limited.map(
+        (r) => `📦 \`${r.entity}\` (${r.matchCount} matches):\n${r.snippet.map((l) => `  ${l}`).join("\n")}`,
       );
       return `MDO entity search for "${query}" – ${limited.length} entities with matches:\n\n${sections.join("\n\n")}`;
     },

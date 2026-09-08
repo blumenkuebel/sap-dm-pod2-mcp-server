@@ -155,8 +155,14 @@ test("sliceOperation keeps only the reachable definitions and single path", () =
 let TMP;
 test("searchFiles setup: write fixtures", () => {
   TMP = fs.mkdtempSync(path.join(os.tmpdir(), "pod2-search-"));
-  fs.writeFileSync(path.join(TMP, "widget-patterns.md"), "# Widget Patterns\nUse ControlWidget for a widget.\nMore widget details here.");
-  fs.writeFileSync(path.join(TMP, "dialog.md"), "# Dialog\nDialog lifecycle and destruction.\nA transaction is not an action here.");
+  fs.writeFileSync(
+    path.join(TMP, "widget-patterns.md"),
+    "# Widget Patterns\nUse ControlWidget for a widget.\nMore widget details here.",
+  );
+  fs.writeFileSync(
+    path.join(TMP, "dialog.md"),
+    "# Dialog\nDialog lifecycle and destruction.\nA transaction is not an action here.",
+  );
 });
 
 test("searchFiles ranks the filename+heading match highest", () => {

@@ -29,7 +29,7 @@ export const SECTION_KEY_APIS = [
   '- RestClient: `"sap/dm/dme/pod2/api/RestClient"`',
   '- ApiClient: `"sap/dm/dme/pod2/api/ApiClient"`',
   '- ApiPaths: `"sap/dm/dme/pod2/api/ApiPaths"` (internal, undocumented — constants like API_GATEWAY_MS_PATH, PLANT_MS_PATH)',
-  '- PodRuntime: accessed via `this.getPodRuntime()` (NOT imported directly)',
+  "- PodRuntime: accessed via `this.getPodRuntime()` (NOT imported directly)",
   '- NumberFormatter: `"sap/dm/dme/pod2/formatter/NumberFormatter"`',
   '- PodDialog: `"sap/dm/dme/pod2/control/PodDialog"`',
   "",
