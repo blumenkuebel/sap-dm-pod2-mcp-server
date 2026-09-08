@@ -99,10 +99,11 @@ export function missingSpecsMessage(label: string, relDir: string): string {
   return (
     `${label} is not available on this deployment (\`${relDir}\` is empty or missing).\n\n` +
     `This is expected: SAP-proprietary specs are release-bound and are NOT shipped with this repo.\n` +
-    `Fetch your own licensed copy for a release, then restart the server:\n\n` +
-    `    npm run prepare:specs                # default SAP DM release\n` +
-    `    npm run prepare:specs -- --release 2601   # or a specific YYMM wave\n\n` +
-    `See the README ("Bring your own SAP specs") for the acquisition paths.`
+    `Fetch your own licensed copy, then restart the server. Depending on which set is missing:\n\n` +
+    `    npm run update-ui5-api-specs -- --source sapui5   # SAPUI5 API reference\n` +
+    `    npm run fetch-rest-specs                           # REST OpenAPI specs (needs SAP_API_HUB_KEY/COOKIE)\n` +
+    `    npm run generate-mdo-index                         # MDO metadata (after exporting metadata.xml)\n\n` +
+    `See the README setup steps ("Getting started") for the full acquisition paths.`
   );
 }
 
