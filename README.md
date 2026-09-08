@@ -94,6 +94,20 @@ npm run prepare:specs -- --release 2608   # or a specific YYMM wave
 | `generate-mdo-index` | `docu/sap-dm-mdo-specs/` (MDO index) | MDO Extractor `$metadata` (your tenant) |
 | `update-ui5-api-specs` | `docu/ui5-api-specs/` (OpenUI5, Apache-2.0) | fetched from `sdk.openui5.org` |
 
+The **OpenUI5 API specs** (`docu/ui5-api-specs/`) are not shipped — generate them locally once after cloning:
+
+```bash
+npm run update-ui5-api-specs
+```
+
+This fetches the OpenUI5 API bundle from `sdk.openui5.org` (~30 MB) and writes it into the git-ignored `docu/ui5-api-specs/`. No credentials needed. Re-run when SAP DM upgrades its pinned UI5 version (see `npm run check-ui5-api-freshness`).
+
+**OpenUI5 vs SAPUI5.** The default fetches only OpenUI5 libraries (`sap.m`, `sap.ui.core`, `sap.ui.layout`, `sap.f`, `sap.ui.table`, `sap.ui.unified`, `sap.tnt`, `sap.uxap`, `sap.ui.integration`). SAP-proprietary libraries (`sap.chart`, `sap.viz`, `sap.gantt`, `sap.suite.*`, `sap.ui.comp`, …) are not in OpenUI5. If your plugin uses one of those, fetch the full SAPUI5 bundle locally under your own SAP license — the output is git-ignored and must not be redistributed:
+
+```bash
+npm run update-ui5-api-specs -- --source sapui5
+```
+
 The **REST OpenAPI specs** are fetched via the SAP Business Accelerator Hub. Requires an [api.sap.com](https://api.sap.com) API key and a browser session cookie:
 
 ```bash

@@ -1,5 +1,6 @@
 import { FastMCP } from "fastmcp";
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { z } from "zod";
 import { DEFAULT_UI5_VERSION, DOCU_DIR } from "../config.js";
 import {
@@ -16,6 +17,17 @@ import {
   type Ui5LibSpec,
   type Ui5SymbolSection,
 } from "../helpers.js";
+
+function readUi5Meta(): { source: string; version: string } {
+  try {
+    const metaPath = path.join(DOCU_DIR, "ui5-api-specs", "_meta.json");
+    if (fs.existsSync(metaPath)) {
+      const m = JSON.parse(fs.readFileSync(metaPath, "utf8")) as { source?: string; version?: string };
+      return { source: m.source ?? "openui5", version: m.version ?? DEFAULT_UI5_VERSION };
+    }
+  } catch { /* ignore */ }
+  return { source: "openui5", version: DEFAULT_UI5_VERSION };
+}
 
 function assertBundledVersion(version: string | undefined): string | null {
   if (!version || version === DEFAULT_UI5_VERSION) return null;
@@ -36,8 +48,10 @@ export function registerUi5ApiTools(server: FastMCP): void {
       if (libs.length === 0) {
         throw new Error("No UI5 API bundle found at docu/ui5-api-specs/. Run `npm run update-ui5-api-specs` to snapshot it.");
       }
+      const { source, version: metaVersion } = readUi5Meta();
+      const sourceLabel = source === "sapui5" ? "SAPUI5 (full bundle, proprietary)" : "OpenUI5 (Apache-2.0)";
       const rows: string[] = [];
-      let indexVersion = DEFAULT_UI5_VERSION;
+      let indexVersion = metaVersion;
       const indexFile = getUi5ApiIndexFile();
       if (indexFile) {
         try {
@@ -59,7 +73,7 @@ export function registerUi5ApiTools(server: FastMCP): void {
         rows.push(`  • ${lib.padEnd(28)} — ${String(symbolCount).padStart(4)} symbols (v${libVersion})`);
       }
       return (
-        `Bundled SAPUI5 libraries (version pinned to ${indexVersion}, ${libs.length} libraries):\n\n` +
+        `Bundled UI5 libraries — source: ${sourceLabel}, version: ${indexVersion}, ${libs.length} libraries:\n\n` +
         rows.join("\n") +
         `\n\n→ Cross-library search: search_ui5_api({ query: "..." })` +
         `\n→ Fetch a symbol: get_ui5_api({ symbol: "sap.m.ComboBox" })`
