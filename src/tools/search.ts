@@ -10,6 +10,7 @@ import {
   flattenUi5Index,
   readFileContent,
   searchFiles,
+  READONLY_ANNOTATIONS,
   type Ui5Index,
 } from "../helpers.js";
 
@@ -42,16 +43,18 @@ function searchUi5Symbols(query: string, max: number): { name: string; kind: str
 export function registerSearchTools(server: FastMCP): void {
   server.addTool({
     name: "search_all",
+    annotations: READONLY_ANNOTATIONS,
     description: "Full-text search across ALL POD2 content: pattern documentation, POD2 API reference, SAP DM REST API specs, SAPUI5 API symbols, and MDO entities. Uses TF-IDF-like relevance scoring (filename, heading and density boosts) for docs/API/REST, and symbol-name matching for UI5. Multi-token queries default to OR semantics (`mode: 'any'`); switch to `mode: 'all'` to require every token in the file (higher precision, lower recall).",
     parameters: z.object({
       query: z.string().describe("Search term (case-insensitive). Multi-word queries are tokenized; tokens are matched per line."),
       maxResultsPerArea: z.number().optional().describe("Maximum number of file matches per area (default: 5)"),
       mode: z.enum(["any", "all"]).optional().describe("'any' (default) = OR-match (file needs ≥1 token); 'all' = AND-match (file must contain every token). Use 'all' for precise multi-word queries like 'PodContext subscribe' to filter out files mentioning only one of the terms."),
     }),
-    execute: async ({ query, maxResultsPerArea, mode }) => {
+    execute: async ({ query, maxResultsPerArea, mode }, { log }) => {
       const max = maxResultsPerArea ?? 5;
       const searchMode = mode ?? "any";
       const sections: string[] = [];
+      log.debug("search_all", { query, mode: searchMode, maxResultsPerArea: max });
 
       const patternMatches = searchFiles(DOCU_DIR, getPatternDocFiles(), query, max, 0, searchMode);
       if (patternMatches.length > 0) {
@@ -116,6 +119,7 @@ export function registerSearchTools(server: FastMCP): void {
       }
 
       const modeNote = searchMode === "all" ? " [mode: all – every token required]" : "";
+      log.debug("search_all done", { areasWithMatches: sections.length });
       return `Cross-search for "${query}"${modeNote} – found in ${sections.length} area(s):\n\n${sections.join("\n\n")}`;
     },
   });

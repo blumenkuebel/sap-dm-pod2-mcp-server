@@ -52,7 +52,17 @@ export function registerResources(server: FastMCP): void {
     description: "Individual pattern documentation file (e.g. widget-patterns, common-mistakes, advanced-patterns)",
     mimeType: "text/markdown",
     arguments: [
-      { name: "name", description: "Pattern doc name (without .md)", required: true },
+      {
+        name: "name",
+        description: "Pattern doc name (without .md)",
+        required: true,
+        complete: async (value: string) => ({
+          values: getPatternDocFiles()
+            .map((f) => f.replace(".md", ""))
+            .filter((n) => n.toLowerCase().includes(value.toLowerCase()))
+            .slice(0, 50),
+        }),
+      },
     ],
     load: async ({ name }) => {
       let filePath = safePath(DOCU_DIR, name);
@@ -75,7 +85,17 @@ export function registerResources(server: FastMCP): void {
     description: "Individual POD2 API documentation file – e.g. sap.dm.dme.pod2.action.Action",
     mimeType: "text/markdown",
     arguments: [
-      { name: "className", description: "Full class name (dot or slash notation)", required: true },
+      {
+        name: "className",
+        description: "Full class name (dot or slash notation)",
+        required: true,
+        complete: async (value: string) => ({
+          values: getPod2ApiDocFiles()
+            .map((f) => f.replace(".md", ""))
+            .filter((n) => n.toLowerCase().includes(value.toLowerCase()))
+            .slice(0, 50),
+        }),
+      },
     ],
     load: async ({ className }) => {
       if (getPod2ApiDocFiles().length === 0) {
@@ -102,7 +122,17 @@ export function registerResources(server: FastMCP): void {
     description: "SAP DM REST API OpenAPI specification (JSON) – e.g. order, sfc, material",
     mimeType: "application/json",
     arguments: [
-      { name: "serviceName", description: "Service name (e.g. order, sfc, material)", required: true },
+      {
+        name: "serviceName",
+        description: "Service name (e.g. order, sfc, material)",
+        required: true,
+        complete: async (value: string) => ({
+          values: getSapDmApiFiles()
+            .map((f) => f.replace(/\.json$/, "").replace(/^(sapdme|sapfnd)_/, ""))
+            .filter((n) => n.toLowerCase().includes(value.toLowerCase()))
+            .slice(0, 50),
+        }),
+      },
     ],
     load: async ({ serviceName }) => {
       const candidates = [

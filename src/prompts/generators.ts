@@ -8,9 +8,9 @@ export function registerPrompts(server: FastMCP): void {
     arguments: [
       { name: "namespace", description: "Company/project namespace (e.g. 'myCompany.myProject')", required: true },
       { name: "widgetName", description: "Widget name in PascalCase (e.g. 'OrderDetails', 'ProductionMonitor')", required: true },
-      { name: "widgetType", description: "Widget subtype: ControlWidget | LayoutWidget | TableWidget | ContentHandler (default: LayoutWidget)", required: false },
+      { name: "widgetType", description: "Widget subtype: ControlWidget | LayoutWidget | TableWidget | ContentHandler (default: LayoutWidget)", required: false, enum: ["ControlWidget", "LayoutWidget", "TableWidget", "ContentHandler"] },
       { name: "description", description: "Short description of the widget's purpose", required: false },
-      { name: "hasProperties", description: "Whether the widget should have configurable properties: yes or no (default: yes)", required: false },
+      { name: "hasProperties", description: "Whether the widget should have configurable properties: yes or no (default: yes)", required: false, enum: ["yes", "no"] },
     ],
     load: async ({ namespace, widgetName, widgetType, description, hasProperties }) => {
       const ns = namespace ?? "";
@@ -86,7 +86,7 @@ ${type === "ContentHandler" ? '- Use `get_pattern_doc` with "dialog-patterns" fo
     arguments: [
       { name: "namespace", description: "Company/project namespace (e.g. 'myCompany.myProject')", required: true },
       { name: "actionName", description: "Action name in PascalCase (e.g. 'ValidateOrder', 'SplitSfc')", required: true },
-      { name: "actionType", description: "Action type: ValidationAction or ExecutionAction (default: ExecutionAction)", required: false },
+      { name: "actionType", description: "Action type: ValidationAction or ExecutionAction (default: ExecutionAction)", required: false, enum: ["ValidationAction", "ExecutionAction"] },
       { name: "description", description: "Short description of the action's purpose", required: false },
     ],
     load: async ({ namespace, actionName, description, actionType }) => {
@@ -366,7 +366,7 @@ Generate a comprehensive README with these sections:
     description: "Migrates an EXISTING POD 2.0 widget OR an HTML5 monitoring/dashboard app (Chart.js/d3/plotly/echarts + fetch + inline handlers) into a clean POD 2.0 plugin following Best-Practice. Enforces a phased workflow with mandatory Feature-Inventory, Mapping, Verification and (for HTML5) Residue-Gate artifacts to prevent silent feature loss.",
     arguments: [
       { name: "sourceDir", description: "Relative path to the source directory (POD2 plugin folder OR HTML5 app folder). If omitted, the agent must ask the user.", required: false },
-      { name: "sourceFormat", description: "Source format: pod2 | html5 | auto (default: auto)", required: false },
+      { name: "sourceFormat", description: "Source format: pod2 | html5 | auto (default: auto)", required: false, enum: ["pod2", "html5", "auto"] },
       { name: "targetNamespace", description: "Target namespace for the migrated plugin (e.g. 'customer.custom.extensions.mywidget'). If omitted, read from POD2_PLUGIN_EXAMPLE.md or prompt the user.", required: false },
     ],
     load: async ({ sourceDir, sourceFormat, targetNamespace }) => {

@@ -2,6 +2,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { POD2_API_SPECS_DIR, SAP_DM_API_SPECS_DIR, UI5_API_SPECS_DIR, DOCU_DIR } from "./config.js";
 
+// Shared MCP tool annotations: every tool here is a read-only lookup over bundled offline content.
+export const READONLY_ANNOTATIONS = { readOnlyHint: true, openWorldHint: false } as const;
+
 // ═══════════════════════════════════════════════════════════════════════
 // Caching
 // ═══════════════════════════════════════════════════════════════════════
