@@ -97,10 +97,24 @@ npm run prepare:specs -- --release 2608   # or a specific YYMM wave
 The **REST OpenAPI specs** are fetched via the SAP Business Accelerator Hub. Requires an [api.sap.com](https://api.sap.com) API key and a browser session cookie:
 
 ```bash
-SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE=<cookie> npm run fetch-rest-specs -- --hub
+SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE='<cookie>' npm run fetch-rest-specs
 ```
 
-Get credentials: `api.sap.com` → profile → Settings → show API Key; cookie via DevTools (F12) → Network → any api.sap.com request → copy Cookie header. Specs are converted from Swagger 2.0 to OpenAPI 3.0 automatically.
+> **Important:** wrap the cookie value in **single quotes** — it contains semicolons and special characters that the shell would otherwise split.
+
+**Get credentials:**
+- **API key:** [api.sap.com](https://api.sap.com) → profile → Settings → show API Key
+- **Cookie:** Log in to api.sap.com, open DevTools (F12) → Network tab → reload the page → click any request to `api.sap.com` → Request Headers → copy the full `Cookie` header value
+
+**Example** (truncated for readability):
+
+```bash
+SAP_API_HUB_KEY=AaBbCc123456 \
+  SAP_API_HUB_COOKIE='country=DE; IDP_SESSION_MARKER_accounts=eyJ...; JSESSIONID=s%3A...' \
+  npm run fetch-rest-specs
+```
+
+Specs are converted from Swagger 2.0 to OpenAPI 3.0 automatically. Without `SAP_API_HUB_COOKIE` the catalog step is skipped and the script re-downloads specs for existing artifact IDs only.
 
 **Choosing / bumping the release.** Set the release once via the `SAP_DM_RELEASE` env var
 (default: `DEFAULT_DM_RELEASE` in [`src/config.ts`](src/config.ts)), or per-invocation with
@@ -176,7 +190,8 @@ npm run start:stdio # stdio transport
 
 # Spec generators (see "Bring your own SAP specs")
 npm run prepare:specs             # POD2 API docs (refresh) + MDO index + OpenUI5
-npm run fetch-rest-specs -- --hub    # REST OpenAPI from SAP Business Accelerator Hub (needs SAP_API_HUB_KEY + SAP_API_HUB_COOKIE)
+npm run fetch-rest-specs           # REST OpenAPI from SAP Business Accelerator Hub
+                                   # needs: SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE='<cookie>'
 npm run check-ui5-api-freshness   # audit pinned OpenUI5 version
 ```
 
@@ -222,7 +237,8 @@ sap-dm-pod2-mcp-server/
 | `PORT` | `3001` | HTTP listen port |
 | `LOG_LEVEL` | `info` | Log verbosity: `debug`, `info`, `warn`, `error` |
 | `SAP_DM_RELEASE` | `2608` | SAP DM release wave (`YYMM`) used when fetching/generating specs |
-| `SAP_DM_TOKEN` | — | Bearer token for `fetch-rest-specs` (never committed) |
+| `SAP_API_HUB_KEY` | — | API key for `fetch-rest-specs` (never committed) |
+| `SAP_DM_TOKEN` | — | Bearer token for `generate-mdo-index` (never committed) |
 
 ---
 
