@@ -17,7 +17,7 @@
 >
 > Phase A sets architecture, base classes, imports, i18n structure, and PPD wiring — everything Phase B builds on. A weak model at this step compounds through every iteration.
 >
-> As of 2026-07-03, the recommended choice is **Anthropic Opus 4.x** (Opus 4.6 / 4.7 / 4.8) — or the strongest reasoning-tier model your agent supports.
+> As of mid-2026, the recommended choice is **Anthropic Opus 4.x** (Opus 4.6 / 4.7 / 4.8) — or the strongest reasoning-tier model your agent supports.
 >
 > **Phase B (iteration)** can safely run on a mid-tier model (e.g. Sonnet-class) — patches are constrained by existing code and rarely need cross-file reasoning.
 
@@ -467,16 +467,6 @@ Verify with `claude mcp list` — `sap-dm-pod2-mcp-server` should report `connec
 
 | Version | Date | Changes |
 |---------|------|---------|
-| v3.7 | 2026-07-16 | **Renamed `agent.md` → `CLAUDE.md`** (single rules file). Claude Code auto-loads it from the project root; other agents load it with "read CLAUDE.md". Replaces the old "no agent auto-loads, always read agent.md" workflow. |
-| v3.6 | 2026-07-01 | **Fully switched to the hosted `pod2-mcp-server` Cloud endpoint** — removed local build/start instructions from Prerequisites, Cline setup, and Troubleshooting. Cline companion (`agent.cline.md`) gained a config example. |
-| v3.5 | 2026-07-01 | **Claude Code MCP config uses public Cloud endpoint** by default (`https://pod2-mcp-server.cfapps.eu20.hana.ondemand.com/mcp`) — no local `npm start` needed; local fallback still documented. New `~/.claude.json` example block in `agent.claude-code.md`. |
-| v3.4 | 2026-07-01 | **Added `sapui5-mcp-server`** to MCP config (all sections + Cline/Claude Code); new "MCP Server Capabilities" section listing tools/prompts/resources of both servers |
-| v3.3 | 2026-07-01 | **`agent.md` split into agent-agnostic core + companion files** (`agent.cline.md`, `agent.claude-code.md`) — tool syntax and workflow conventions per agent |
-| v3.2 | 2026-07-01 | **Generalized for any MCP-capable agent**; Cline-specific details moved to dedicated section |
-| v3.1 | 2026-07-01 | **Renamed `.clinerules` → `agent.md`**: agent no longer auto-reads the file; user must start each conversation with "read agent.md" |
-| v3.0 | 2026-05-22 | **Workflow restructured:** Scaffold-Mode + Iteration-Mode via `.scaffold-done` marker |
-| v2.0 | 2026-05 | Added Plan Mode architecture-first workflow, improved .clinerules |
-| v1.4 | 2026-04 | Added i18n registration rule, form layout recommendation |
 | v1.0 | 2026-03 | Initial release |
 
 ---
