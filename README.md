@@ -252,15 +252,7 @@ npm run typecheck   # Type-check without building
 npm run build       # Compile TypeScript → dist/
 npm start           # HTTP on port 3001
 npm run start:stdio # stdio transport
-
-# Spec generators (see Steps 2, 3, 4, and 5)
-npm run prepare:specs             # POD2 API docs (refresh) + MDO index + SAPUI5
-npm run fetch-rest-specs           # REST OpenAPI from SAP Business Accelerator Hub
-                                   # needs: SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE='<cookie>'
-npm run check-ui5-api-freshness   # audit the selected SAPUI5 version
 ```
-
-Documentation files in `docu/` and examples in `examples/` are loaded at runtime — no rebuild needed after editing them (60s cache TTL).
 
 ---
 
