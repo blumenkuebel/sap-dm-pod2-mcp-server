@@ -97,6 +97,8 @@ Then pass it explicitly:
 npm run update-ui5-api-specs -- --source sapui5 --version <version>
 ```
 
+Audit the selected SAPUI5 version later with `npm run check-ui5-api-freshness`.
+
 ### Step 3: Load the REST API specifications
 
 SAP Digital Manufacturing ships in **release waves** (format `YYMM`, e.g. `2605`, `2608`).
@@ -132,8 +134,6 @@ Specs are converted from Swagger 2.0 to OpenAPI 3.0 automatically. Without `SAP_
 (default: `DEFAULT_DM_RELEASE` in [`src/config.ts`](src/config.ts)), or per-invocation with
 `--release <YYMM>`. Each fetched spec set records its release in a `VERSION.md` inside its
 directory, so you can update 2605 → 2608 → … and see which wave is loaded.
-
-Audit the selected SAPUI5 version with `npm run check-ui5-api-freshness`.
 
 ---
 
