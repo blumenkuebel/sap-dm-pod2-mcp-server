@@ -143,13 +143,17 @@ MDO metadata is required for the MDO entity tools. It is tenant-bound SAP conten
 not redistributed. Export the OData V4 `$metadata` document from your SAP
 Digital Manufacturing tenant and generate the local index:
 
+**1. Export `$metadata` from your tenant** (requires a bearer token):
+
 ```bash
-# 1. Export $metadata from your tenant (requires a bearer token)
 SAP_DM_TOKEN=<token> curl -H "Authorization: Bearer $SAP_DM_TOKEN" \
   "https://api.<region>.dmc.cloud.sap/dmci/v4/extractor/\$metadata" \
   -o docu/sap-dm-mdo-specs/metadata.xml
+```
 
-# 2. Generate the Markdown index
+**2. Generate the Markdown index:**
+
+```bash
 npm run generate-mdo-index
 ```
 
