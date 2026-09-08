@@ -207,6 +207,14 @@ Custom port:
 PORT=8080 npm start
 ```
 
+> **Security:** the HTTP transport has no authentication by default. For anything beyond
+> localhost, set `MCP_AUTH_TOKEN` to require an `Authorization: Bearer <token>` header (or
+> run the server behind an authenticating reverse proxy). The `/health` endpoint stays public.
+
+```bash
+MCP_AUTH_TOKEN=<your-token> npm start
+```
+
 ---
 
 ## MCP Client Configuration
@@ -293,6 +301,7 @@ sap-dm-pod2-mcp-server/
 | Variable | Default | Description |
 |---|---|---|
 | `PORT` | `3001` | HTTP listen port |
+| `MCP_AUTH_TOKEN` | — | When set, the HTTP transport requires `Authorization: Bearer <token>`; empty/unset disables auth (local dev). `/health` stays public. |
 | `LOG_LEVEL` | `info` | Log verbosity: `debug`, `info`, `warn`, `error` |
 | `SAP_DM_RELEASE` | `2608` | SAP DM release wave (`YYMM`) used when fetching/generating specs |
 | `SAP_API_HUB_KEY` | — | API key for `fetch-rest-specs` (never committed) |
