@@ -358,14 +358,10 @@ async function main() {
 
   if (!opts.hub && !opts.baseUrl) {
     console.error("Cannot fetch REST specs — SAP-proprietary content is not shipped with this repo.\n");
-    console.error("Mode A (recommended) — SAP Business Accelerator Hub:");
-    console.error("  SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE=<cookie> \\");
-    console.error("  node scripts/fetch-rest-specs.mjs --hub\n");
-    console.error("Mode B — your own DM tenant:");
-    console.error("  SAP_DM_TOKEN=<bearer> node scripts/fetch-rest-specs.mjs \\");
-    console.error("    --base-url https://api.<region>.dmc.cloud.sap \\");
-    console.error("    --services order,sfc,material\n");
-    console.error("Run with --help for full usage.");
+    console.error("Run with --hub to download all active specs from the SAP Business Accelerator Hub:");
+    console.error("  SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE=<cookie> node scripts/fetch-rest-specs.mjs --hub\n");
+    console.error("Get credentials: api.sap.com → profile → Settings → show API Key");
+    console.error("  Cookie: DevTools (F12) → Network → any api.sap.com request → copy Cookie header");
     process.exit(1);
   }
 
