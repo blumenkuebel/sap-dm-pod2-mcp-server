@@ -84,18 +84,18 @@ npm run update-ui5-api-specs -- --source sapui5
 
 The metadata is written to the git-ignored `docu/ui5-api-specs/` directory and is used by
 the `list_ui5_libraries`, `search_ui5_api`, and `get_ui5_api` tools. SAPUI5 metadata is
-proprietary and must not be redistributed. The UI5 runtime version changes with every SAP
-DM release wave and does not follow a predictable formula — find the exact version your
-tenant runs by opening the SAP DM Fiori launchpad, opening the browser DevTools console,
-and evaluating `sap.ui.version`. Then pass it explicitly:
+proprietary and must not be redistributed. By default this fetches the SDK's newest
+published version, which is **not** the same as your tenant's actual runtime version and
+may describe controls or properties that don't exist yet in your SAP DM release.
+
+The UI5 runtime version changes with every SAP DM release wave and does not follow a
+predictable formula — find the exact version your tenant runs by opening the SAP DM
+Fiori launchpad, opening the browser DevTools console, and evaluating `sap.ui.version`.
+Then pass it explicitly:
 
 ```bash
 npm run update-ui5-api-specs -- --source sapui5 --version <version>
 ```
-
-`--version latest` fetches the SDK's newest published version instead — this is **not**
-the same as your tenant's actual runtime version and may describe controls or properties
-that don't exist yet in your SAP DM release.
 
 ### Step 3: Load the REST API specifications
 
