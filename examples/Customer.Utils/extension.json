@@ -1,0 +1,14 @@
+{    
+    "widgets": [
+        {
+            "modulePath": "customer/custom/extensions/utils/widget/FilterableWorkListWidget",
+            "type": "customer.custom.extensions.utils.widget.FilterableWorkListWidget"
+        }
+    ],
+    "actions": [
+        {
+            "modulePath": "customer/custom/extensions/utils/action/CustomTriggerAction",
+            "type": "customer.custom.extensions.utils.action.CustomTriggerAction"
+        }
+    ]
+}

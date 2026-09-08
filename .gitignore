@@ -1,0 +1,23 @@
+node_modules/
+dist/
+*.js.map
+.env
+.DS_Store
+
+# SAP-proprietary specs — NOT redistributed. Fetch/generate locally via `npm run prepare:specs`.
+# Governed by the applicable SAP terms of use / license, not by this repo's MIT license.
+# NOTE: docu/pod2-api-specs/ is NOT ignored — the POD2 JSDoc bundle is public Apache-2.0
+# (SAP-samples/digital-manufacturing-extension-samples) and ships with its own LICENSE/NOTICE.
+docu/sap-dm-api-specs/
+docu/sap-dm-mdo-specs/
+# generated from SAP MDO $metadata by scripts/generate-mdo-index.cjs (SAP-derived)
+docu/mdo-extractor-reference.md
+
+# SAPUI5 API metadata. The bundled snapshot is regenerated from OpenUI5 (Apache-2.0) via
+# `npm run update-ui5-api-specs`. Ignored by default so a proprietary SAPUI5-SDK snapshot is
+# never committed by accident; once regenerated from OpenUI5 (with LICENSE/NOTICE inside the
+# folder) it may be force-added and shipped.
+docu/ui5-api-specs/
+
+# Local migration input (real customer data) — never commit.
+docu/_import/

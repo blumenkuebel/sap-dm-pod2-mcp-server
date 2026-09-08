@@ -1,0 +1,8 @@
+{
+    "widgets": [
+        {
+            "modulePath": "customer/custom/extensions/helloworld/widget/HelloWorldWidget",
+            "type": "customer.custom.extensions.helloworld.widget.HelloWorldWidget"
+        }
+    ]
+}
