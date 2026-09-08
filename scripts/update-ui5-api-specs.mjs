@@ -65,7 +65,7 @@ const SAPUI5_EXTRA_LIBS = [
   "sap.uxap",
 ];
 
-async function fetchJson(url) {(argv) {
+function parseArgs(argv) {
   const opts = { version: DEFAULT_VERSION, libs: null, source: "openui5" };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
