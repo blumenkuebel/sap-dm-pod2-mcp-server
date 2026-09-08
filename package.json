@@ -11,6 +11,10 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "npm run build && node --test test/*.test.js",
+    "test:coverage": "npm run build && node --test --experimental-test-coverage test/*.test.js",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.js\"",
     "start": "node dist/index.js",
     "start:stdio": "node dist/index.js --stdio",
     "dev": "tsc --watch",
@@ -26,9 +30,13 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.11.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@types/node": "^22.0.0",
-    "typescript": "^5.4.0"
+    "eslint": "^9.11.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^8.8.0"
   },
   "keywords": [
     "mcp",

@@ -141,7 +141,7 @@ export function registerDocsTools(server: FastMCP): void {
   });
 }
 
-function extractSection(content: string, sectionQuery: string): string | null {
+export function extractSection(content: string, sectionQuery: string): string | null {
   const lines = content.split("\n");
   const lowerQuery = sectionQuery.toLowerCase();
   let startIdx = -1;
@@ -174,7 +174,7 @@ function extractSection(content: string, sectionQuery: string): string | null {
   return lines.slice(startIdx, endIdx).join("\n").trim();
 }
 
-function extractSectionHeadings(content: string): string[] {
+export function extractSectionHeadings(content: string): string[] {
   const lines = content.split("\n");
   const headings: string[] = [];
   for (const line of lines) {

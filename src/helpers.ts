@@ -166,23 +166,30 @@ export function isTextFile(filePath: string): boolean {
 // Domain Helpers
 // ═══════════════════════════════════════════════════════════════════════
 
-/**
- * Returns all .md files in docu/pod2-api-specs/ (excluding index.md).
- */
-export function getPod2ApiDocFiles(): string[] {
-  const cacheKey = "__pod2ApiDocFiles__";
+// TTL-cached single-directory listing. Returns [] when the directory is absent
+// (graceful degradation for git-ignored, user-fetched spec sets).
+function cachedListing(cacheKey: string, dir: string, produce: (dir: string) => string[]): string[] {
   const now = Date.now();
   const cached = dirListingCache.get(cacheKey);
   if (cached && now - cached.ts < CACHE_TTL_MS) return cached.files;
 
-  if (!fs.existsSync(POD2_API_SPECS_DIR)) return [];
-  const files = fs
-    .readdirSync(POD2_API_SPECS_DIR)
-    .filter((f) => f.endsWith(".md") && f !== "index.md" && f !== "VERSION.md")
-    .sort();
+  if (!fs.existsSync(dir)) return [];
+  const files = produce(dir);
 
   dirListingCache.set(cacheKey, { files, ts: now });
   return files;
+}
+
+/**
+ * Returns all .md files in docu/pod2-api-specs/ (excluding index.md).
+ */
+export function getPod2ApiDocFiles(): string[] {
+  return cachedListing("__pod2ApiDocFiles__", POD2_API_SPECS_DIR, (dir) =>
+    fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith(".md") && f !== "index.md" && f !== "VERSION.md")
+      .sort(),
+  );
 }
 
 /**
@@ -190,39 +197,25 @@ export function getPod2ApiDocFiles(): string[] {
  * Excludes subdirectories.
  */
 export function getPatternDocFiles(): string[] {
-  const cacheKey = "__patternDocFiles__";
-  const now = Date.now();
-  const cached = dirListingCache.get(cacheKey);
-  if (cached && now - cached.ts < CACHE_TTL_MS) return cached.files;
-
-  if (!fs.existsSync(DOCU_DIR)) return [];
-  const files = fs
-    .readdirSync(DOCU_DIR, { withFileTypes: true })
-    .filter((d) => d.isFile() && d.name.endsWith(".md"))
-    .map((d) => d.name)
-    .sort();
-
-  dirListingCache.set(cacheKey, { files, ts: now });
-  return files;
+  return cachedListing("__patternDocFiles__", DOCU_DIR, (dir) =>
+    fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((d) => d.isFile() && d.name.endsWith(".md"))
+      .map((d) => d.name)
+      .sort(),
+  );
 }
 
 /**
  * Returns all .json files in docu/sap-dm-api-specs/.
  */
 export function getSapDmApiFiles(): string[] {
-  const cacheKey = "__sapDmApiFiles__";
-  const now = Date.now();
-  const cached = dirListingCache.get(cacheKey);
-  if (cached && now - cached.ts < CACHE_TTL_MS) return cached.files;
-
-  if (!fs.existsSync(SAP_DM_API_SPECS_DIR)) return [];
-  const files = fs
-    .readdirSync(SAP_DM_API_SPECS_DIR)
-    .filter((f) => f.endsWith(".json"))
-    .sort();
-
-  dirListingCache.set(cacheKey, { files, ts: now });
-  return files;
+  return cachedListing("__sapDmApiFiles__", SAP_DM_API_SPECS_DIR, (dir) =>
+    fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .sort(),
+  );
 }
 
 // ═══════════════════════════════════════════════════════════════════════
