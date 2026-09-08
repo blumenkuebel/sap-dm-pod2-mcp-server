@@ -1,0 +1,9 @@
+{
+    "widgets": [
+        {
+            "modulePath": "customer/custom/extension/soundalert/widget/SoundAlertWidget",
+            "type": "customer.custom.extension.soundalert.widget.SoundAlertWidget"
+        }
+    ],
+    "actions": []
+}

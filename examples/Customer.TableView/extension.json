@@ -1,0 +1,8 @@
+{
+    "widgets": [
+        {
+            "modulePath": "customer/custom/extensions/tableview/widget/TableViewWidget",
+            "type": "customer.custom.extensions.tableview.widget.TableViewWidget"
+        }
+    ]
+}

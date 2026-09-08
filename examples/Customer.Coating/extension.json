@@ -1,0 +1,18 @@
+{
+    "widgets": [
+        {
+            "modulePath": "customer/custom/extensions/coating/widget/CoatingWidget",
+            "type": "customer.custom.extensions.coating.widget.CoatingWidget"
+        }
+    ],
+    "actions": [
+        {
+            "modulePath": "customer/custom/extensions/coating/action/CoatingValidationAction",
+            "type": "customer.custom.extensions.coating.action.CoatingValidationAction"
+        },
+        {
+            "modulePath": "customer/custom/extensions/coating/action/CoatingExecutionAction",
+            "type": "customer.custom.extensions.coating.action.CoatingExecutionAction"
+        }
+    ]
+}
