@@ -42,6 +42,18 @@ if (!fs.existsSync(METADATA_PATH)) {
 
 const xml = fs.readFileSync(METADATA_PATH, 'utf-8');
 
+if (!/<edmx:Edmx|<Edmx/i.test(xml)) {
+    console.error("Invalid MDO $metadata: " + METADATA_PATH);
+    console.error("");
+    console.error("The file does not contain an OData EDMX document. Content found:");
+    console.error("  " + xml.slice(0, 200).trim());
+    console.error("");
+    console.error("This usually means the export request failed (e.g. an expired or invalid");
+    console.error("bearer token) and the error response was saved instead of the real $metadata.");
+    console.error("Get a fresh bearer token and re-run the export (see README Step 4).");
+    process.exit(1);
+}
+
 // Parse EntitySets from EntityContainer
 const entitySets = [];
 const entitySetRegex = /<EntitySet Name="([^"]+)" EntityType="([^"]+)">/g;
