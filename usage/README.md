@@ -65,7 +65,7 @@ Verify reachability:
 curl http://localhost:3001/health
 ```
 
-> **Hosted URL:** once deployed on BTP, replace `http://localhost:3001/mcp` with the app's `/mcp` endpoint.
+> **Hosted URL:** once deployed, replace `http://localhost:3001/mcp` with the app's `/mcp` endpoint.
 
 ---
 
