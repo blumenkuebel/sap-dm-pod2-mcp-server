@@ -73,14 +73,9 @@ full API/REST/MDO/UI5 tooling, fetch the specs for your release (next section).
 
 ## Bring your own SAP specs
 
-SAP Digital Manufacturing ships in **release waves** (format `YYMM`, e.g. `2601`, `2608`).
+SAP Digital Manufacturing ships in **release waves** (format `YYMM`, e.g. `2605`, `2608`).
 
-The **POD2 API reference** (`docu/pod2-api-specs/`) is generated from the POD 2.0 JSDoc bundle
-SAP publishes under **Apache-2.0** and is **shipped with this repo** (with its own
-LICENSE/NOTICE/VERSION.md). You only need to re-run `extract-docs` to refresh or bump it to a
-different release wave. The current release bundles are published at
-[SAP-samples/…/documentation](https://github.com/SAP-samples/digital-manufacturing-extension-samples/tree/main/documentation)
-(files named `jsdoc-pod2-<YYMM>.zip`).
+The **POD2 API reference** (`docu/pod2-api-specs/`) is **shipped with this repo** — nothing to fetch, it works out of the box. To bump to a newer release wave, run `npm run prepare:specs -- --release <YYMM>`; the JSDoc bundles are published at [SAP-samples/…/documentation](https://github.com/SAP-samples/digital-manufacturing-extension-samples/tree/main/documentation) (files named `jsdoc-pod2-<YYMM>.zip`).
 
 The **REST OpenAPI specs** and **MDO metadata** are tenant-bound SAP content and are **not**
 redistributed — you fetch or generate them locally from sources you are licensed to use; they
@@ -181,7 +176,7 @@ npm run start:stdio # stdio transport
 
 # Spec generators (see "Bring your own SAP specs")
 npm run prepare:specs             # POD2 API docs (refresh) + MDO index + OpenUI5
-npm run fetch-rest-specs          # REST OpenAPI (needs --base-url + SAP_DM_TOKEN)
+npm run fetch-rest-specs -- --hub    # REST OpenAPI from SAP Business Accelerator Hub (needs SAP_API_HUB_KEY + SAP_API_HUB_COOKIE)
 npm run check-ui5-api-freshness   # audit pinned OpenUI5 version
 ```
 
