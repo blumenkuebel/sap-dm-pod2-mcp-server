@@ -12,7 +12,7 @@ Built with [FastMCP](https://github.com/punkpeye/fastmcp) — supports both **HT
 > only for identification. **SAP provides no support** for this project — issues and questions
 > go through this repository, not SAP support channels.
 
-> **Note on bundled content.** This repository ships the hand-written pattern & reference docs and the reference example plugins under MIT. It also ships the **POD2 API reference** (`docu/pod2-api-specs/`), generated from the POD 2.0 JSDoc bundle SAP publishes under **Apache-2.0**, and the UI5 API bundle generated from **OpenUI5** (Apache-2.0) — each carries its own LICENSE/NOTICE. It does **not** redistribute tenant-bound SAP specs (SAP DM REST OpenAPI specs, MDO metadata) — those are release-bound SAP content you fetch locally for your own licensed release. See [Bring your own SAP specs](#bring-your-own-sap-specs).
+> **Note on bundled content.** This repository ships the hand-written pattern & reference docs and the reference example plugins under MIT. It also ships the **POD2 API reference** (`docu/pod2-api-specs/`), generated from the POD 2.0 JSDoc bundle SAP publishes under **Apache-2.0**. The SAPUI5 API metadata is fetched locally from the SAPUI5 SDK under your own SAP license. It does **not** redistribute tenant-bound SAP specs (SAP DM REST OpenAPI specs, MDO metadata) — those are release-bound SAP content you fetch locally for your own licensed release. See [Step 3: Load the REST API specifications](#step-3-load-the-rest-api-specifications).
 
 ---
 
@@ -40,8 +40,8 @@ Built with [FastMCP](https://github.com/punkpeye/fastmcp) — supports both **HT
 | `list_rest_apis` | List SAP DM REST API specifications *(requires fetched specs)* |
 | `get_rest_api` | OpenAPI spec for a service (e.g. order, sfc, material) |
 | `search_rest_apis` | Search across REST API specs |
-| `list_ui5_libraries` | List bundled OpenUI5 libraries |
-| `search_ui5_api` | Search OpenUI5 symbols across all libraries |
+| `list_ui5_libraries` | List bundled SAPUI5 libraries |
+| `search_ui5_api` | Search SAPUI5 symbols across all libraries |
 | `get_ui5_api` | Full metadata for a UI5 class (properties, methods, events) |
 | `get_ui5_guidelines` | Curated SAPUI5 coding guidelines |
 | `list_examples` | List reference example plugins with file structure |
@@ -54,7 +54,11 @@ Built with [FastMCP](https://github.com/punkpeye/fastmcp) — supports both **HT
 
 ---
 
-## Installation
+## Getting started
+
+Follow these steps in order.
+
+### Step 1: Install the server
 
 ```bash
 git clone <repo>
@@ -65,54 +69,42 @@ npm run build
 
 **Requirements:** Node.js ≥ 22
 
-The server starts and runs fine with no SAP specs present — the tools that need them
-return a clear *"run `npm run prepare:specs`"* message instead of crashing. To enable the
-full API/REST/MDO/UI5 tooling, fetch the specs for your release (next section).
 
----
+The server can start without tenant-specific SAP specifications. Tools that require them
+return a clear message explaining which preparation command is missing.
 
-## Bring your own SAP specs
+### Step 2: Prepare the SAPUI5 API reference
 
-SAP Digital Manufacturing ships in **release waves** (format `YYMM`, e.g. `2605`, `2608`).
-
-The **POD2 API reference** (`docu/pod2-api-specs/`) is **shipped with this repo** — nothing to fetch, it works out of the box. To bump to a newer release wave, run `npm run prepare:specs -- --release <YYMM>`; the JSDoc bundles are published at [SAP-samples/…/documentation](https://github.com/SAP-samples/digital-manufacturing-extension-samples/tree/main/documentation) (files named `jsdoc-pod2-<YYMM>.zip`).
-
-The **REST OpenAPI specs** and **MDO metadata** are tenant-bound SAP content and are **not**
-redistributed — you fetch or generate them locally from sources you are licensed to use; they
-land in `docu/` (git-ignored) and are loaded at runtime.
-
-```bash
-npm run prepare:specs                     # default release (see DEFAULT_DM_RELEASE)
-npm run prepare:specs -- --release 2608   # or a specific YYMM wave
-```
-
-`prepare:specs` runs three generators:
-
-| Script | Produces | Source |
-|---|---|---|
-| `extract-docs` | `docu/pod2-api-specs/` (POD2 API class docs) | POD2 JSDoc bundle (Apache-2.0, SAP-samples) — shipped; re-run to refresh/bump release |
-| `generate-mdo-index` | `docu/sap-dm-mdo-specs/` (MDO index) | MDO Extractor `$metadata` (your tenant) |
-| `update-ui5-api-specs` | `docu/ui5-api-specs/` (OpenUI5, Apache-2.0) | fetched from `sdk.openui5.org` |
-
-The **OpenUI5 API specs** (`docu/ui5-api-specs/`) are not shipped — generate them locally once after cloning:
-
-```bash
-npm run update-ui5-api-specs
-```
-
-This fetches the OpenUI5 API bundle from `sdk.openui5.org` (~30 MB) and writes it into the git-ignored `docu/ui5-api-specs/`. No credentials needed. Re-run when SAP DM upgrades its pinned UI5 version (see `npm run check-ui5-api-freshness`).
-
-**OpenUI5 vs SAPUI5.** The default fetches only OpenUI5 libraries (`sap.m`, `sap.ui.core`, `sap.ui.layout`, `sap.f`, `sap.ui.table`, `sap.ui.unified`, `sap.tnt`, `sap.uxap`, `sap.ui.integration`). SAP-proprietary libraries (`sap.chart`, `sap.viz`, `sap.gantt`, `sap.suite.*`, `sap.ui.comp`, …) are not in OpenUI5. If your plugin uses one of those, fetch the full SAPUI5 bundle locally under your own SAP license — the output is git-ignored and must not be redistributed:
+SAPUI5 is the preferred UI framework for POD 2.0 extensions. Fetch the API metadata for
+the UI5 version used by your SAP Digital Manufacturing system:
 
 ```bash
 npm run update-ui5-api-specs -- --source sapui5
 ```
 
-The **REST OpenAPI specs** are fetched via the SAP Business Accelerator Hub. Requires an [api.sap.com](https://api.sap.com) API key and a browser session cookie:
+The metadata is written to the git-ignored `docu/ui5-api-specs/` directory and is used by
+the `list_ui5_libraries`, `search_ui5_api`, and `get_ui5_api` tools. SAPUI5 metadata is
+proprietary and must not be redistributed. If your SAP DM release uses another UI5
+version, pass it explicitly:
+
+```bash
+npm run update-ui5-api-specs -- --source sapui5 --version <version>
+```
+
+### Step 3: Load the REST API specifications
+
+SAP Digital Manufacturing ships in **release waves** (format `YYMM`, e.g. `2605`, `2608`).
+
+The REST OpenAPI specifications are tenant-bound SAP content and are not redistributed.
+Load them locally from the SAP Business Accelerator Hub using credentials for your licensed
+SAP Digital Manufacturing release:
 
 ```bash
 SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE='<cookie>' npm run fetch-rest-specs
 ```
+
+The **REST OpenAPI specs** are fetched via the SAP Business Accelerator Hub. This requires
+an [api.sap.com](https://api.sap.com) API key and a browser session cookie:
 
 > **Important:** wrap the cookie value in **single quotes** — it contains semicolons and special characters that the shell would otherwise split.
 
@@ -130,7 +122,20 @@ SAP_API_HUB_KEY=AaBbCc123456 \
 
 Specs are converted from Swagger 2.0 to OpenAPI 3.0 automatically. Without `SAP_API_HUB_COOKIE` the catalog step is skipped and the script re-downloads specs for existing artifact IDs only.
 
-The **MDO Extractor metadata** comes from your own SAP DM tenant. Export the OData V4 `$metadata` document and save it as `docu/sap-dm-mdo-specs/metadata.xml`, then run the generator:
+**Choosing / bumping the release.** Set the release once via the `SAP_DM_RELEASE` env var
+(default: `DEFAULT_DM_RELEASE` in [`src/config.ts`](src/config.ts)), or per-invocation with
+`--release <YYMM>`. Each fetched spec set records its release in a `VERSION.md` inside its
+directory, so you can update 2605 → 2608 → … and see which wave is loaded.
+
+Audit the selected SAPUI5 version with `npm run check-ui5-api-freshness`.
+
+---
+
+### Step 4: Load MDO metadata
+
+MDO metadata is required for the MDO entity tools. It is tenant-bound SAP content and is
+not redistributed. Export the OData V4 `$metadata` document from your SAP
+Digital Manufacturing tenant and generate the local index:
 
 ```bash
 # 1. Export $metadata from your tenant (requires a bearer token)
@@ -142,22 +147,26 @@ SAP_DM_TOKEN=<token> curl -H "Authorization: Bearer $SAP_DM_TOKEN" \
 npm run generate-mdo-index
 ```
 
-Get a bearer token: SAP DM Fiori launchpad → Developer Tools (F12) → Network → any `/api/` request → `Authorization: Bearer <token>` in the request headers. Tokens expire quickly — run both steps in the same session.
+Get a bearer token from the SAP DM Fiori launchpad developer tools. Tokens expire quickly,
+so export the metadata and run the generator in the same session.
 
-**Choosing / bumping the release.** Set the release once via the `SAP_DM_RELEASE` env var
-(default: `DEFAULT_DM_RELEASE` in [`src/config.ts`](src/config.ts)), or per-invocation with
-`--release <YYMM>`. Each fetched spec set records its release in a `VERSION.md` inside its
-directory, so you can update 2605 → 2608 → … and see which wave is loaded.
+### Step 5: Update the POD2 API reference
 
-Only OpenUI5 libraries are bundled by `update-ui5-api-specs`; SAPUI5-only libraries
-(`sap.suite.*`, `sap.ui.comp`, `sap.chart`, `sap.gantt`, …) are intentionally omitted. Audit
-the pinned OpenUI5 version with `npm run check-ui5-api-freshness`.
+The POD2 API reference is included in `docu/pod2-api-specs/` and is ready to use after
+installation. To update it for another SAP Digital Manufacturing release, obtain the
+corresponding licensed POD2 JSDoc bundle, place its extracted files under
+`docu/_import/jsdoc-pod2-<YYMM>/docs`, and run:
 
----
+```bash
+npm run extract-docs -- --release <YYMM>
+```
 
-## Usage
+This updates only the local POD2 API reference. It does not load the REST API or MDO
+metadata.
 
-### HTTP Stream (default)
+### Step 6: Start the server
+
+Start the HTTP transport (the default):
 
 ```bash
 npm start
@@ -165,16 +174,20 @@ npm start
 # Health: http://localhost:3001/health
 ```
 
+For an MCP client that starts the server as a local process, use the stdio transport:
+
+```bash
+npm run start:stdio
+```
+
+## Usage
+
+### HTTP Stream (default)
+
 Custom port:
 
 ```bash
 PORT=8080 npm start
-```
-
-### stdio
-
-```bash
-npm run start:stdio
 ```
 
 ---
@@ -216,11 +229,11 @@ npm run build       # Compile TypeScript → dist/
 npm start           # HTTP on port 3001
 npm run start:stdio # stdio transport
 
-# Spec generators (see "Bring your own SAP specs")
-npm run prepare:specs             # POD2 API docs (refresh) + MDO index + OpenUI5
+# Spec generators (see Steps 2, 3, 4, and 5)
+npm run prepare:specs             # POD2 API docs (refresh) + MDO index + SAPUI5
 npm run fetch-rest-specs           # REST OpenAPI from SAP Business Accelerator Hub
                                    # needs: SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE='<cookie>'
-npm run check-ui5-api-freshness   # audit pinned OpenUI5 version
+npm run check-ui5-api-freshness   # audit the selected SAPUI5 version
 ```
 
 Documentation files in `docu/` and examples in `examples/` are loaded at runtime — no rebuild needed after editing them (60s cache TTL).
@@ -243,7 +256,7 @@ sap-dm-pod2-mcp-server/
 │   ├── *.md                  ← Hand-written pattern & reference docs (MIT, shipped)
 │   ├── pod2-api-specs/       ← POD2 API class docs (Apache-2.0, SAP-samples) — shipped
 │   ├── sap-dm-api-specs/     ← REST API OpenAPI specs — fetched locally, not shipped
-│   ├── ui5-api-specs/        ← OpenUI5 API bundle (Apache-2.0) — generated locally
+│   ├── ui5-api-specs/        ← SAPUI5 API metadata — generated locally, not shipped
 │   └── sap-dm-mdo-specs/     ← MDO Extractor metadata — fetched locally, not shipped
 ├── scripts/                  ← Spec fetch/extract generators (prepare:specs, fetch-rest-specs, …)
 ├── examples/                 ← Production-grade reference plugins
@@ -280,9 +293,9 @@ Third-party attributions are collected in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-N
   [KevinHunter12/SAP_DM_AI_POD_SKILL](https://github.com/KevinHunter12/SAP_DM_AI_POD_SKILL) (MIT).
 - **POD2 API reference** (`docu/pod2-api-specs/`) — generated from the POD 2.0 JSDoc bundle in
   [SAP-samples/digital-manufacturing-extension-samples](https://github.com/SAP-samples/digital-manufacturing-extension-samples) (Apache-2.0); the folder carries its own LICENSE + NOTICE.
-- **OpenUI5 API metadata** (`docu/ui5-api-specs/`, when generated) — from
-  [OpenUI5](https://github.com/SAP/openui5) (Apache-2.0); the folder carries its own LICENSE + NOTICE.
+- **SAPUI5 API metadata** (`docu/ui5-api-specs/`, when generated) — fetched locally from
+  the SAPUI5 SDK under the applicable SAP license; it is not redistributed.
 
 Tenant-bound SAP specs (SAP DM REST OpenAPI, MDO metadata) are **not** covered by this license
 and are **not** redistributed here — you obtain them under the applicable SAP terms of use for
-your own release. See [Bring your own SAP specs](#bring-your-own-sap-specs).
+your own release. See [Step 3: Load the REST API specifications](#step-3-load-the-rest-api-specifications).
