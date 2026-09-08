@@ -130,10 +130,9 @@ SAP_API_HUB_KEY=AaBbCc123456 \
 
 Specs are converted from Swagger 2.0 to OpenAPI 3.0 automatically. Without `SAP_API_HUB_COOKIE` the catalog step is skipped and the script re-downloads specs for existing artifact IDs only.
 
-**Choosing / bumping the release.** Set the release once via the `SAP_DM_RELEASE` env var
-(default: `DEFAULT_DM_RELEASE` in [`src/config.ts`](src/config.ts)), or per-invocation with
-`--release <YYMM>`. Each fetched spec set records its release in a `VERSION.md` inside its
-directory, so you can update 2605 → 2608 → … and see which wave is loaded.
+SAP DM is SaaS, so the Business Accelerator Hub always serves the current release — this
+step always fetches the newest specs and there is no version to pick. Just re-run it to
+refresh. The fetch date is recorded in `docu/sap-dm-api-specs/VERSION.md`.
 
 ---
 
