@@ -243,16 +243,13 @@ async function main() {
   console.log(`Release label:  ${opts.release}`);
   console.log("");
 
-  if (!existsSync(OUT_DIR)) await mkdir(OUT_DIR, { recursive: true });
-
   let ok = 0, fail = 0;
-  for (const api of filtered) {
-    const id = api.Name || api.ID;
-    if (!id) { console.error(`  [SKIP] Entry without ID`); fail++; continue; }
-
+  for (const id of artifactIds) {
     process.stdout.write(`  → ${id} ... `);
     try {
-      const res = await httpsGet(HUB_HOST, HUB_SPEC(id), { apikey: opts.hubKey, Cookie: opts.hubCookie, Accept: "application/json" });
+      const downloadHeaders = { apikey: opts.hubKey, Accept: "application/json" };
+      if (opts.hubCookie) downloadHeaders.Cookie = opts.hubCookie;
+      const res = await httpsGet(HUB_HOST, HUB_SPEC(id), downloadHeaders);
       if (res.body.trimStart().startsWith("<")) {
         throw new Error("HTML response — API key invalid or expired (refresh at api.sap.com → Settings → API Key)");
       }
