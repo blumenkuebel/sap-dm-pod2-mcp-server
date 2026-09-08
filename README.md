@@ -99,14 +99,13 @@ npm run prepare:specs -- --release 2608   # or a specific YYMM wave
 | `generate-mdo-index` | `docu/sap-dm-mdo-specs/` (MDO index) | MDO Extractor `$metadata` (your tenant) |
 | `update-ui5-api-specs` | `docu/ui5-api-specs/` (OpenUI5, Apache-2.0) | fetched from `sdk.openui5.org` |
 
-The **REST OpenAPI specs** are fetched separately, because they need your tenant's gateway
-URL and a bearer token (they come back at your tenant's current release automatically):
+The **REST OpenAPI specs** are fetched via the SAP Business Accelerator Hub. Requires an [api.sap.com](https://api.sap.com) API key and a browser session cookie:
 
 ```bash
-SAP_DM_TOKEN=<bearer> npm run fetch-rest-specs -- \
-  --base-url https://api.<region>.dmc.cloud.sap \
-  --services order,sfc,material --release 2608
+SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE=<cookie> npm run fetch-rest-specs -- --hub
 ```
+
+Get credentials: `api.sap.com` → profile → Settings → show API Key; cookie via DevTools (F12) → Network → any api.sap.com request → copy Cookie header. Specs are converted from Swagger 2.0 to OpenAPI 3.0 automatically.
 
 **Choosing / bumping the release.** Set the release once via the `SAP_DM_RELEASE` env var
 (default: `DEFAULT_DM_RELEASE` in [`src/config.ts`](src/config.ts)), or per-invocation with
