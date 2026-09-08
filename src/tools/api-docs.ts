@@ -1,9 +1,9 @@
-import { FastMCP } from "fastmcp";
+import { FastMCP, UserError } from "fastmcp";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { z } from "zod";
 import { POD2_API_SPECS_DIR } from "../config.js";
-import { getPod2ApiDocFiles, readFileContent, safePath, searchFiles, formatSearchResults, missingSpecsMessage } from "../helpers.js";
+import { getPod2ApiDocFiles, readFileContent, safePath, searchFiles, formatSearchResults, missingSpecsMessage, READONLY_ANNOTATIONS } from "../helpers.js";
 
 const POD2_SPECS_LABEL = "POD2 API documentation";
 const POD2_SPECS_DIR_REL = "docu/pod2-api-specs/";
@@ -60,13 +60,14 @@ function resolveAlias(name: string): string | null {
 export function registerApiDocsTools(server: FastMCP): void {
   server.addTool({
     name: "get_api_doc",
+    annotations: READONLY_ANNOTATIONS,
     description: "Returns the full API documentation (Markdown) for a specific POD2 class or namespace. Accepts either dot notation (e.g. 'sap.dm.dme.pod2.action.Action') or convenient short aliases (e.g. 'Widget', 'PodContext', 'SfcClient', 'OrderClient').",
     parameters: z.object({
       name: z.string().describe("Class name or short alias. Examples: 'Widget', 'Action', 'PodContext', 'SfcClient' OR full path 'sap.dm.dme.pod2.widget.Widget'"),
     }),
     execute: async ({ name }) => {
       if (getPod2ApiDocFiles().length === 0) {
-        throw new Error(missingSpecsMessage(POD2_SPECS_LABEL, POD2_SPECS_DIR_REL));
+        throw new UserError(missingSpecsMessage(POD2_SPECS_LABEL, POD2_SPECS_DIR_REL));
       }
       const aliased = resolveAlias(name);
       const effective = aliased ?? name;
@@ -84,7 +85,7 @@ export function registerApiDocsTools(server: FastMCP): void {
       }
 
       if (candidates.length === 0) {
-        throw new Error(`[Error: Invalid path "${name}" – path traversal not allowed.]`);
+        throw new UserError(`[Error: Invalid path "${name}" – path traversal not allowed.]`);
       }
 
       const apiFiles = getPod2ApiDocFiles();
@@ -95,12 +96,13 @@ export function registerApiDocsTools(server: FastMCP): void {
         return `Exact match for "${name}" not found.\n\nDid you mean one of these?\n${fuzzy.slice(0, 15).map((m) => `  • ${m.replace(".md", "")}`).join("\n")}${fuzzy.length > 15 ? `\n  ... and ${fuzzy.length - 15} more` : ""}\n\nUse the full name to get the documentation.`;
       }
 
-      throw new Error(`No API documentation found for "${name}".\n\nUse 'list_api_docs' to see all available documentation.`);
+      throw new UserError(`No API documentation found for "${name}".\n\nUse 'list_api_docs' to see all available documentation.`);
     },
   });
 
   server.addTool({
     name: "list_api_docs",
+    annotations: READONLY_ANNOTATIONS,
     description: "Lists all available POD2 API documentation files with optional namespace filter. Groups by namespace. Supports pagination.",
     parameters: z.object({
       filter: z.string().optional().describe("Optional filter to narrow results (e.g. 'action', 'widget', 'context', 'api', 'PodContext')"),
@@ -151,6 +153,7 @@ export function registerApiDocsTools(server: FastMCP): void {
 
   server.addTool({
     name: "search_api_docs",
+    annotations: READONLY_ANNOTATIONS,
     description: "Full-text search across all POD2 API reference documentation (Markdown files). Returns matching files with context lines.",
     parameters: z.object({
       query: z.string().describe("Search term (case-insensitive) – e.g. class name, method name, property name"),
@@ -176,6 +179,7 @@ export function registerApiDocsTools(server: FastMCP): void {
 
   server.addTool({
     name: "get_api_index",
+    annotations: READONLY_ANNOTATIONS,
     description: "Returns the POD2 API documentation index – a comprehensive overview of all classes, namespaces, and type definitions. Use the optional filter to narrow to a namespace (e.g. 'widget', 'api', 'context').",
     parameters: z.object({
       filter: z.string().optional().describe("Optional: return only lines containing this string (case-insensitive). E.g. 'widget' to see all widget classes, 'api' for API clients."),
@@ -183,7 +187,7 @@ export function registerApiDocsTools(server: FastMCP): void {
     execute: async ({ filter }) => {
       const indexPath = path.join(POD2_API_SPECS_DIR, "index.md");
       if (!fs.existsSync(indexPath)) {
-        throw new Error(missingSpecsMessage(POD2_SPECS_LABEL, POD2_SPECS_DIR_REL));
+        throw new UserError(missingSpecsMessage(POD2_SPECS_LABEL, POD2_SPECS_DIR_REL));
       }
       const text = readFileContent(indexPath);
 

@@ -1,15 +1,16 @@
-import { FastMCP } from "fastmcp";
+import { FastMCP, UserError } from "fastmcp";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { z } from "zod";
 import { BASE_DIR } from "../config.js";
-import { readFileContent, safePath, isTextFile } from "../helpers.js";
+import { readFileContent, safePath, isTextFile, READONLY_ANNOTATIONS } from "../helpers.js";
 
 const EXAMPLES_DIR = path.join(BASE_DIR, "examples");
 
 export function registerExamplesTools(server: FastMCP): void {
   server.addTool({
     name: "list_examples",
+    annotations: READONLY_ANNOTATIONS,
     description: "Lists all available POD2 reference example plugins with their file structure. These are production-grade Ground Truth examples showing correct patterns for Widgets, Actions, Context singletons, and i18n.",
     parameters: undefined,
     execute: async () => {
@@ -49,6 +50,7 @@ export function registerExamplesTools(server: FastMCP): void {
 
   server.addTool({
     name: "get_example",
+    annotations: READONLY_ANNOTATIONS,
     description: "Returns the source code of a specific file from a POD2 reference example plugin. Use to see production-grade Ground Truth code patterns. If no file specified, returns all files concatenated.",
     parameters: z.object({
       plugin: z.string().describe("Plugin directory name (e.g. 'Customer.Coating', 'Customer.TableView', 'Customer.Utils')"),
@@ -57,7 +59,7 @@ export function registerExamplesTools(server: FastMCP): void {
     execute: async ({ plugin, file }) => {
       const pluginPath = safePath(EXAMPLES_DIR, plugin);
       if (!pluginPath) {
-        throw new Error(`[Error: Invalid plugin name "${plugin}" – path traversal not allowed.]`);
+        throw new UserError(`[Error: Invalid plugin name "${plugin}" – path traversal not allowed.]`);
       }
       if (!fs.existsSync(pluginPath)) {
         const available = fs.existsSync(EXAMPLES_DIR)
@@ -65,12 +67,12 @@ export function registerExamplesTools(server: FastMCP): void {
               .filter(d => d.isDirectory() && !d.name.startsWith("."))
               .map(d => d.name)
           : [];
-        throw new Error(`Plugin "${plugin}" not found.\n\nAvailable: ${available.join(", ") || "(none)"}`);
+        throw new UserError(`Plugin "${plugin}" not found.\n\nAvailable: ${available.join(", ") || "(none)"}`);
       }
       if (file) {
         const filePath = safePath(pluginPath, file);
         if (!filePath) {
-          throw new Error(`[Error: Invalid file path "${file}" – path traversal not allowed.]`);
+          throw new UserError(`[Error: Invalid file path "${file}" – path traversal not allowed.]`);
         }
         if (!fs.existsSync(filePath)) {
           const allFiles = listPluginFiles(pluginPath, "");

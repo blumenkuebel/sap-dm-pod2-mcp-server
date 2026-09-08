@@ -1,12 +1,13 @@
-import { FastMCP } from "fastmcp";
+import { FastMCP, UserError } from "fastmcp";
 import * as fs from "node:fs";
 import { z } from "zod";
 import { DOCU_DIR } from "../config.js";
-import { getPatternDocFiles, readFileContent, safePath, searchFiles, formatSearchResults } from "../helpers.js";
+import { getPatternDocFiles, readFileContent, safePath, searchFiles, formatSearchResults, READONLY_ANNOTATIONS } from "../helpers.js";
 
 export function registerDocsTools(server: FastMCP): void {
   server.addTool({
     name: "list_pattern_docs",
+    annotations: READONLY_ANNOTATIONS,
     description: "Lists all available POD2 pattern documentation files (widget-patterns, advanced-patterns, common-mistakes-*, etc.) with descriptions.",
     parameters: undefined,
     execute: async () => {
@@ -65,6 +66,7 @@ export function registerDocsTools(server: FastMCP): void {
 
   server.addTool({
     name: "get_pattern_doc",
+    annotations: READONLY_ANNOTATIONS,
     description: "Returns the full content of a POD2 pattern documentation file. Use `summary: true` to get a table of contents (headings only) before committing to loading a large file. Use `section` to load one specific section. Use names like 'widget-patterns-core', 'common-mistakes-lifecycle', 'advanced-patterns', etc.",
     parameters: z.object({
       name: z.string().describe("Document name without .md extension (e.g. 'widget-patterns-core', 'common-mistakes-setup', 'common-mistakes-lifecycle', 'advanced-patterns', 'basics')"),
@@ -81,7 +83,7 @@ export function registerDocsTools(server: FastMCP): void {
 
       if (candidates.length === 0) {
         if (!safeName && !safeNameNoExt) {
-          throw new Error(`[Error: Invalid path "${name}" – path traversal not allowed.]`);
+          throw new UserError(`[Error: Invalid path "${name}" – path traversal not allowed.]`);
         }
         const files = getPatternDocFiles();
         const lowerName = name.toLowerCase();
@@ -93,7 +95,7 @@ export function registerDocsTools(server: FastMCP): void {
         const suffix = isDegraded
           ? `\n\n⚠️ **SERVER DEGRADED**: the pattern-docs directory is empty on this deployment.`
           : "";
-        throw new Error(`No pattern documentation found for "${name}".\n\nUse 'list_pattern_docs' to see all available files.${suffix}`);
+        throw new UserError(`No pattern documentation found for "${name}".\n\nUse 'list_pattern_docs' to see all available files.${suffix}`);
       }
 
       const filePath = candidates[candidates.length - 1];
@@ -120,6 +122,7 @@ export function registerDocsTools(server: FastMCP): void {
 
   server.addTool({
     name: "search_docs",
+    annotations: READONLY_ANNOTATIONS,
     description: "Full-text search across all POD2 pattern documentation files (widget-patterns, common-mistakes-*, advanced-patterns, basics, etc.).",
     parameters: z.object({
       query: z.string().describe("Search term (case-insensitive)"),

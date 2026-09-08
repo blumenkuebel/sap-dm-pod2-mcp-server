@@ -1,9 +1,9 @@
-import { FastMCP } from "fastmcp";
+import { FastMCP, UserError } from "fastmcp";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { z } from "zod";
 import { SAP_DM_API_SPECS_DIR } from "../config.js";
-import { getSapDmApiFiles, readFileContent, safePath, listEndpoints, matchOperation, sliceOperation, missingSpecsMessage } from "../helpers.js";
+import { getSapDmApiFiles, readFileContent, safePath, listEndpoints, matchOperation, sliceOperation, missingSpecsMessage, READONLY_ANNOTATIONS } from "../helpers.js";
 
 const REST_SPECS_LABEL = "SAP DM REST API specifications";
 const REST_SPECS_DIR_REL = "docu/sap-dm-api-specs/";
@@ -11,12 +11,13 @@ const REST_SPECS_DIR_REL = "docu/sap-dm-api-specs/";
 export function registerRestApiTools(server: FastMCP): void {
   server.addTool({
     name: "list_rest_apis",
+    annotations: READONLY_ANNOTATIONS,
     description: "Lists all available SAP DM REST API specifications (OpenAPI JSON files). These cover order, sfc, material, inventory, batch, and many more services.",
     parameters: undefined,
     execute: async () => {
       const files = getSapDmApiFiles();
       if (files.length === 0) {
-        throw new Error(missingSpecsMessage(REST_SPECS_LABEL, REST_SPECS_DIR_REL));
+        throw new UserError(missingSpecsMessage(REST_SPECS_LABEL, REST_SPECS_DIR_REL));
       }
       const sapdme: string[] = [];
       const sapfnd: string[] = [];
@@ -37,6 +38,7 @@ export function registerRestApiTools(server: FastMCP): void {
 
   server.addTool({
     name: "get_rest_api",
+    annotations: READONLY_ANNOTATIONS,
     description: "Returns the OpenAPI specification for a SAP DM REST API service. Prefer 'endpoint' for a single-operation slice with its transitive #/definitions closure (typical size <10 KB); use 'summary' for a paths-only overview (~2 KB); omit both only when you truly need the full spec (can exceed 250 KB).",
     parameters: z.object({
       serviceName: z.string().describe("Service name (e.g. 'order', 'sfc', 'material', 'inventory', 'batch', 'processorder', 'operationactivity'). Combine with 'endpoint' or 'summary' unless you truly need the entire spec."),
@@ -45,7 +47,7 @@ export function registerRestApiTools(server: FastMCP): void {
     }),
     execute: async ({ serviceName, endpoint, summary }) => {
       if (getSapDmApiFiles().length === 0) {
-        throw new Error(missingSpecsMessage(REST_SPECS_LABEL, REST_SPECS_DIR_REL));
+        throw new UserError(missingSpecsMessage(REST_SPECS_LABEL, REST_SPECS_DIR_REL));
       }
       const candidates = [
         `sapdme_${serviceName}.json`,
@@ -77,7 +79,7 @@ export function registerRestApiTools(server: FastMCP): void {
         } else if (matches.length > 1) {
           return `Multiple API specs match "${serviceName}":\n${matches.map((m) => `  • ${m.replace(".json", "")}`).join("\n")}\n\nPlease be more specific.`;
         } else {
-          throw new Error(`No REST API specification found for "${serviceName}".\n\nUse 'list_rest_apis' to see all available specs.`);
+          throw new UserError(`No REST API specification found for "${serviceName}".\n\nUse 'list_rest_apis' to see all available specs.`);
         }
       }
 
@@ -108,7 +110,7 @@ export function registerRestApiTools(server: FastMCP): void {
             const preface = ambiguous.length > 0
               ? `Endpoint "${endpoint}" is ambiguous — multiple methods on that path:`
               : `No endpoint matching "${endpoint}" in service "${foundFileBase}". First ${Math.min(all.length, 10)} of ${all.length} endpoints:`;
-            throw new Error(`${preface}\n${candidateLines.join("\n")}\n\nExpected forms: "POST /sfcs/split" | "/sfcs/split" | "getSfcData" (operationId).`);
+            throw new UserError(`${preface}\n${candidateLines.join("\n")}\n\nExpected forms: "POST /sfcs/split" | "/sfcs/split" | "getSfcData" (operationId).`);
           }
           const slice = sliceOperation(spec, match.path, match.method, match.operation);
           const defsCount = Object.keys(slice.definitions || {}).length;
@@ -151,6 +153,7 @@ export function registerRestApiTools(server: FastMCP): void {
 
   server.addTool({
     name: "search_rest_apis",
+    annotations: READONLY_ANNOTATIONS,
     description: "Search across SAP DM REST API specifications for endpoints, parameters, or schemas matching a query.",
     parameters: z.object({
       query: z.string().describe("Search term (case-insensitive) – e.g. endpoint path, parameter name, schema name"),
