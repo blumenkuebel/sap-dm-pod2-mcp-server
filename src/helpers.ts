@@ -147,10 +147,31 @@ export function listFilesRecursive(dir: string, prefix = ""): string[] {
 // ═══════════════════════════════════════════════════════════════════════
 
 const TEXT_EXTENSIONS = new Set([
-  ".js", ".ts", ".jsx", ".tsx", ".json", ".xml", ".html", ".css",
-  ".less", ".scss", ".md", ".txt", ".properties", ".yaml", ".yml",
-  ".sh", ".bat", ".cmd", ".ps1", ".cfg", ".ini", ".env",
-  ".gitignore", ".npmrc", ".eslintrc",
+  ".js",
+  ".ts",
+  ".jsx",
+  ".tsx",
+  ".json",
+  ".xml",
+  ".html",
+  ".css",
+  ".less",
+  ".scss",
+  ".md",
+  ".txt",
+  ".properties",
+  ".yaml",
+  ".yml",
+  ".sh",
+  ".bat",
+  ".cmd",
+  ".ps1",
+  ".cfg",
+  ".ini",
+  ".env",
+  ".gitignore",
+  ".npmrc",
+  ".eslintrc",
 ]);
 
 export function isTextFile(filePath: string): boolean {
@@ -362,16 +383,10 @@ export function searchFiles(
       // The precise word-boundary check happens inside computeScore.
       const lowerContent = content.toLowerCase();
       const hasSubstringMatch =
-        mode === "all"
-          ? tokens.every((t) => lowerContent.includes(t))
-          : tokens.some((t) => lowerContent.includes(t));
+        mode === "all" ? tokens.every((t) => lowerContent.includes(t)) : tokens.some((t) => lowerContent.includes(t));
       if (!hasSubstringMatch) continue;
 
-      const { score, matchCount, matchLines } = computeScore(
-        file,
-        contentLines,
-        tokens,
-      );
+      const { score, matchCount, matchLines } = computeScore(file, contentLines, tokens);
 
       if (matchCount > 0) {
         results.push({
@@ -446,9 +461,7 @@ export type OpenApiSpec = {
  * Iterate every (path, method, operation) triple in a Swagger 2.0 spec.
  * Skips vendor extensions and non-method keys (parameters, etc.).
  */
-export function listEndpoints(
-  spec: OpenApiSpec,
-): Array<{ path: string; method: string; operation: OpenApiOperation }> {
+export function listEndpoints(spec: OpenApiSpec): Array<{ path: string; method: string; operation: OpenApiOperation }> {
   const out: Array<{ path: string; method: string; operation: OpenApiOperation }> = [];
   const paths = spec.paths || {};
   for (const [pathStr, methods] of Object.entries(paths)) {
@@ -773,7 +786,8 @@ export function nearUi5Candidates(spec: Ui5LibSpec, target: string): string[] {
  * The full symbol from the `sap.m` library averages ~15 KB (some, like
  * `sap.m.Table`, are 60 KB+); a section slice is typically 1–5 KB.
  */
-export type Ui5SymbolSection = "summary" | "properties" | "methods" | "events" | "aggregations" | "associations" | "constructor";
+export type Ui5SymbolSection =
+  "summary" | "properties" | "methods" | "events" | "aggregations" | "associations" | "constructor";
 
 export function sliceUi5Symbol(symbol: Ui5Symbol, section?: Ui5SymbolSection): unknown {
   if (!section) return symbol;
@@ -794,13 +808,20 @@ export function sliceUi5Symbol(symbol: Ui5Symbol, section?: Ui5SymbolSection): u
     case "summary": {
       // Description first paragraph only — the raw text is HTML, so pick to the first </p>.
       const desc = typeof symbol.description === "string" ? symbol.description : "";
-      const firstPara = desc.split(/<\/p>/i)[0].replace(/<[^>]+>/g, "").trim();
+      const firstPara = desc
+        .split(/<\/p>/i)[0]
+        .replace(/<[^>]+>/g, "")
+        .trim();
       return {
         ...common,
         description: firstPara || undefined,
         propertyCount: Array.isArray(meta.properties) ? meta.properties.length : 0,
         methodCount: Array.isArray(symbol.methods) ? symbol.methods.length : 0,
-        eventCount: Array.isArray(symbol.events) ? symbol.events.length : (Array.isArray(meta.events) ? meta.events.length : 0),
+        eventCount: Array.isArray(symbol.events)
+          ? symbol.events.length
+          : Array.isArray(meta.events)
+            ? meta.events.length
+            : 0,
         aggregationCount: Array.isArray(meta.aggregations) ? meta.aggregations.length : 0,
         associationCount: Array.isArray(meta.associations) ? meta.associations.length : 0,
       };
@@ -814,7 +835,7 @@ export function sliceUi5Symbol(symbol: Ui5Symbol, section?: Ui5SymbolSection): u
       // or under `ui5-metadata.events`. Prefer top-level (richer data).
       return {
         ...common,
-        events: (symbol.events && symbol.events.length > 0) ? symbol.events : (meta.events ?? []),
+        events: symbol.events && symbol.events.length > 0 ? symbol.events : (meta.events ?? []),
       };
     case "aggregations":
       return { ...common, aggregations: meta.aggregations ?? [] };

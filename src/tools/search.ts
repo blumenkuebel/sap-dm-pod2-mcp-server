@@ -21,7 +21,10 @@ const MDO_INDEX_FILE = "index.md";
 function searchUi5Symbols(query: string, max: number): { name: string; kind: string }[] {
   const indexFile = getUi5ApiIndexFile();
   if (!indexFile) return [];
-  const tokens = query.toLowerCase().split(/\s+/).filter((t) => t.length > 1);
+  const tokens = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length > 1);
   if (tokens.length === 0) return [];
   let index: Ui5Index;
   try {
@@ -44,11 +47,19 @@ export function registerSearchTools(server: FastMCP): void {
   server.addTool({
     name: "search_all",
     annotations: READONLY_ANNOTATIONS,
-    description: "Full-text search across ALL POD2 content: pattern documentation, POD2 API reference, SAP DM REST API specs, SAPUI5 API symbols, and MDO entities. Uses TF-IDF-like relevance scoring (filename, heading and density boosts) for docs/API/REST, and symbol-name matching for UI5. Multi-token queries default to OR semantics (`mode: 'any'`); switch to `mode: 'all'` to require every token in the file (higher precision, lower recall).",
+    description:
+      "Full-text search across ALL POD2 content: pattern documentation, POD2 API reference, SAP DM REST API specs, SAPUI5 API symbols, and MDO entities. Uses TF-IDF-like relevance scoring (filename, heading and density boosts) for docs/API/REST, and symbol-name matching for UI5. Multi-token queries default to OR semantics (`mode: 'any'`); switch to `mode: 'all'` to require every token in the file (higher precision, lower recall).",
     parameters: z.object({
-      query: z.string().describe("Search term (case-insensitive). Multi-word queries are tokenized; tokens are matched per line."),
+      query: z
+        .string()
+        .describe("Search term (case-insensitive). Multi-word queries are tokenized; tokens are matched per line."),
       maxResultsPerArea: z.number().optional().describe("Maximum number of file matches per area (default: 5)"),
-      mode: z.enum(["any", "all"]).optional().describe("'any' (default) = OR-match (file needs ≥1 token); 'all' = AND-match (file must contain every token). Use 'all' for precise multi-word queries like 'PodContext subscribe' to filter out files mentioning only one of the terms."),
+      mode: z
+        .enum(["any", "all"])
+        .optional()
+        .describe(
+          "'any' (default) = OR-match (file needs ≥1 token); 'all' = AND-match (file must contain every token). Use 'all' for precise multi-word queries like 'PodContext subscribe' to filter out files mentioning only one of the terms.",
+        ),
     }),
     execute: async ({ query, maxResultsPerArea, mode }, { log }) => {
       const max = maxResultsPerArea ?? 5;
@@ -112,9 +123,8 @@ export function registerSearchTools(server: FastMCP): void {
             `⚠️ **SERVER DEGRADED**: no content areas are populated on this deployment. Pattern docs, API specs, REST specs, and UI5 API are all empty (expected at docu/**). Search cannot verify "${query}" — this is a deployment misconfiguration, not "not found".`,
           );
         }
-        const hint = searchMode === "all"
-          ? `\n\nTip: try 'mode: "any"' for broader matches (≥1 token instead of all).`
-          : "";
+        const hint =
+          searchMode === "all" ? `\n\nTip: try 'mode: "any"' for broader matches (≥1 token instead of all).` : "";
         return `No matches for "${query}" across any content area.${hint}`;
       }
 

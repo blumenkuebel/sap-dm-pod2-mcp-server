@@ -26,7 +26,9 @@ function readUi5Meta(): { source: string; version: string } {
       const m = JSON.parse(fs.readFileSync(metaPath, "utf8")) as { source?: string; version?: string };
       return { source: m.source ?? "openui5", version: m.version ?? DEFAULT_UI5_VERSION };
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return { source: "openui5", version: DEFAULT_UI5_VERSION };
 }
 
@@ -43,12 +45,15 @@ export function registerUi5ApiTools(server: FastMCP): void {
   server.addTool({
     name: "list_ui5_libraries",
     annotations: READONLY_ANNOTATIONS,
-    description: "Lists all bundled SAPUI5 libraries (from `docu/ui5-api-specs/`) with symbol counts per library. Start here to discover which library owns which control. UI5 version is pinned in the bundle — see docu/ui5-api-specs/VERSION.md.",
+    description:
+      "Lists all bundled SAPUI5 libraries (from `docu/ui5-api-specs/`) with symbol counts per library. Start here to discover which library owns which control. UI5 version is pinned in the bundle — see docu/ui5-api-specs/VERSION.md.",
     parameters: undefined,
     execute: async () => {
       const libs = getUi5ApiLibraries();
       if (libs.length === 0) {
-        throw new UserError("No UI5 API bundle found at docu/ui5-api-specs/. Run `npm run update-ui5-api-specs` to snapshot it.");
+        throw new UserError(
+          "No UI5 API bundle found at docu/ui5-api-specs/. Run `npm run update-ui5-api-specs` to snapshot it.",
+        );
       }
       const { source, version: metaVersion } = readUi5Meta();
       const sourceLabel = source === "sapui5" ? "SAPUI5 (full bundle, proprietary)" : "OpenUI5 (Apache-2.0)";
@@ -59,7 +64,9 @@ export function registerUi5ApiTools(server: FastMCP): void {
         try {
           const idx = JSON.parse(readFileContent(indexFile)) as Ui5Index & { version?: string };
           if (idx.version) indexVersion = idx.version;
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
       for (const lib of libs) {
         const p = getUi5ApiSpecFile(lib);
@@ -70,7 +77,9 @@ export function registerUi5ApiTools(server: FastMCP): void {
             const spec = JSON.parse(readFileContent(p)) as Ui5LibSpec;
             symbolCount = spec.symbols?.length ?? 0;
             libVersion = spec.version ?? "?";
-          } catch { /* keep zeros */ }
+          } catch {
+            /* keep zeros */
+          }
         }
         rows.push(`  • ${lib.padEnd(28)} — ${String(symbolCount).padStart(4)} symbols (v${libVersion})`);
       }
@@ -86,13 +95,23 @@ export function registerUi5ApiTools(server: FastMCP): void {
   server.addTool({
     name: "search_ui5_api",
     annotations: READONLY_ANNOTATIONS,
-    description: "Search across ALL bundled SAPUI5 libraries for symbols (classes, namespaces, enums, interfaces) matching a query. Substring, case-insensitive. Use this when you don't yet know the exact class name — then feed the result into get_ui5_api. Version pinned by the bundle.",
+    description:
+      "Search across ALL bundled SAPUI5 libraries for symbols (classes, namespaces, enums, interfaces) matching a query. Substring, case-insensitive. Use this when you don't yet know the exact class name — then feed the result into get_ui5_api. Version pinned by the bundle.",
     parameters: z.object({
       query: z.string().describe("Search term (case-insensitive substring) — e.g. 'ComboBox', 'Table', 'placement'"),
       maxResults: z.number().optional().describe("Maximum matches to return (default: 25). Cross-library."),
-      visibility: z.enum(["public", "restricted", "protected", "all"]).optional().describe("Filter by visibility (default: public)."),
-      kind: z.enum(["class", "namespace", "enum", "interface", "function", "typedef", "all"]).optional().describe("Filter by symbol kind (default: all)."),
-      version: z.string().optional().describe("UI5 version (advisory; the bundle ships one pinned version — see docu/ui5-api-specs/VERSION.md)."),
+      visibility: z
+        .enum(["public", "restricted", "protected", "all"])
+        .optional()
+        .describe("Filter by visibility (default: public)."),
+      kind: z
+        .enum(["class", "namespace", "enum", "interface", "function", "typedef", "all"])
+        .optional()
+        .describe("Filter by symbol kind (default: all)."),
+      version: z
+        .string()
+        .optional()
+        .describe("UI5 version (advisory; the bundle ships one pinned version — see docu/ui5-api-specs/VERSION.md)."),
     }),
     execute: async ({ query, maxResults, visibility, kind, version }, { log }) => {
       const vNote = assertBundledVersion(version);
@@ -127,7 +146,10 @@ export function registerUi5ApiTools(server: FastMCP): void {
         return a.name.localeCompare(b.name);
       });
       if (hits.length === 0) {
-        return `No UI5 symbols matching "${query}" (kind=${wantedKind}, visibility=${vis}). Try list_ui5_libraries to see what is bundled.` + (vNote ? `\n\n${vNote}` : "");
+        return (
+          `No UI5 symbols matching "${query}" (kind=${wantedKind}, visibility=${vis}). Try list_ui5_libraries to see what is bundled.` +
+          (vNote ? `\n\n${vNote}` : "")
+        );
       }
       log.debug("search_ui5_api", { query, matches: hits.length });
       const shown = hits.slice(0, max);
@@ -140,7 +162,8 @@ export function registerUi5ApiTools(server: FastMCP): void {
         const kindStr = n.kind ? ` (${n.kind})` : "";
         return `  ${n.name}${kindStr}${lib}${flagStr}`;
       });
-      const truncated = hits.length > shown.length ? `\n  … and ${hits.length - shown.length} more (raise maxResults)` : "";
+      const truncated =
+        hits.length > shown.length ? `\n  … and ${hits.length - shown.length} more (raise maxResults)` : "";
       const firstHit = shown[0].name;
       const hint = `\n\n→ Details: get_ui5_api({ symbol: "${firstHit}" })   (add \`section: "properties"|"methods"|"events"|"aggregations"|"summary"\` to slice)`;
       return (
@@ -156,10 +179,20 @@ export function registerUi5ApiTools(server: FastMCP): void {
   server.addTool({
     name: "get_ui5_api",
     annotations: READONLY_ANNOTATIONS,
-    description: "Returns the full metadata for a SAPUI5 symbol (properties, methods, events, aggregations, associations, description) from the offline bundle. Prefer the `section` param to slice — a full sap.m.Table is 60 KB+, a properties-only slice is ~2 KB.",
+    description:
+      "Returns the full metadata for a SAPUI5 symbol (properties, methods, events, aggregations, associations, description) from the offline bundle. Prefer the `section` param to slice — a full sap.m.Table is 60 KB+, a properties-only slice is ~2 KB.",
     parameters: z.object({
-      symbol: z.string().describe("Fully-qualified UI5 symbol name — e.g. 'sap.m.ComboBox', 'sap.ui.core.mvc.View', 'sap.suite.ui.microchart.BulletMicroChart'"),
-      section: z.enum(["summary", "properties", "methods", "events", "aggregations", "associations", "constructor"]).optional().describe("Return only one section. 'summary' gives counts + first-paragraph description (~1 KB). Omit for the full symbol."),
+      symbol: z
+        .string()
+        .describe(
+          "Fully-qualified UI5 symbol name — e.g. 'sap.m.ComboBox', 'sap.ui.core.mvc.View', 'sap.suite.ui.microchart.BulletMicroChart'",
+        ),
+      section: z
+        .enum(["summary", "properties", "methods", "events", "aggregations", "associations", "constructor"])
+        .optional()
+        .describe(
+          "Return only one section. 'summary' gives counts + first-paragraph description (~1 KB). Omit for the full symbol.",
+        ),
       version: z.string().optional().describe("UI5 version (advisory; the bundle ships one pinned version)."),
     }),
     execute: async ({ symbol, section, version }) => {
@@ -169,30 +202,30 @@ export function registerUi5ApiTools(server: FastMCP): void {
         const libs = getUi5ApiLibraries();
         throw new UserError(
           `No bundled UI5 library covers "${symbol}". ` +
-          `Bundled libraries: ${libs.join(", ")}.\n\n` +
-          `→ Try search_ui5_api({ query: "${symbol.split(".").pop() ?? symbol}" }) to find candidates.` +
-          (vNote ? `\n\n${vNote}` : ""),
+            `Bundled libraries: ${libs.join(", ")}.\n\n` +
+            `→ Try search_ui5_api({ query: "${symbol.split(".").pop() ?? symbol}" }) to find candidates.` +
+            (vNote ? `\n\n${vNote}` : ""),
         );
       }
       const spec = JSON.parse(readFileContent(specFile)) as Ui5LibSpec;
       const sym = pickUi5Symbol(spec, symbol);
       if (!sym) {
         const near = nearUi5Candidates(spec, symbol);
-        const list = near.length > 0
-          ? near.map((n) => `  • ${n}`).join("\n")
-          : "  (no near matches in this library)";
+        const list = near.length > 0 ? near.map((n) => `  • ${n}`).join("\n") : "  (no near matches in this library)";
         throw new UserError(
           `Symbol "${symbol}" not found in ${spec.library ?? "?"} (v${spec.version ?? "?"}). ` +
-          `Top candidates in the same library:\n${list}\n\n` +
-          `→ Cross-library search: search_ui5_api({ query: "${symbol.split(".").pop() ?? symbol}" })` +
-          (vNote ? `\n\n${vNote}` : ""),
+            `Top candidates in the same library:\n${list}\n\n` +
+            `→ Cross-library search: search_ui5_api({ query: "${symbol.split(".").pop() ?? symbol}" })` +
+            (vNote ? `\n\n${vNote}` : ""),
         );
       }
       const slice = sliceUi5Symbol(sym, section as Ui5SymbolSection | undefined);
       const suffix = section ? ` — section: ${section}` : "";
       const header =
         `// UI5 API — ${symbol} @${spec.library ?? "?"} v${spec.version ?? "?"}${suffix}\n` +
-        (section ? `// Omit \`section\` for the full symbol.\n` : `// Slice with \`section\`: summary | properties | methods | events | aggregations | associations | constructor\n`);
+        (section
+          ? `// Omit \`section\` for the full symbol.\n`
+          : `// Slice with \`section\`: summary | properties | methods | events | aggregations | associations | constructor\n`);
       return header + JSON.stringify(slice, null, 2) + (vNote ? `\n\n// Note: ${vNote}` : "");
     },
   });
@@ -200,7 +233,8 @@ export function registerUi5ApiTools(server: FastMCP): void {
   server.addTool({
     name: "get_ui5_guidelines",
     annotations: READONLY_ANNOTATIONS,
-    description: "Returns the POD 2-curated SAPUI5 coding guidelines (from docu/ui5-guidelines.md). Covers dependency loading rules (never globals, always `sap.ui.define`/`core:require`), data-binding-first with `sap.ui.model.odata.type.*`, i18n locale-sync contract, TypeScript event-handler types (`<Ctrl>$<Event>Event`), and the Fiori Form pattern (`Form` + `ColumnLayout`, not `SimpleForm`). Complements the Prime Directive in basics.md §0 — §0 governs which control to pick, this doc governs how the surrounding code is shaped. CAP / index.html bootstrap / ComponentSupport rules are intentionally omitted (POD 2 hosts the UI5 shell).",
+    description:
+      "Returns the POD 2-curated SAPUI5 coding guidelines (from docu/ui5-guidelines.md). Covers dependency loading rules (never globals, always `sap.ui.define`/`core:require`), data-binding-first with `sap.ui.model.odata.type.*`, i18n locale-sync contract, TypeScript event-handler types (`<Ctrl>$<Event>Event`), and the Fiori Form pattern (`Form` + `ColumnLayout`, not `SimpleForm`). Complements the Prime Directive in basics.md §0 — §0 governs which control to pick, this doc governs how the surrounding code is shaped. CAP / index.html bootstrap / ComponentSupport rules are intentionally omitted (POD 2 hosts the UI5 shell).",
     parameters: undefined,
     execute: async () => {
       const p = safePath(DOCU_DIR, "ui5-guidelines.md");

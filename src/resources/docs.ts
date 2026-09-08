@@ -2,19 +2,26 @@ import { FastMCP } from "fastmcp";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { DOCU_DIR, POD2_API_SPECS_DIR, SAP_DM_API_SPECS_DIR } from "../config.js";
-import { readFileContent, tryReadFileContent, safePath, getPatternDocFiles, getPod2ApiDocFiles, getSapDmApiFiles, missingSpecsMessage } from "../helpers.js";
+import {
+  readFileContent,
+  tryReadFileContent,
+  safePath,
+  getPatternDocFiles,
+  getPod2ApiDocFiles,
+  getSapDmApiFiles,
+  missingSpecsMessage,
+} from "../helpers.js";
 
 export function registerResources(server: FastMCP): void {
   server.addResource({
     uri: "pod2://patterns/index",
     name: "pattern-index",
-    description: "POD2 Pattern Index – Quick reference organized by widget type, use case, technical pattern, and complexity.",
+    description:
+      "POD2 Pattern Index – Quick reference organized by widget type, use case, technical pattern, and complexity.",
     mimeType: "text/markdown",
     load: async () => {
       const filePath = path.join(DOCU_DIR, "PATTERN-INDEX.md");
-      const text = fs.existsSync(filePath)
-        ? readFileContent(filePath)
-        : "[PATTERN-INDEX.md not found]";
+      const text = fs.existsSync(filePath) ? readFileContent(filePath) : "[PATTERN-INDEX.md not found]";
       return { text };
     },
   });
@@ -25,8 +32,7 @@ export function registerResources(server: FastMCP): void {
     description: "POD2 Development Fundamentals – Architecture, Best Practices, plugin structure, and coding patterns.",
     mimeType: "text/markdown",
     load: async () => ({
-      text: tryReadFileContent(path.join(DOCU_DIR, "basics.md"))
-        ?? "[Error: basics.md not found in docu/]",
+      text: tryReadFileContent(path.join(DOCU_DIR, "basics.md")) ?? "[Error: basics.md not found in docu/]",
     }),
   });
 
@@ -39,9 +45,9 @@ export function registerResources(server: FastMCP): void {
       const indexPath = path.join(POD2_API_SPECS_DIR, "index.md");
       const text = fs.existsSync(indexPath)
         ? readFileContent(indexPath)
-        : (getPod2ApiDocFiles().length === 0
-            ? missingSpecsMessage("POD2 API documentation", "docu/pod2-api-specs/")
-            : `[API index not found. ${getPod2ApiDocFiles().length} API doc files available. Use list_api_docs tool.]`);
+        : getPod2ApiDocFiles().length === 0
+          ? missingSpecsMessage("POD2 API documentation", "docu/pod2-api-specs/")
+          : `[API index not found. ${getPod2ApiDocFiles().length} API doc files available. Use list_api_docs tool.]`;
       return { text };
     },
   });
@@ -72,7 +78,9 @@ export function registerResources(server: FastMCP): void {
       }
       if (!filePath || !fs.existsSync(filePath)) {
         return {
-          text: `[Error: Pattern doc "${name}" not found. Available: ${getPatternDocFiles().map((f) => f.replace(".md", "")).join(", ")}]`,
+          text: `[Error: Pattern doc "${name}" not found. Available: ${getPatternDocFiles()
+            .map((f) => f.replace(".md", ""))
+            .join(", ")}]`,
         };
       }
       return { text: readFileContent(filePath) };
@@ -135,11 +143,7 @@ export function registerResources(server: FastMCP): void {
       },
     ],
     load: async ({ serviceName }) => {
-      const candidates = [
-        `sapdme_${serviceName}.json`,
-        `sapfnd_${serviceName}.json`,
-        `${serviceName}.json`,
-      ];
+      const candidates = [`sapdme_${serviceName}.json`, `sapfnd_${serviceName}.json`, `${serviceName}.json`];
       for (const candidate of candidates) {
         const filePath = safePath(SAP_DM_API_SPECS_DIR, candidate);
         if (filePath && fs.existsSync(filePath)) {
@@ -149,9 +153,10 @@ export function registerResources(server: FastMCP): void {
       const allFiles = getSapDmApiFiles();
       const matches = allFiles.filter((f) => f.toLowerCase().includes(serviceName.toLowerCase()));
       return {
-        text: matches.length > 0
-          ? `[REST API "${serviceName}" not found exactly. Did you mean: ${matches.join(", ")}?]`
-          : `[REST API "${serviceName}" not found. Use list_rest_apis to see available specs.]`,
+        text:
+          matches.length > 0
+            ? `[REST API "${serviceName}" not found exactly. Did you mean: ${matches.join(", ")}?]`
+            : `[REST API "${serviceName}" not found. Use list_rest_apis to see available specs.]`,
       };
     },
   });

@@ -3,7 +3,16 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { z } from "zod";
 import { SAP_DM_API_SPECS_DIR } from "../config.js";
-import { getSapDmApiFiles, readFileContent, safePath, listEndpoints, matchOperation, sliceOperation, missingSpecsMessage, READONLY_ANNOTATIONS } from "../helpers.js";
+import {
+  getSapDmApiFiles,
+  readFileContent,
+  safePath,
+  listEndpoints,
+  matchOperation,
+  sliceOperation,
+  missingSpecsMessage,
+  READONLY_ANNOTATIONS,
+} from "../helpers.js";
 
 const REST_SPECS_LABEL = "SAP DM REST API specifications";
 const REST_SPECS_DIR_REL = "docu/sap-dm-api-specs/";
@@ -12,7 +21,8 @@ export function registerRestApiTools(server: FastMCP): void {
   server.addTool({
     name: "list_rest_apis",
     annotations: READONLY_ANNOTATIONS,
-    description: "Lists all available SAP DM REST API specifications (OpenAPI JSON files). These cover order, sfc, material, inventory, batch, and many more services.",
+    description:
+      "Lists all available SAP DM REST API specifications (OpenAPI JSON files). These cover order, sfc, material, inventory, batch, and many more services.",
     parameters: undefined,
     execute: async () => {
       const files = getSapDmApiFiles();
@@ -29,8 +39,10 @@ export function registerRestApiTools(server: FastMCP): void {
         else other.push(name);
       }
       const sections: string[] = [];
-      if (sapdme.length > 0) sections.push(`📦 SAP DM APIs (${sapdme.length}):\n${sapdme.map((n) => `  • ${n}`).join("\n")}`);
-      if (sapfnd.length > 0) sections.push(`📦 SAP Foundation APIs (${sapfnd.length}):\n${sapfnd.map((n) => `  • ${n}`).join("\n")}`);
+      if (sapdme.length > 0)
+        sections.push(`📦 SAP DM APIs (${sapdme.length}):\n${sapdme.map((n) => `  • ${n}`).join("\n")}`);
+      if (sapfnd.length > 0)
+        sections.push(`📦 SAP Foundation APIs (${sapfnd.length}):\n${sapfnd.map((n) => `  • ${n}`).join("\n")}`);
       if (other.length > 0) sections.push(`📦 Other (${other.length}):\n${other.map((n) => `  • ${n}`).join("\n")}`);
       return `SAP DM REST API Specifications (${files.length} OpenAPI files):\n\n${sections.join("\n\n")}\n\n→ Use 'get_rest_api' with the service name to inspect a spec. **Prefer the compact modes** to avoid dumping 150+ KB:\n   • \`get_rest_api({ serviceName: 'sfc', endpoint: 'POST /sfcs/split' })\` — one operation + its refs closure (~10 KB)\n   • \`get_rest_api({ serviceName: 'sfc', summary: true })\` — paths + one-line descriptions only (~2 KB)\n   Full spec (no options) is only appropriate when you truly need everything.`;
     },
@@ -39,21 +51,32 @@ export function registerRestApiTools(server: FastMCP): void {
   server.addTool({
     name: "get_rest_api",
     annotations: READONLY_ANNOTATIONS,
-    description: "Returns the OpenAPI specification for a SAP DM REST API service. Prefer 'endpoint' for a single-operation slice with its transitive #/definitions closure (typical size <10 KB); use 'summary' for a paths-only overview (~2 KB); omit both only when you truly need the full spec (can exceed 250 KB).",
+    description:
+      "Returns the OpenAPI specification for a SAP DM REST API service. Prefer 'endpoint' for a single-operation slice with its transitive #/definitions closure (typical size <10 KB); use 'summary' for a paths-only overview (~2 KB); omit both only when you truly need the full spec (can exceed 250 KB).",
     parameters: z.object({
-      serviceName: z.string().describe("Service name (e.g. 'order', 'sfc', 'material', 'inventory', 'batch', 'processorder', 'operationactivity'). Combine with 'endpoint' or 'summary' unless you truly need the entire spec."),
-      endpoint: z.string().optional().describe("Return only one operation plus its transitive #/definitions closure. Accepts: 'METHOD /path' (e.g. 'POST /sfcs/split'), '/path' (unique method wins), or an operationId. Recommended over the full spec whenever you only need one endpoint. Overrides 'summary'."),
-      summary: z.boolean().optional().describe("If true, returns only paths and their descriptions instead of the full spec (default: false). Ignored when 'endpoint' is set."),
+      serviceName: z
+        .string()
+        .describe(
+          "Service name (e.g. 'order', 'sfc', 'material', 'inventory', 'batch', 'processorder', 'operationactivity'). Combine with 'endpoint' or 'summary' unless you truly need the entire spec.",
+        ),
+      endpoint: z
+        .string()
+        .optional()
+        .describe(
+          "Return only one operation plus its transitive #/definitions closure. Accepts: 'METHOD /path' (e.g. 'POST /sfcs/split'), '/path' (unique method wins), or an operationId. Recommended over the full spec whenever you only need one endpoint. Overrides 'summary'.",
+        ),
+      summary: z
+        .boolean()
+        .optional()
+        .describe(
+          "If true, returns only paths and their descriptions instead of the full spec (default: false). Ignored when 'endpoint' is set.",
+        ),
     }),
     execute: async ({ serviceName, endpoint, summary }) => {
       if (getSapDmApiFiles().length === 0) {
         throw new UserError(missingSpecsMessage(REST_SPECS_LABEL, REST_SPECS_DIR_REL));
       }
-      const candidates = [
-        `sapdme_${serviceName}.json`,
-        `sapfnd_${serviceName}.json`,
-        `${serviceName}.json`,
-      ];
+      const candidates = [`sapdme_${serviceName}.json`, `sapfnd_${serviceName}.json`, `${serviceName}.json`];
 
       let foundFile: string | null = null;
       let foundFileBase: string | null = null;
@@ -79,7 +102,9 @@ export function registerRestApiTools(server: FastMCP): void {
         } else if (matches.length > 1) {
           return `Multiple API specs match "${serviceName}":\n${matches.map((m) => `  • ${m.replace(".json", "")}`).join("\n")}\n\nPlease be more specific.`;
         } else {
-          throw new UserError(`No REST API specification found for "${serviceName}".\n\nUse 'list_rest_apis' to see all available specs.`);
+          throw new UserError(
+            `No REST API specification found for "${serviceName}".\n\nUse 'list_rest_apis' to see all available specs.`,
+          );
         }
       }
 
@@ -96,28 +121,33 @@ export function registerRestApiTools(server: FastMCP): void {
           if (!match.operation) {
             const all = listEndpoints(spec);
             const ambiguous = "candidates" in match ? match.candidates : [];
-            const candidateLines = (ambiguous.length > 0
-              ? ambiguous.map((c) => {
-                  const op = all.find((e) => e.path === c.path && e.method === c.method)?.operation;
-                  const desc = op?.summary || op?.description || "";
-                  return `  ${c.method.toUpperCase()} ${c.path}${desc ? ` — ${desc}` : ""}`;
-                })
-              : all.slice(0, 10).map((e) => {
-                  const desc = e.operation.summary || e.operation.description || "";
-                  return `  ${e.method.toUpperCase()} ${e.path}${desc ? ` — ${desc}` : ""}`;
-                })
+            const candidateLines =
+              ambiguous.length > 0
+                ? ambiguous.map((c) => {
+                    const op = all.find((e) => e.path === c.path && e.method === c.method)?.operation;
+                    const desc = op?.summary || op?.description || "";
+                    return `  ${c.method.toUpperCase()} ${c.path}${desc ? ` — ${desc}` : ""}`;
+                  })
+                : all.slice(0, 10).map((e) => {
+                    const desc = e.operation.summary || e.operation.description || "";
+                    return `  ${e.method.toUpperCase()} ${e.path}${desc ? ` — ${desc}` : ""}`;
+                  });
+            const preface =
+              ambiguous.length > 0
+                ? `Endpoint "${endpoint}" is ambiguous — multiple methods on that path:`
+                : `No endpoint matching "${endpoint}" in service "${foundFileBase}". First ${Math.min(all.length, 10)} of ${all.length} endpoints:`;
+            throw new UserError(
+              `${preface}\n${candidateLines.join("\n")}\n\nExpected forms: "POST /sfcs/split" | "/sfcs/split" | "getSfcData" (operationId).`,
             );
-            const preface = ambiguous.length > 0
-              ? `Endpoint "${endpoint}" is ambiguous — multiple methods on that path:`
-              : `No endpoint matching "${endpoint}" in service "${foundFileBase}". First ${Math.min(all.length, 10)} of ${all.length} endpoints:`;
-            throw new UserError(`${preface}\n${candidateLines.join("\n")}\n\nExpected forms: "POST /sfcs/split" | "/sfcs/split" | "getSfcData" (operationId).`);
           }
           const slice = sliceOperation(spec, match.path, match.method, match.operation);
           const defsCount = Object.keys(slice.definitions || {}).length;
           const header = `// Slice of ${foundFileBase} — ${match.method.toUpperCase()} ${match.path} + ${defsCount} #/definitions/* (transitive closure).\n// For the full spec omit 'endpoint'; for a paths-only overview use 'summary: true'.\n`;
           return header + JSON.stringify(slice, null, 2);
         } catch (e) {
-          throw new Error(`[Error: failed to slice endpoint "${endpoint}" from ${foundFileBase}: ${(e as Error).message}]`);
+          throw new Error(
+            `[Error: failed to slice endpoint "${endpoint}" from ${foundFileBase}: ${(e as Error).message}]`,
+          );
         }
       }
 
@@ -140,7 +170,9 @@ export function registerRestApiTools(server: FastMCP): void {
               }
             }
           }
-          lines.push(`\n→ Fetch one endpoint (schemas + refs, ~10 KB) with: get_rest_api({ serviceName: "${foundFileBase?.replace(/^(sapdme|sapfnd)_/, "")}", endpoint: "METHOD /path" })`);
+          lines.push(
+            `\n→ Fetch one endpoint (schemas + refs, ~10 KB) with: get_rest_api({ serviceName: "${foundFileBase?.replace(/^(sapdme|sapfnd)_/, "")}", endpoint: "METHOD /path" })`,
+          );
           return lines.join("\n");
         } catch {
           // fall through to raw content
@@ -181,7 +213,8 @@ export function registerRestApiTools(server: FastMCP): void {
               for (const [method, details] of Object.entries(methods as Record<string, unknown>)) {
                 if (["get", "post", "put", "patch", "delete"].includes(method)) {
                   const d = details as { summary?: string; description?: string; operationId?: string };
-                  const searchable = `${pathStr} ${d.summary || ""} ${d.description || ""} ${d.operationId || ""}`.toLowerCase();
+                  const searchable =
+                    `${pathStr} ${d.summary || ""} ${d.description || ""} ${d.operationId || ""}`.toLowerCase();
                   if (searchable.includes(lowerQuery)) {
                     matchingPaths.push(`${method.toUpperCase()} ${pathStr}${d.summary ? ` — ${d.summary}` : ""}`);
                   }
