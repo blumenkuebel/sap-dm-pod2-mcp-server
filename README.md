@@ -111,7 +111,7 @@ SAP_DM_TOKEN=<bearer> npm run fetch-rest-specs -- \
 **Choosing / bumping the release.** Set the release once via the `SAP_DM_RELEASE` env var
 (default: `DEFAULT_DM_RELEASE` in [`src/config.ts`](src/config.ts)), or per-invocation with
 `--release <YYMM>`. Each fetched spec set records its release in a `VERSION.md` inside its
-directory, so you can update 2601 → 2608 → … and see which wave is loaded.
+directory, so you can update 2605 → 2608 → … and see which wave is loaded.
 
 Only OpenUI5 libraries are bundled by `update-ui5-api-specs`; SAPUI5-only libraries
 (`sap.suite.*`, `sap.ui.comp`, `sap.chart`, `sap.gantt`, …) are intentionally omitted. Audit
