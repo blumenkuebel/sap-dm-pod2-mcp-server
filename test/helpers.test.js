@@ -12,6 +12,13 @@ import {
   sliceOperation,
   searchFiles,
   formatSearchResults,
+  readFileContent,
+  tryReadFileContent,
+  listFilesRecursive,
+  missingSpecsMessage,
+  getCacheStats,
+  dirListingCache,
+  CACHE_MAX_ENTRIES,
 } from "../dist/helpers.js";
 import { extractSection, extractSectionHeadings } from "../dist/tools/docs.js";
 
@@ -37,6 +44,12 @@ test("safePath returns null for an absolute path outside the base", () => {
 
 test("safePath allows the base directory itself", () => {
   assert.equal(safePath("/base"), path.resolve("/base"));
+});
+
+test("safePath rejects a sibling directory that shares the base name as a prefix", () => {
+  // "/base-evil" starts with "/base" textually but is NOT inside it.
+  assert.equal(safePath("/base", "../base-evil/secret"), null);
+  assert.equal(safePath("/base", "../baseline"), null);
 });
 
 // ── isTextFile ────────────────────────────────────────────────────────────
@@ -235,4 +248,101 @@ test("extractSectionHeadings lists all headings with indentation by level", () =
   assert.ok(headings.includes("Title"));
   assert.ok(headings.some((h) => h.trim() === "Mistake #33"));
   assert.ok(headings.some((h) => h.startsWith("    ") && h.trim() === "Sub of 33"));
+});
+
+// ── readFileContent / tryReadFileContent (TTL cache) ─────────────────────
+
+test("readFileContent reads a file and serves the cached copy within the TTL", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pod2-read-"));
+  const file = path.join(dir, "note.md");
+  try {
+    fs.writeFileSync(file, "original");
+    assert.equal(readFileContent(file), "original");
+
+    // Overwrite on disk; within the TTL the cached value must still win.
+    fs.writeFileSync(file, "changed");
+    assert.equal(readFileContent(file), "original");
+    assert.ok(getCacheStats().filesCached >= 1);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("readFileContent throws for a missing file", () => {
+  assert.throws(() => readFileContent("/no/such/file-xyz.md"), /File not found/);
+});
+
+test("tryReadFileContent returns null instead of throwing for a missing file", () => {
+  assert.equal(tryReadFileContent("/no/such/file-xyz.md"), null);
+});
+
+// ── listFilesRecursive (filters, recursion, graceful absence) ────────────
+
+test("listFilesRecursive returns [] for an absent directory", () => {
+  assert.deepEqual(listFilesRecursive("/no/such/dir-xyz"), []);
+});
+
+test("listFilesRecursive skips dotfiles and excluded dirs, and recurses with prefixes", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "pod2-tree-"));
+  try {
+    fs.writeFileSync(path.join(root, "a.md"), "a");
+    fs.writeFileSync(path.join(root, ".hidden"), "h");
+    fs.mkdirSync(path.join(root, "sub"));
+    fs.writeFileSync(path.join(root, "sub", "b.md"), "b");
+    fs.mkdirSync(path.join(root, "node_modules"));
+    fs.writeFileSync(path.join(root, "node_modules", "dep.js"), "x");
+
+    const files = listFilesRecursive(root).sort();
+    assert.deepEqual(files, ["a.md", "sub/b.md"]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("listFilesRecursive serves a cached copy on the second call", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "pod2-tree2-"));
+  try {
+    fs.writeFileSync(path.join(root, "a.md"), "a");
+    const first = listFilesRecursive(root);
+
+    // A file added after the first (cached) call must not appear within the TTL.
+    fs.writeFileSync(path.join(root, "b.md"), "b");
+    const second = listFilesRecursive(root);
+    assert.deepEqual(second, first);
+    assert.equal(second.length, 1);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// ── dirListingCache LRU eviction ─────────────────────────────────────────
+
+test("dirListingCache evicts the oldest entries once it exceeds CACHE_MAX_ENTRIES", () => {
+  dirListingCache.clear();
+  // Fill to the cap with stale entries; the very first is the oldest.
+  for (let i = 0; i < CACHE_MAX_ENTRIES; i++) {
+    dirListingCache.set(`stale-${i}`, { files: [], ts: i });
+  }
+  assert.equal(dirListingCache.size, CACHE_MAX_ENTRIES);
+
+  // A real listing inserts one more entry and triggers eviction.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "pod2-evict-"));
+  try {
+    fs.writeFileSync(path.join(root, "a.md"), "a");
+    listFilesRecursive(root);
+    assert.ok(dirListingCache.size <= CACHE_MAX_ENTRIES);
+    assert.equal(dirListingCache.has("stale-0"), false); // oldest was dropped
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+    dirListingCache.clear();
+  }
+});
+
+// ── missingSpecsMessage ──────────────────────────────────────────────────
+
+test("missingSpecsMessage embeds the label and the git-ignored directory", () => {
+  const msg = missingSpecsMessage("POD2 API documentation", "docu/pod2-api-specs/");
+  assert.match(msg, /POD2 API documentation/);
+  assert.match(msg, /docu\/pod2-api-specs\//);
+  assert.match(msg, /prepare:specs|update-ui5-api-specs|fetch-rest-specs/);
 });
