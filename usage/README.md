@@ -37,7 +37,7 @@ POD 2.0 plugins cannot be UI-tested without deploying them — the framework, la
                   ↓
 ┌──────────────────────────────────────────────┐
 │  PHASE B — ITERATE (n times)                 │
-│  Refine based on what you see in POD          │
+│  Refine based on what you see in POD         │
 └──────────────────────────────────────────────┘
                   ↺ back to ITERATE
 ```
@@ -51,7 +51,7 @@ The agent auto-detects the phase via a `.scaffold-done` marker file.
 | Requirement | Details |
 |-------------|---------|
 | **AI coding agent** | Any agent with MCP support (see [Loading the rules per agent](#-loading-the-rules-per-agent)) |
-| **sap-dm-pod2-mcp-server** | Run locally (`npm start`) or point to a deployed BTP endpoint |
+| **sap-dm-pod2-mcp-server** | Run locally (`npm start`) or point to a deployed endpoint |
 
 Start the server locally (Node.js ≥ 22):
 ```bash
