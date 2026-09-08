@@ -151,6 +151,10 @@ SAP_DM_TOKEN=<token> curl -H "Authorization: Bearer $SAP_DM_TOKEN" \
   -o docu/sap-dm-mdo-specs/metadata.xml
 ```
 
+The hostname depends on your system type: production systems use `api.<region>.dmc.cloud.sap`,
+test/non-production systems typically use `api.test.<region>.dmc.cloud.sap`. Check your SAP DM
+tenant's actual API URL (e.g. in the Fiori launchpad or your BTP subaccount) and adjust accordingly.
+
 **2. Generate the Markdown index:**
 
 ```bash
