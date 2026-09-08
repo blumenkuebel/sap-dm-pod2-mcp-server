@@ -209,6 +209,7 @@ GET /dmci/v4/extractor/ORDER?$expand=SFCS($expand=SFC_STEP_STATUSS)&$filter=PLAN
 - [Raw $metadata XML](metadata.xml) — Full OData V4 EDMX schema
 `;
 
+fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
 fs.writeFileSync(OUTPUT_PATH, md, 'utf-8');
 
 // Also copy to docu root for MCP server pattern docs visibility (git-ignored — SAP-derived)
