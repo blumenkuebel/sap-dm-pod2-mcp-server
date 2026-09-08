@@ -17,14 +17,13 @@
 //                   your SAP DM tenant actually runs. SAP DM's UI5 runtime version changes
 //                   with each release wave and does not follow a predictable formula.
 //
-// Defaults: version = DEFAULT_VERSION (SAP DM POD 2.0 UI5 target); libs = the OpenUI5
+// Defaults: version = "latest" (the SDK's currently active version); libs = the OpenUI5
 //           libraries relevant to SAP DM POD 2.0. Prefer passing the exact --version your
-//           tenant runs (see below) over --version latest, otherwise the fetched API docs
+//           tenant runs (see below) over the latest default, otherwise the fetched API docs
 //           may describe controls/properties that don't exist in your runtime yet.
 //
 // Finding your tenant's actual UI5 version: open the SAP DM Fiori launchpad, open the
-//           browser DevTools console, and evaluate `sap.ui.version`. Update DEFAULT_VERSION
-//           in src/config.ts and the DEFAULT_VERSION constant below whenever it changes.
+//           browser DevTools console, and evaluate `sap.ui.version`.
 //
 // Source endpoints:
 //   OpenUI5:  https://sdk.openui5.org/<ver>/docs/api/api-index.json
@@ -45,7 +44,7 @@ const OUT_DIR = join(__dirname, "..", "docu", "ui5-api-specs");
 
 const OPENUI5_BASE = "https://sdk.openui5.org";
 const SAPUI5_BASE  = "https://ui5.sap.com";
-const DEFAULT_VERSION = "1.136.15";
+const DEFAULT_VERSION = "latest";
 
 // OpenUI5-only libraries relevant to SAP DM POD 2.0.
 const DEFAULT_LIBS = [
