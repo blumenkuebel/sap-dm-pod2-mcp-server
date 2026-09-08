@@ -150,19 +150,21 @@ npm run generate-mdo-index
 Get a bearer token from the SAP DM Fiori launchpad developer tools. Tokens expire quickly,
 so export the metadata and run the generator in the same session.
 
-### Step 5: Update the POD2 API reference
+### Step 5: Optional - Update the POD2 API reference
 
-The POD2 API reference is included in `docu/pod2-api-specs/` and is ready to use after
-installation. To update it for another SAP Digital Manufacturing release, obtain the
-corresponding licensed POD2 JSDoc bundle, place its extracted files under
-`docu/_import/jsdoc-pod2-<YYMM>/docs`, and run:
+The POD2 API reference is included in `docu/pod2-api-specs/` and is ready to use. To
+update it to a different SAP Digital Manufacturing release, download the JSDoc bundle
+for that release (`jsdoc-pod2-<YYMM>.zip`) from
+[SAP-samples/digital-manufacturing-extension-samples](https://github.com/SAP-samples/digital-manufacturing-extension-samples/tree/main/documentation),
+extract it, then run the update script with the path to the extracted `docs` folder:
 
 ```bash
-npm run extract-docs -- --release <YYMM>
+npm run extract-docs -- /path/to/jsdoc-pod2-<YYMM>/docs --release <YYMM>
 ```
 
-This updates only the local POD2 API reference. It does not load the REST API or MDO
-metadata.
+`--release <YYMM>` labels the generated index with the release wave — pass the same
+`<YYMM>` as the downloaded bundle. This updates only the local POD2 API reference. It
+does not load the REST API or MDO metadata.
 
 ### Step 6: Start the server
 
