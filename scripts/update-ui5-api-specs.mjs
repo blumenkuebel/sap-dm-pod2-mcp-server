@@ -6,15 +6,25 @@
 // LICENSE and NOTICE stay alongside them (this script writes both into the output folder).
 //
 // Usage:
-//   node scripts/update-ui5-api-specs.mjs [--version 1.136.15] [--libs sap.m,sap.ui.core,...] [--source sapui5]
+//   node scripts/update-ui5-api-specs.mjs [--version 1.136.15|latest] [--libs sap.m,sap.ui.core,...] [--source sapui5]
 //
 // --source sapui5   Fetch from ui5.sap.com (proprietary SAPUI5) instead of sdk.openui5.org.
 //                   Unlocks all SAP-only libs (sap.chart, sap.viz, sap.gantt, sap.suite.*…).
 //                   ⚠️ Proprietary — for local use only under your SAP license. The output is
 //                   git-ignored and must not be redistributed.
+// --version latest  Resolve and fetch the SDK's currently active version. This is the
+//                   newest version the SDK publishes — it is NOT necessarily the version
+//                   your SAP DM tenant actually runs. SAP DM's UI5 runtime version changes
+//                   with each release wave and does not follow a predictable formula.
 //
 // Defaults: version = DEFAULT_VERSION (SAP DM POD 2.0 UI5 target); libs = the OpenUI5
-//           libraries relevant to SAP DM POD 2.0.
+//           libraries relevant to SAP DM POD 2.0. Prefer passing the exact --version your
+//           tenant runs (see below) over --version latest, otherwise the fetched API docs
+//           may describe controls/properties that don't exist in your runtime yet.
+//
+// Finding your tenant's actual UI5 version: open the SAP DM Fiori launchpad, open the
+//           browser DevTools console, and evaluate `sap.ui.version`. Update DEFAULT_VERSION
+//           in src/config.ts and the DEFAULT_VERSION constant below whenever it changes.
 //
 // Source endpoints:
 //   OpenUI5:  https://sdk.openui5.org/<ver>/docs/api/api-index.json
@@ -73,7 +83,7 @@ function parseArgs(argv) {
     else if (arg === "--libs") opts.libs = argv[++i].split(",").map((s) => s.trim()).filter(Boolean);
     else if (arg === "--source") opts.source = argv[++i].toLowerCase();
     else if (arg === "--help" || arg === "-h") {
-      console.log("Usage: node scripts/update-ui5-api-specs.mjs [--version X.Y.Z] [--libs sap.m,...] [--source openui5|sapui5]");
+      console.log("Usage: node scripts/update-ui5-api-specs.mjs [--version X.Y.Z|latest] [--libs sap.m,...] [--source openui5|sapui5]");
       process.exit(0);
     }
   }
@@ -89,6 +99,13 @@ async function fetchJson(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.json();
+}
+
+async function resolveLatestVersion(base) {
+  const info = await fetchJson(`${base}/versionoverview.json`);
+  const active = info.activeVersion || info.active;
+  if (!active) throw new Error(`Could not determine active version from ${base}/versionoverview.json`);
+  return active;
 }
 
 async function humanBytes(path) {
@@ -168,9 +185,15 @@ async function writeVersionDoc(version, libs, sapui5Base = null) {
 }
 
 async function main() {
-  const { version, libs, source } = parseArgs(process.argv.slice(2));
+  const { libs, source } = parseArgs(process.argv.slice(2));
+  let { version } = parseArgs(process.argv.slice(2));
   const isSapui5 = source === "sapui5";
   const base = isSapui5 ? SAPUI5_BASE : OPENUI5_BASE;
+
+  if (version.toLowerCase() === "latest") {
+    version = await resolveLatestVersion(base);
+    console.log(`Resolved --version latest → ${version} (SDK's newest release, may not match your SAP DM tenant)`);
+  }
 
   console.log(`Target:    ${isSapui5 ? "SAPUI5 (proprietary — local use only)" : "OpenUI5 (Apache-2.0)"} ${version}`);
   if (isSapui5) console.log("⚠️  Output is git-ignored and must NOT be redistributed.");
