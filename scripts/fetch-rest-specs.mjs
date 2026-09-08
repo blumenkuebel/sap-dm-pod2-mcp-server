@@ -198,28 +198,48 @@ function swaggerToOpenApi(spec) {
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
 
-  if (!opts.hubKey || !opts.hubCookie) {
-    console.error("Cannot fetch REST specs — credentials required.\n");
-    console.error("  SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE=<cookie> npm run fetch-rest-specs\n");
-    console.error("Get credentials:");
-    console.error("  API key : api.sap.com → profile → Settings → show API Key");
-    console.error("  Cookie  : DevTools (F12) → Network → any api.sap.com request → copy Cookie header");
+  if (!opts.hubKey) {
+    console.error("Cannot fetch REST specs — API key required.\n");
+    console.error("  SAP_API_HUB_KEY=<key> npm run fetch-rest-specs\n");
+    console.error("Get your API key: api.sap.com → profile → Settings → show API Key");
     process.exit(1);
   }
 
-  console.log("Fetching catalog from SAP Business Accelerator Hub...");
-  const catalogRes = await httpsGet(HUB_HOST, HUB_CATALOG, { Cookie: opts.hubCookie, Accept: "application/json" });
+  if (!existsSync(OUT_DIR)) await mkdir(OUT_DIR, { recursive: true });
 
-  if (catalogRes.body.trimStart().startsWith("<")) {
-    console.error("Catalog returned HTML — cookie is missing or expired. Refresh your api.sap.com session.");
+  // Build artifact list: catalog (needs cookie) or fall back to existing files
+  let artifactIds = [];
+
+  if (opts.hubCookie) {
+    console.log("Fetching catalog from SAP Business Accelerator Hub...");
+    const catalogHeaders = { Cookie: opts.hubCookie, Accept: "application/json" };
+    const catalogRes = await httpsGet(HUB_HOST, HUB_CATALOG, catalogHeaders);
+    if (catalogRes.body.trimStart().startsWith("<")) {
+      console.error("Catalog returned HTML — cookie is missing or expired. Continuing without catalog (using existing artifact list).");
+    } else {
+      const catalog = JSON.parse(catalogRes.body);
+      const all = catalog.d?.results ?? catalog.d ?? [];
+      const filtered = all.filter((a) => opts.hubStatuses.includes((a.State || "").toUpperCase()));
+      artifactIds = filtered.map((a) => a.Name || a.ID).filter(Boolean);
+      console.log(`Catalog: ${all.length} total, ${artifactIds.length} match [${opts.hubStatuses.join(",")}]`);
+    }
+  }
+
+  // Fall back: derive artifact IDs from existing JSON files already in OUT_DIR
+  if (artifactIds.length === 0 && existsSync(OUT_DIR)) {
+    const { readdir } = await import("node:fs/promises");
+    const existing = (await readdir(OUT_DIR)).filter((f) => f.endsWith(".json")).map((f) => f.replace(/\.json$/, ""));
+    if (existing.length) {
+      artifactIds = existing;
+      console.log(`No catalog available — using ${artifactIds.length} artifact IDs from existing files.`);
+    }
+  }
+
+  if (artifactIds.length === 0) {
+    console.error("No artifact IDs available. Provide SAP_API_HUB_COOKIE to fetch the catalog, or run once with existing files present.");
     process.exit(1);
   }
 
-  const catalog = JSON.parse(catalogRes.body);
-  const all = catalog.d?.results ?? catalog.d ?? [];
-  const filtered = all.filter((a) => opts.hubStatuses.includes((a.State || "").toUpperCase()));
-
-  console.log(`APIs in package: ${all.length} total, ${filtered.length} match [${opts.hubStatuses.join(",")}]`);
   console.log(`Release label:  ${opts.release}`);
   console.log("");
 
@@ -233,6 +253,9 @@ async function main() {
     process.stdout.write(`  → ${id} ... `);
     try {
       const res = await httpsGet(HUB_HOST, HUB_SPEC(id), { apikey: opts.hubKey, Cookie: opts.hubCookie, Accept: "application/json" });
+      if (res.body.trimStart().startsWith("<")) {
+        throw new Error("HTML response — API key invalid or expired (refresh at api.sap.com → Settings → API Key)");
+      }
       const raw = JSON.parse(res.body);
       const converted = swaggerToOpenApi(raw);
       await writeFile(join(OUT_DIR, `${id}.json`), JSON.stringify(converted, null, 2), "utf8");
