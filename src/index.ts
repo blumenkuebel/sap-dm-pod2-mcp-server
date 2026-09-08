@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { timingSafeEqual } from "node:crypto";
 import { FastMCP, type Logger } from "fastmcp";
 import { VERSION, PORT, LOG_LEVEL, type LogLevel } from "./config.js";
 import { registerGuidelinesTools } from "./tools/guidelines.js";
@@ -16,6 +17,14 @@ import { registerPrompts } from "./prompts/generators.js";
 // Optional bearer-token auth for the HTTP transport. Enabled only when
 // MCP_AUTH_TOKEN is set; empty/unset disables auth (local dev / stdio).
 const AUTH_TOKEN = process.env.MCP_AUTH_TOKEN?.trim();
+
+// Length-independent constant-time comparison to avoid leaking the token via timing.
+function constantTimeEquals(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 const LEVELS: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3 };
 
@@ -70,7 +79,7 @@ export function createServer(): FastMCP {
       const provided = headerValue?.startsWith("Bearer ")
         ? headerValue.slice("Bearer ".length)
         : headerValue;
-      if (!provided || provided !== AUTH_TOKEN) return null; // -> 401 Unauthorized
+      if (!provided || !constantTimeEquals(provided, AUTH_TOKEN)) return null; // -> 401 Unauthorized
       return {};
     },
     health: {
