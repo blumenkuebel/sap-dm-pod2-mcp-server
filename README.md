@@ -146,6 +146,7 @@ Digital Manufacturing tenant and generate the local index:
 **1. Export `$metadata` from your tenant** (requires a bearer token):
 
 ```bash
+mkdir -p docu/sap-dm-mdo-specs
 SAP_DM_TOKEN=<token> curl -H "Authorization: Bearer $SAP_DM_TOKEN" \
   "https://api.<region>.dmc.cloud.sap/dmci/v4/extractor/\$metadata" \
   -o docu/sap-dm-mdo-specs/metadata.xml
