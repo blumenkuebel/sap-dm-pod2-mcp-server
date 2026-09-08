@@ -116,6 +116,20 @@ SAP_API_HUB_KEY=AaBbCc123456 \
 
 Specs are converted from Swagger 2.0 to OpenAPI 3.0 automatically. Without `SAP_API_HUB_COOKIE` the catalog step is skipped and the script re-downloads specs for existing artifact IDs only.
 
+The **MDO Extractor metadata** comes from your own SAP DM tenant. Export the OData V4 `$metadata` document and save it as `docu/sap-dm-mdo-specs/metadata.xml`, then run the generator:
+
+```bash
+# 1. Export $metadata from your tenant (requires a bearer token)
+SAP_DM_TOKEN=<token> curl -H "Authorization: Bearer $SAP_DM_TOKEN" \
+  "https://api.<region>.dmc.cloud.sap/dmci/v4/extractor/\$metadata" \
+  -o docu/sap-dm-mdo-specs/metadata.xml
+
+# 2. Generate the Markdown index
+npm run generate-mdo-index
+```
+
+Get a bearer token: SAP DM Fiori launchpad → Developer Tools (F12) → Network → any `/api/` request → `Authorization: Bearer <token>` in the request headers. Tokens expire quickly — run both steps in the same session.
+
 **Choosing / bumping the release.** Set the release once via the `SAP_DM_RELEASE` env var
 (default: `DEFAULT_DM_RELEASE` in [`src/config.ts`](src/config.ts)), or per-invocation with
 `--release <YYMM>`. Each fetched spec set records its release in a `VERSION.md` inside its
