@@ -8,15 +8,17 @@
  *
  * Usage:
  *   SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE=<cookie> \
- *   node scripts/fetch-rest-specs.mjs [--statuses ACTIVE,BETA] [--release 2608]
+ *   node scripts/fetch-rest-specs.mjs [--statuses ACTIVE,BETA] [--release <label>]
  *
  * How to get credentials:
  *   API key :  api.sap.com → profile → Settings → show API Key  (or SAP_API_HUB_KEY env var)
  *   Cookie  :  DevTools (F12) → Network → any api.sap.com request → copy Cookie header
  *              (or SAP_API_HUB_COOKIE env var)
  *
- * Release label (YYMM, e.g. 2608): recorded in docu/sap-dm-api-specs/VERSION.md.
- *   --release 2608  or  env SAP_DM_RELEASE.  Default: 2608.
+ * SAP DM is SaaS: the Business Accelerator Hub always serves the current release, so this
+ * script always downloads the newest specs — there is no version selection. The optional
+ * --release label is only recorded in VERSION.md for your own reference; if omitted, the
+ * fetch date is used instead.
  */
 
 import { writeFile, mkdir } from "node:fs/promises";
@@ -28,7 +30,6 @@ import https from "node:https";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, "..", "docu", "sap-dm-api-specs");
 
-const DEFAULT_RELEASE = "2608"; // Keep in sync with src/config.ts DEFAULT_DM_RELEASE
 const HUB_HOST = "api.sap.com";
 const HUB_PACKAGE = "SAPDigitalManufacturingCloud";
 const HUB_CATALOG = `/odata/1.0/catalog.svc/APIContent.APIs?$filter=ParentTechnicalName%20eq%20'${HUB_PACKAGE}'&$format=json&$top=500`;
@@ -41,7 +42,7 @@ function parseArgs(argv) {
     hubKey: process.env.SAP_API_HUB_KEY || null,
     hubCookie: process.env.SAP_API_HUB_COOKIE || null,
     hubStatuses: ["ACTIVE"],
-    release: process.env.SAP_DM_RELEASE || DEFAULT_RELEASE,
+    release: process.env.SAP_DM_RELEASE || null,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -53,7 +54,7 @@ function parseArgs(argv) {
       console.log(
         "Usage: SAP_API_HUB_KEY=<key> SAP_API_HUB_COOKIE=<cookie> node scripts/fetch-rest-specs.mjs\n" +
         "  [--statuses ACTIVE,BETA]  lifecycle filter (default: ACTIVE)\n" +
-        "  [--release YYMM]          release label for VERSION.md (default: 2608)"
+        "  [--release <label>]       optional label for VERSION.md (default: fetch date; SaaS always serves newest)"
       );
       process.exit(0);
     }
@@ -240,7 +241,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Release label:  ${opts.release}`);
+  console.log(`Release label:  ${opts.release ?? "current (SaaS — newest available)"}`);
   console.log("");
 
   let ok = 0, fail = 0;
@@ -268,7 +269,7 @@ async function main() {
   const versionDoc = [
     "# SAP DM REST OpenAPI specs — local snapshot",
     "",
-    `**SAP DM release**: ${opts.release}`,
+    `**SAP DM release**: ${opts.release ?? `current (SaaS — newest available as of ${now})`}`,
     `**Fetched**: ${now}`,
     `**Source**: SAP Business Accelerator Hub (package: ${HUB_PACKAGE})`,
     "",
@@ -281,7 +282,7 @@ async function main() {
   await writeFile(join(OUT_DIR, "VERSION.md"), versionDoc, "utf8");
 
   console.log("");
-  console.log(`Done. ${ok} ok, ${fail} skipped. Release ${opts.release} recorded in VERSION.md.`);
+  console.log(`Done. ${ok} ok, ${fail} skipped. Recorded in VERSION.md.`);
   if (fail > 0) process.exitCode = 1;
 }
 
