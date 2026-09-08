@@ -24,6 +24,25 @@ function evictOldest(cache: Map<string, { ts: number; [key: string]: unknown }>)
   }
 }
 
+/**
+ * Shared TTL + LRU wrapper for every `dirListingCache` consumer.
+ * On a cache miss it invokes `compute`. A `null` return means "do not cache"
+ * (e.g. the directory is absent) so a later fetch of user-provided specs is
+ * picked up on the next call instead of after the TTL window.
+ */
+function cachedDirListing(cacheKey: string, compute: () => string[] | null): string[] {
+  const now = Date.now();
+  const cached = dirListingCache.get(cacheKey);
+  if (cached && now - cached.ts < CACHE_TTL_MS) return cached.files;
+
+  const files = compute();
+  if (files === null) return [];
+
+  dirListingCache.set(cacheKey, { files, ts: now });
+  evictOldest(dirListingCache);
+  return files;
+}
+
 export function getCacheStats() {
   return {
     filesCached: fileContentCache.size,
@@ -117,29 +136,23 @@ export function missingSpecsMessage(label: string, relDir: string): string {
 const EXCLUDED_DIRS = new Set(["node_modules", "dist", "build", ".git"]);
 
 export function listFilesRecursive(dir: string, prefix = ""): string[] {
-  const now = Date.now();
-  const cacheKey = `${dir}|${prefix}`;
-  const cached = dirListingCache.get(cacheKey);
-  if (cached && now - cached.ts < CACHE_TTL_MS) return cached.files;
+  return cachedDirListing(`${dir}|${prefix}`, () => {
+    if (!fs.existsSync(dir)) return null;
 
-  const results: string[] = [];
-  if (!fs.existsSync(dir)) return results;
-
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.name.startsWith(".")) continue;
-    if (EXCLUDED_DIRS.has(entry.name)) continue;
-    const relPath = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) {
-      results.push(...listFilesRecursive(path.join(dir, entry.name), relPath));
-    } else {
-      results.push(relPath);
+    const results: string[] = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name.startsWith(".")) continue;
+      if (EXCLUDED_DIRS.has(entry.name)) continue;
+      const relPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        results.push(...listFilesRecursive(path.join(dir, entry.name), relPath));
+      } else {
+        results.push(relPath);
+      }
     }
-  }
-
-  dirListingCache.set(cacheKey, { files: results, ts: now });
-  evictOldest(dirListingCache);
-  return results;
+    return results;
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -190,15 +203,7 @@ export function isTextFile(filePath: string): boolean {
 // TTL-cached single-directory listing. Returns [] when the directory is absent
 // (graceful degradation for git-ignored, user-fetched spec sets).
 function cachedListing(cacheKey: string, dir: string, produce: (dir: string) => string[]): string[] {
-  const now = Date.now();
-  const cached = dirListingCache.get(cacheKey);
-  if (cached && now - cached.ts < CACHE_TTL_MS) return cached.files;
-
-  if (!fs.existsSync(dir)) return [];
-  const files = produce(dir);
-
-  dirListingCache.set(cacheKey, { files, ts: now });
-  return files;
+  return cachedDirListing(cacheKey, () => (fs.existsSync(dir) ? produce(dir) : null));
 }
 
 /**
