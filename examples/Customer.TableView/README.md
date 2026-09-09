@@ -109,4 +109,3 @@ The Production Process must return the following structure:
 ## **Disclaimer**
 
 This application is **not an official SAP product** and is **not supported by SAP**.
-It was developed as part of a service delivery.
