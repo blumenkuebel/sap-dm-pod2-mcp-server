@@ -77,4 +77,3 @@ No specific response structure is expected. The action does not process the PPD 
 ## **Disclaimer**
 
 This application is **not an official SAP product** and is **not supported by SAP**.
-It was developed as part of a service delivery.
