@@ -152,4 +152,3 @@ The `CoatingExecutionAction` sends the following parameters to the configured Ex
 ## **Disclaimer**
 
 This application is **not an official SAP product** and is **not supported by SAP**.
-It was developed as part of a service delivery. The source code is provided to the customer for further development and maintenance.
