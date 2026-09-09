@@ -250,8 +250,11 @@ MCP_AUTH_TOKEN=<your-token> npm start
 ```bash
 npm run typecheck   # Type-check without building
 npm run build       # Compile TypeScript → dist/
+npm test            # Build + run tests
 npm start           # HTTP on port 3001
 npm run start:stdio # stdio transport
+npm run lint        # ESLint
+npm run format      # Prettier (write)
 ```
 
 ---
@@ -275,6 +278,7 @@ sap-dm-pod2-mcp-server/
 │   ├── ui5-api-specs/        ← SAPUI5 API metadata — generated locally, not shipped
 │   └── sap-dm-mdo-specs/     ← MDO Extractor metadata — fetched locally, not shipped
 ├── scripts/                  ← Spec fetch/extract generators (prepare:specs, fetch-rest-specs, …)
+├── test/                     ← Node built-in test suite (helpers, tools, server)
 ├── examples/                 ← Production-grade reference plugins
 │   ├── Customer.Coating/
 │   ├── Customer.HelloWorld/
