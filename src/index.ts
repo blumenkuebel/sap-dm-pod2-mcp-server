@@ -28,28 +28,54 @@ function constantTimeEquals(a: string, b: string): boolean {
 
 const LEVELS: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3 };
 
+// ANSI color helpers — no external dependency needed
+const C = {
+  reset:  "\x1b[0m",
+  bold:   "\x1b[1m",
+  dim:    "\x1b[2m",
+  cyan:   "\x1b[36m",
+  green:  "\x1b[32m",
+  yellow: "\x1b[33m",
+  red:    "\x1b[31m",
+  blue:   "\x1b[34m",
+  magenta:"\x1b[35m",
+  white:  "\x1b[37m",
+  gray:   "\x1b[90m",
+};
+
+const LEVEL_STYLE: Record<string, string> = {
+  DEBUG: `${C.gray}[DEBUG]${C.reset}`,
+  INFO:  `${C.green}[INFO]${C.reset} `,
+  WARN:  `${C.yellow}[WARN]${C.reset} `,
+  ERROR: `${C.red}${C.bold}[ERROR]${C.reset}`,
+  LOG:   `${C.blue}[LOG]${C.reset}  `,
+};
+
 // stderr-only so the stdio transport's stdout JSON-RPC channel stays clean
 class StderrLogger implements Logger {
   #enabled(level: LogLevel): boolean {
     return LEVELS[level] >= LEVELS[LOG_LEVEL];
   }
   #ts(): string {
-    return new Date().toLocaleTimeString("de-DE", { hour12: false });
+    return `${C.gray}${new Date().toLocaleTimeString("de-DE", { hour12: false })}${C.reset}`;
+  }
+  #fmt(label: string, args: unknown[]): string {
+    return `${this.#ts()} ${LEVEL_STYLE[label]} ${args.map(String).join(" ")}`;
   }
   debug(...args: unknown[]): void {
-    if (this.#enabled("debug")) console.error(`[${this.#ts()}] [DEBUG]`, ...args);
+    if (this.#enabled("debug")) console.error(this.#fmt("DEBUG", args));
   }
   info(...args: unknown[]): void {
-    if (this.#enabled("info")) console.error(`[${this.#ts()}] [INFO]`, ...args);
+    if (this.#enabled("info")) console.error(this.#fmt("INFO", args));
   }
   warn(...args: unknown[]): void {
-    if (this.#enabled("warn")) console.error(`[${this.#ts()}] [WARN]`, ...args);
+    if (this.#enabled("warn")) console.error(this.#fmt("WARN", args));
   }
   error(...args: unknown[]): void {
-    if (this.#enabled("error")) console.error(`[${this.#ts()}] [ERROR]`, ...args);
+    if (this.#enabled("error")) console.error(this.#fmt("ERROR", args));
   }
   log(...args: unknown[]): void {
-    if (this.#enabled("info")) console.error(`[${this.#ts()}] [LOG]`, ...args);
+    if (this.#enabled("info")) console.error(this.#fmt("LOG", args));
   }
 }
 
@@ -113,10 +139,23 @@ function startServer(): void {
   });
 
   if (!isStdio) {
-    logger.info(`sap-dm-pod2-mcp-server v${VERSION} listening on port ${PORT}`);
-    logger.info(
-      `Auth: ${AUTH_TOKEN ? "enabled (Bearer token required)" : "disabled (set MCP_AUTH_TOKEN to require a Bearer token)"}`,
-    );
+    const banner = [
+      "",
+      `${C.cyan}${C.bold}  ██████╗  ██████╗ ██████╗ ██████╗ ${C.reset}`,
+      `${C.cyan}${C.bold}  ██╔══██╗██╔═══██╗██╔══██╗╚════██╗${C.reset}`,
+      `${C.cyan}${C.bold}  ██████╔╝██║   ██║██║  ██║ █████╔╝${C.reset}`,
+      `${C.cyan}${C.bold}  ██╔═══╝ ██║   ██║██║  ██║██╔═══╝ ${C.reset}`,
+      `${C.cyan}${C.bold}  ██║     ╚██████╔╝██████╔╝███████╗${C.reset}`,
+      `${C.cyan}${C.bold}  ╚═╝      ╚═════╝ ╚═════╝ ╚══════╝${C.reset}`,
+      "",
+      `${C.bold}  SAP Digital Manufacturing · POD2 MCP Server${C.reset}`,
+      `${C.gray}  ─────────────────────────────────────────────${C.reset}`,
+      `${C.green}  ✓${C.reset} Version  ${C.bold}v${VERSION}${C.reset}`,
+      `${C.green}  ✓${C.reset} Port     ${C.bold}${PORT}${C.reset}`,
+      `${C.green}  ✓${C.reset} Auth     ${C.bold}${AUTH_TOKEN ? "enabled (Bearer token)" : "disabled"}${C.reset}`,
+      "",
+    ].join("\n");
+    process.stderr.write(banner);
   }
 }
 
