@@ -70,7 +70,7 @@ npm run build
 **Requirements:** Node.js ≥ 22
 
 
-The server can start without tenant-specific SAP specifications. Tools that require them
+The server can start without SAP specifications. Tools that require them
 return a clear message explaining which preparation command is missing.
 
 ### Step 2: Prepare the SAPUI5 API reference
@@ -82,7 +82,7 @@ the UI5 version used by your SAP Digital Manufacturing system:
 npm run update-ui5-api-specs -- --source sapui5
 ```
 
-The metadata is written to the git-ignored `docu/ui5-api-specs/` directory and is used by
+The metadata is written to the `docu/ui5-api-specs/` directory and is used by
 the `list_ui5_libraries`, `search_ui5_api`, and `get_ui5_api` tools. SAPUI5 metadata is
 proprietary and must not be redistributed. By default this fetches the SDK's newest
 published version, which is **not** the same as your tenant's actual runtime version and
