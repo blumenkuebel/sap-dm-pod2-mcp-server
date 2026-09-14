@@ -306,7 +306,7 @@ sap-dm-pod2-mcp-server/
 
 ## License
 
-Licensed under the [MIT License](LICENSE) — © 2026 sap-dm-pod2-mcp-server contributors.
+Licensed under the [MIT License](LICENSE) — © 2026 sap-dm-pod2-mcp-server blumenkuebel.
 
 Third-party attributions are collected in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md):
 
