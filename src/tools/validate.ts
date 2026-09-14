@@ -8,7 +8,7 @@ export function registerValidateTools(server: FastMCP): void {
     name: "validate_project",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Validates the POD2 plugin in the current working directory against ALL latest standards: common-mistakes (#0-#32+), SAP DM REST API versions (v1/v2/v3), POD2 Public/Internal API usage, ModelPath/PodContext consistency, MDO/OData. Returns full validation instructions — the agent then executes the 6-phase workflow and writes VALIDATION-REPORT.md.",
+      "Validates the POD2 extension in the current working directory against ALL latest standards: common-mistakes (#0-#32+), SAP DM REST API versions (v1/v2/v3), POD2 Public/Internal API usage, ModelPath/PodContext consistency, MDO/OData. Returns full validation instructions — the agent then executes the 6-phase workflow and writes VALIDATION-REPORT.md.",
     parameters: undefined,
     execute: async () => {
       const docPath = path.join(DOCU_DIR, "validate-project-instructions.md");

@@ -9,7 +9,7 @@
 
 ---
 
-Validate the POD 2.0 plugin in the **current working directory** against the latest pod2-mcp-server standards.
+Validate the POD 2.0 extension in the **current working directory** against the latest pod2-mcp-server standards.
 
 Scope is **always full** — every applicable rule must be checked.
 
@@ -17,9 +17,9 @@ Scope is **always full** — every applicable rule must be checked.
 
 ## Phase 0 — Discovery
 
-1. **Verify it is a POD 2.0 plugin project**: `extension.json` MUST exist in the working directory root. If not, abort with a clear error message.
+1. **Verify it is a POD 2.0 extension project**: `extension.json` MUST exist in the working directory root. If not, abort with a clear error message.
 2. List the project tree (skip `node_modules/`, `.git/`, `dist/`, `.scaffold-done`, `VALIDATION-REPORT.md`).
-3. Identify the plugin structure:
+3. Identify the extension structure:
    - `extension.json`
    - `widget/*.js` (zero or one widget)
    - `action/*.js` (zero or more actions)
@@ -50,7 +50,7 @@ Call these MCP tools in order:
 9. `list_api_docs({ namespace: "sap.dm.dme.pod2.api", limit: 200 })` — current Public/Internal POD2 API surface
 10. `get_example({ plugin: "Customer.Coating" })` — Best-Practice reference implementation (Ground Truth for Phase 3b)
 
-## Phase 2 — Read Plugin Source
+## Phase 2 — Read Extension Source
 
 Read every relevant file (full text):
 - `extension.json`
@@ -86,8 +86,8 @@ For each rule in the common-mistakes category files, run a concrete detection. G
   - Comparisons like `sfcStatusCode === 401` (number) MUST be `=== "401"` (string). Same for filters, switch cases.
 - **M31 — Control ID must be FIRST positional arg**
   - Detect anti-patterns: `oControl.setId(oConfig.id)`, `{ id: oConfig.id, ... }` in mSettings, build-then-setId in two statements.
-- **M41 — Non-existent AMD module path (runtime 404 during plugin load)**
-  - Certain UI5 class names live in `sap.ui.core`, NOT in `sap.m`. Guessing the AMD path from the fully-qualified class name (`sap.m.Item` → `sap/m/Item`) hits a hard 404 at plugin-load time — the entire widget never registers.
+- **M41 — Non-existent AMD module path (runtime 404 during extension load)**
+  - Certain UI5 class names live in `sap.ui.core`, NOT in `sap.m`. Guessing the AMD path from the fully-qualified class name (`sap.m.Item` → `sap/m/Item`) hits a hard 404 at extension-load time — the entire widget never registers.
   - **Detection (Error, auto-fixable)**: `grep -rnE '"sap/m/(Item|Icon|ListItem|Element|Control|Fragment|HTML)"' widget/ action/ context/ util/`
   - **Fix (mechanical)**: replace the module string with `sap/ui/core/<Name>` — the destructured variable name in the factory callback stays the same.
 
@@ -165,8 +165,8 @@ For each rule in the common-mistakes category files, run a concrete detection. G
   - Reference: `common-mistakes-imports.md` #M71, `pod2-public-api-pattern.md` §Subscribe Example, `get_api_doc({ name: "PodNotificationWebSocket" })` / `get_api_doc({ name: "Logger" })`.
 
 
-- **M72 — Internal / app-router API hard-wired into plugin source (public-API-first)** → ⚠️ Warning (works in one tenant, breaks across tenants/releases)
-  - Plugin source calls an unversioned internal surface (execution host, `~GUID~`, `dmi/cdt` / `dim/destinations`) instead of a public REST API. Such surfaces are for agent-side discovery (`sap-dm-api-mcp-server.call_internal_api`), not plugin code. See `common-mistakes-data.md` #M72.
+- **M72 — Internal / app-router API hard-wired into extension source (public-API-first)** → ⚠️ Warning (works in one tenant, breaks across tenants/releases)
+  - Extension source calls an unversioned internal surface (execution host, `~GUID~`, `dmi/cdt` / `dim/destinations`) instead of a public REST API. Such surfaces are for agent-side discovery (`sap-dm-api-mcp-server.call_internal_api`), not extension code. See `common-mistakes-data.md` #M72.
   - **Detection**:
     - `grep -rnE '\.execution\.[a-z0-9-]+\.web\.dmc\.cloud\.sap|~[A-Za-z0-9-]+~|dmi/cdt|dim/destinations' widget/ action/ context/ util/` — any hit is a finding. **Do NOT** flag `ApiClient.internal.processengine` — that is a documented framework API, not an app-router call.
   - Auto-fixable: **NO** — requires finding the equivalent public REST API (`search_rest_apis`) or explicit user confirmation to keep the internal call.
@@ -279,7 +279,7 @@ For each rule in the common-mistakes category files, run a concrete detection. G
 
 - **M36 — Deprecated SAPUI5 pseudo-module enum imports** → ⚠️ Warning (deprecation console noise, will break in future UI5)
   - **MUST load:** `get_pattern_doc({ name: "deprecated-imports" })` — this is the **exhaustive reference** with exact lists and grep commands.
-  - **Detection:** Run the EXACT grep commands from `deprecated-imports.md` against the plugin source. Do NOT use heuristics or guessing. The doc contains complete lists for both `sap/m/` and `sap/ui/core/` deprecated enums.
+  - **Detection:** Run the EXACT grep commands from `deprecated-imports.md` against the extension source. Do NOT use heuristics or guessing. The doc contains complete lists for both `sap/m/` and `sap/ui/core/` deprecated enums.
   - **Common findings:** `ButtonType`, `InputType`, `ListSeparators`, `ListMode`, `PlacementType`, `ValueState`, `MessageType`, `TextAlign`, `FlexAlignItems`, etc.
   - **Important:** Do NOT confuse enum pseudo-modules with Control classes! `sap/m/Button` is a Control (valid). `sap/m/ButtonType` is an enum (deprecated). The `deprecated-imports.md` doc lists BOTH deprecated enums AND valid controls explicitly.
   - Fix: Replace `import X from "sap/m/X"` with `import mLibrary from "sap/m/library"; const { X } = mLibrary;`
@@ -293,7 +293,7 @@ For each rule in the common-mistakes category files, run a concrete detection. G
 
 ### HTML5 Residue (Errors + Warnings — critical for plugins produced by `sourceFormat: "html5"` migrations)
 
-These findings indicate the migration agent left source-code idioms from the HTML5 origin in the produced plugin. They correspond 1:1 to the `migrate_widget` Phase 5b Residue Gate — a validator run on a shipped plugin should produce zero of these.
+These findings indicate the migration agent left source-code idioms from the HTML5 origin in the produced extension. They correspond 1:1 to the `migrate_widget` Phase 5b Residue Gate — a validator run on a shipped extension should produce zero of these.
 
 **Errors** (block sign-off):
 
@@ -338,16 +338,16 @@ Report structure: in `VALIDATION-REPORT.md`, add a new section **"§1c. HTML5 Re
 
 ## Phase 3b — Best-Practice Pattern Audit (structural comparison against reference examples)
 
-This phase compares the plugin's **architecture and code patterns** against the Best-Practice standard defined in `docu/basics.md`, `docu/widget-patterns-core.md`, and the production-grade reference example `Customer.Coating`.
+This phase compares the extension's **architecture and code patterns** against the Best-Practice standard defined in `docu/basics.md`, `docu/widget-patterns-core.md`, and the production-grade reference example `Customer.Coating`.
 
 ### Load reference material
 
 1. `get_pattern_doc({ name: "basics" })` — if not already loaded in Phase 1
 2. `get_example({ plugin: "Customer.Coating" })` — load the full reference implementation as Ground Truth
 
-### Structural checks (compare plugin structure ↔ reference)
+### Structural checks (compare extension structure ↔ reference)
 
-For each component type present in the plugin, verify it follows the Best-Practice pattern:
+For each component type present in the extension, verify it follows the Best-Practice pattern:
 
 #### Widget (if present)
 
@@ -421,7 +421,7 @@ Add findings to the same `VALIDATION-REPORT.md` under a new section **"§1b. Bes
 
 Not every deviation from the default Best-Practice is a bug. A user may **intentionally** use a non-standard control or pick a different pattern for good reasons. The validator **must respect** these decisions and never aggressively flag them as auto-fixable errors.
 
-**Exception**: styling deviations (`sap/ui/core/HTML` with `<style>`, inline `style=`, plugin CSS files, non-whitelisted `addStyleClass`) are NOT respected by Rule 2's auto-downgrade — see M61 umbrella. They require the explicit `// standard-only: exception — <reason>` marker documented below.
+**Exception**: styling deviations (`sap/ui/core/HTML` with `<style>`, inline `style=`, extension CSS files, non-whitelisted `addStyleClass`) are NOT respected by Rule 2's auto-downgrade — see M61 umbrella. They require the explicit `// standard-only: exception — <reason>` marker documented below.
 
 ### How to detect intentional deviations
 
@@ -459,11 +459,11 @@ Some checks are about **broken** code, not preferences. These cannot be downgrad
 - **M14 — model not initialized before bindings** (broken binding)
 - **M29 — SFC status as number** (silent filter failure)
 - **M31 — control ID via setId/property** (POD lifecycle assertion fails)
-- **M41 — non-existent AMD module path** (`sap/m/Item`, `sap/m/Icon`, … — 404 at plugin-load; whole widget never registers)
-- **M42 — custom control `.extend()` without `renderer` in metadata** (`<Name>Renderer.js` 404 at plugin-load)
+- **M41 — non-existent AMD module path** (`sap/m/Item`, `sap/m/Icon`, … — 404 at extension-load; whole widget never registers)
+- **M42 — custom control `.extend()` without `renderer` in metadata** (`<Name>Renderer.js` 404 at extension-load)
 - **M43 — String passed to UI5 numeric property** (`validateProperty` throws at first refresh — feature dead)
 - **M60 — custom control class for pure display composition** (a template masquerading as a control — see M60)
-- **M61 — plugin CSS surface** (physical `widget/css/*.css` without loader / inline `style="..."` / `HTML` with `<style>` / non-Fiori-prefix `addStyleClass` or `class=`). Dead CSS specifically — a `.css` file with no `includeStyleSheet`/`createStyleSheet`/`IconPool.registerStyleSheet`/`css!` call — is treated as broken code because a real migration shipped ~200 LOC of never-loaded CSS.
+- **M61 — extension CSS surface** (physical `widget/css/*.css` without loader / inline `style="..."` / `HTML` with `<style>` / non-Fiori-prefix `addStyleClass` or `class=`). Dead CSS specifically — a `.css` file with no `includeStyleSheet`/`createStyleSheet`/`IconPool.registerStyleSheet`/`css!` call — is treated as broken code because a real migration shipped ~200 LOC of never-loaded CSS.
 - **Cat 29** — custom composite where a standard SAPUI5 control exists (S1-S7)
 - API version Errors when the used version no longer exists in `list_rest_apis`
 
@@ -502,7 +502,7 @@ These are the kinds of patterns where the markers/heuristic protect intentional 
 | Direct `fetch()` to a non-DM service | ✅ Calling a non-SAP-DM backend (e.g. plant MES) |
 | Polling intervals (`setInterval`) | ✅ Live monitoring where pull is the only option — but store the handle in a private field and clear in `onExit` (Cat 20 / M9) |
 | `class:` in mSettings (instead of `.addStyleClass()`) | ❌ Almost never intentional — M10 real bug, do flag |
-| `.addStyleClass("<plugin-prefix>Foo")` — non-Fiori class name | ❌ **Not allowed** — M61 whitelist. Use `sapUi{Tiny,Small,Medium,Large}Margin*` utility classes or refactor to a semantic control. |
+| `.addStyleClass("<extension-prefix>Foo")` — non-Fiori class name | ❌ **Not allowed** — M61 whitelist. Use `sapUi{Tiny,Small,Medium,Large}Margin*` utility classes or refactor to a semantic control. |
 | `widget/css/*.css` file | ❌ **Not allowed by default** — M61. A CSS file without a documented stylesheet loader call (`includeStyleSheet` / `IconPool.registerStyleSheet` / `css!`) is dead code. Delete the file AND every `class="lm*"` attribute referencing it. |
 
 ### How to format respected deviations in the report
@@ -527,13 +527,13 @@ Be transparent: still surface the finding so the user has visibility, but make i
 
 ### 4a) SAP DM REST APIs (v1 / v2 / v3)
 
-1. Scan plugin code for any of these patterns:
+1. Scan extension code for any of these patterns:
    - URL strings: `/dm/<service>/v1/...`, `/dm/<service>/v2/...`, `/dm/<service>/v3/...`
    - `ApiClient.rest.<service>.<method>` (or any `RestClient` usage)
    - Plain `fetch("...")` / `XMLHttpRequest` to SAP DM URLs
 2. Build a set of (service, version-used) tuples.
 3. Cross-check against `list_rest_apis`. For each service:
-   - **Highest version available in specs > version used by plugin** → ⚠️ **Warning** "Upgrade recommended: vX → vY"
+   - **Highest version available in specs > version used by extension** → ⚠️ **Warning** "Upgrade recommended: vX → vY"
    - **Only newer version exists in specs (legacy version no longer documented)** → ❌ **Error** "Used version no longer documented — likely deprecated"
    - **Used version matches latest** → ✅ Info "Up-to-date"
 4. For each used endpoint, optionally call `get_rest_api({ serviceName, summary: true })` and verify endpoint path/fields/response shape.

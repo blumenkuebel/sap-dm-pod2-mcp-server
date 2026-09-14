@@ -15,7 +15,7 @@ export const SECTION_KEY_APIS = [
   "- `ExecutionPublicApiClient` - Execution operations",
   "- `NumberFormatter` / `StringFormatter` - Locale-aware display formatting",
   "- `PodNotificationWebSocket` - Real-time server-push events (subscribe to plant events)",
-  "- `ActionRegistry` / `WidgetRegistry` - Programmatic plugin discovery",
+  "- `ActionRegistry` / `WidgetRegistry` - Programmatic extension discovery",
   "- Use `get_api_doc` for full method documentation",
   "",
   "## Critical Import Paths",

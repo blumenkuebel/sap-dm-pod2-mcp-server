@@ -123,7 +123,7 @@ See [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit-unsubscrib
 
 **Error**: Files in wrong location (`mycompany/extension.json` instead of root)
 
-**Rule**: *Wrapper* folders are forbidden — the working directory itself IS where the plugin lives. Its physical folder *name* is irrelevant to the namespace (see [Mistake #0](#mistake-0-wrong-namespace-in-extensionjson)), but nothing may nest **inside** the working directory as a wrapper `<name>/` folder. All plugin files (`extension.json`, `widget/`, `action/`, `context/`, `i18n/`, `README.md`) go directly at the root of the working directory.
+**Rule**: *Wrapper* folders are forbidden — the working directory itself IS where the extension lives. Its physical folder *name* is irrelevant to the namespace (see [Mistake #0](#mistake-0-wrong-namespace-in-extensionjson)), but nothing may nest **inside** the working directory as a wrapper `<name>/` folder. All extension files (`extension.json`, `widget/`, `action/`, `context/`, `i18n/`, `README.md`) go directly at the root of the working directory.
 
 Read together with #0: the folder-name is a free-form identifier used for git/ZIP filenames; the namespace lives in `extension.json` (`modulePath` + `type`). The bug this mistake catches is a different one — creating an extra directory *inside* the working directory that mirrors the namespace path (e.g. `<cwd>/mycompany/extension.json`).
 

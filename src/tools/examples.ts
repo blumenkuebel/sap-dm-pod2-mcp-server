@@ -12,7 +12,7 @@ export function registerExamplesTools(server: FastMCP): void {
     name: "list_examples",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Lists all available POD2 reference example plugins with their file structure. These are production-grade Ground Truth examples showing correct patterns for Widgets, Actions, Context singletons, and i18n.",
+      "Lists all available POD2 reference example extensions with their file structure. These are production-grade Ground Truth examples showing correct patterns for Widgets, Actions, Context singletons, and i18n.",
     parameters: undefined,
     execute: async () => {
       if (!fs.existsSync(EXAMPLES_DIR)) {
@@ -22,7 +22,7 @@ export function registerExamplesTools(server: FastMCP): void {
         .readdirSync(EXAMPLES_DIR, { withFileTypes: true })
         .filter((d) => d.isDirectory() && !d.name.startsWith("."));
       if (entries.length === 0) {
-        return "No example plugins found in examples/";
+        return "No example extensions found in examples/";
       }
       const sections: string[] = [];
       for (const dir of entries) {
@@ -45,7 +45,7 @@ export function registerExamplesTools(server: FastMCP): void {
           `📦 **${dir.name}**${description ? ` – ${description}` : ""}\n` + files.map((f) => `  ${f}`).join("\n"),
         );
       }
-      return `POD2 Reference Examples (${entries.length} plugins):\n\n${sections.join("\n\n")}\n\n→ Use 'get_example' with plugin name and optional file path to read source code.`;
+      return `POD2 Reference Examples (${entries.length} extensions):\n\n${sections.join("\n\n")}\n\n→ Use 'get_example' with the extension name (the `plugin` parameter) and optional file path to read source code.`;
     },
   });
 
@@ -53,22 +53,22 @@ export function registerExamplesTools(server: FastMCP): void {
     name: "get_example",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Returns the source code of a specific file from a POD2 reference example plugin. Use to see production-grade Ground Truth code patterns. If no file specified, returns all files concatenated.",
+      "Returns the source code of a specific file from a POD2 reference example extension. Use to see production-grade Ground Truth code patterns. If no file specified, returns all files concatenated.",
     parameters: z.object({
       plugin: z
         .string()
-        .describe("Plugin directory name (e.g. 'Customer.Coating', 'Customer.TableView', 'Customer.Utils')"),
+        .describe("Extension directory name (e.g. 'Customer.Coating', 'Customer.TableView', 'Customer.Utils')"),
       file: z
         .string()
         .optional()
         .describe(
-          "Optional: specific file path within the plugin (e.g. 'widget/CoatingWidget.js', 'action/CoatingValidationAction.js', 'extension.json')",
+          "Optional: specific file path within the extension (e.g. 'widget/CoatingWidget.js', 'action/CoatingValidationAction.js', 'extension.json')",
         ),
     }),
     execute: async ({ plugin, file }) => {
       const pluginPath = safePath(EXAMPLES_DIR, plugin);
       if (!pluginPath) {
-        throw new UserError(`[Error: Invalid plugin name "${plugin}" – path traversal not allowed.]`);
+        throw new UserError(`[Error: Invalid extension name "${plugin}" – path traversal not allowed.]`);
       }
       if (!fs.existsSync(pluginPath)) {
         const available = fs.existsSync(EXAMPLES_DIR)
@@ -77,7 +77,7 @@ export function registerExamplesTools(server: FastMCP): void {
               .filter((d) => d.isDirectory() && !d.name.startsWith("."))
               .map((d) => d.name)
           : [];
-        throw new UserError(`Plugin "${plugin}" not found.\n\nAvailable: ${available.join(", ") || "(none)"}`);
+        throw new UserError(`Extension "" not found.\n\nAvailable: ${available.join(", ") || "(none)"}`);
       }
       if (file) {
         const filePath = safePath(pluginPath, file);

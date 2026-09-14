@@ -31,7 +31,7 @@ return new VBox(oConfig.id, {
 
 **Why this happens**: Unlike HTML where `class` is an attribute, UI5 controls don't have a `class` property. Use the `addStyleClass()` method to add CSS classes.
 
-> **M61 umbrella extends this**: `addStyleClass()` is mechanically correct, but the class string must come from the M61 whitelist (`sapUi*`, `sapM*`, `sapTnt*`, `sapF*`, `sapUxAP*`, `sapUshell*`). A plugin-owned class name like `"myCustomClass"` is an M61 error — see M61 for the whitelist, replacements (utility classes for spacing, semantic controls for typography), and the `standard-only: exception — <reason>` marker syntax.
+> **M61 umbrella extends this**: `addStyleClass()` is mechanically correct, but the class string must come from the M61 whitelist (`sapUi*`, `sapM*`, `sapTnt*`, `sapF*`, `sapUxAP*`, `sapUshell*`). A extension-owned class name like `"myCustomClass"` is an M61 error — see M61 for the whitelist, replacements (utility classes for spacing, semantic controls for typography), and the `standard-only: exception — <reason>` marker syntax.
 
 ---
 
@@ -509,7 +509,7 @@ Any hit is a bug — convert it to the positional form.
 
 ---
 
-## Mistake #42: Custom control (`.extend(...)`) without `renderer` — 404 during plugin load ❌ → ✅ (RUNTIME 404)
+## Mistake #42: Custom control (`.extend(...)`) without `renderer` — 404 during extension load ❌ → ✅ (RUNTIME 404)
 
 **Symptom (verbatim)**:
 
@@ -520,7 +520,7 @@ Uncaught ModuleError: failed to load
 from …/dme/podfoundation-ms/Extensions/Customer.<Name>/N/files/widget/kpi/<Name>Renderer.js: 404
 ```
 
-**Why it's wrong**: When you call `<BaseControl>.extend("customer.custom.extensions.<name>.widget.<Name>", { metadata: { ... } })` and do NOT provide a `renderer` in the metadata block, UI5 assumes the class has its own custom renderer and issues a synchronous HTTP GET for `<Name>Renderer.js` next to the source file. In a POD 2.0 plugin that file does not exist → hard 404 → the entire widget module fails to load.
+**Why it's wrong**: When you call `<BaseControl>.extend("customer.custom.extensions.<name>.widget.<Name>", { metadata: { ... } })` and do NOT provide a `renderer` in the metadata block, UI5 assumes the class has its own custom renderer and issues a synchronous HTTP GET for `<Name>Renderer.js` next to the source file. In a POD 2.0 extension that file does not exist → hard 404 → the entire widget module fails to load.
 
 Extending a POD 2.0 layout container (`CustomVBox`, `CustomHBox`, `CustomPanel`, `CustomText`) is the common case — you almost never need a new renderer, because the composite children in `init()` already handle rendering via the parent's aggregation.
 
@@ -581,7 +581,7 @@ The `render` property inside the passed-in `renderer` object (or the object itse
 
 ### Related
 
-- [Mistake #41: Non-existent module paths](common-mistakes-imports.md#mistake-41-non-existent-module-paths-sapmitem-sapmicon----runtime-404--plugin-fails-to-load) — same failure mode (404 during plugin load), different trap.
+- [Mistake #41: Non-existent module paths](common-mistakes-imports.md#mistake-41-non-existent-module-paths-sapmitem-sapmicon----runtime-404--extension-fails-to-load) — same failure mode (404 during extension load), different trap.
 
 ---
 
@@ -1046,7 +1046,7 @@ No new class file. Fiori tokens propagate. `indicator` handles trend arrows. `va
 
 ---
 
-## Mistake #61: No plugin-owned CSS surface — Fiori standard controls only ❌ → ✅ (STYLING BAN)
+## Mistake #61: No extension-owned CSS surface — Fiori standard controls only ❌ → ✅ (STYLING BAN)
 
 > **Specialisation of [`basics.md`](../basics.md) §0 — Prime Directive: Standard Controls Before Custom.** Custom CSS is the most common way developers try to skip the Escalation Ladder — instead of climbing to a larger standard control that already carries the desired visual, they paint the missing style onto a smaller one. Every M61 finding is really a "which standard control was NOT climbed to?" question.
 
@@ -1054,10 +1054,10 @@ No new class file. Fiori tokens propagate. `indicator` handles trend arrows. `va
 
 Every one of the following is a hard error unless the offending line carries a `// standard-only: exception — <one-sentence reason>` marker (see §Exception marker below):
 
-- **No physical `widget/css/*.css` file** unless the widget's `init()` (or a Component `init()`) contains a documented stylesheet loader call: `sap.ui.core.IconPool.registerStyleSheet(...)`, `jQuery.sap.includeStyleSheet(...)` (deprecated but works), or `sap.ui.require(["...css!..."], ...)`. **A CSS file with no loader is dead code** — a real HTML5→POD 2.0 migration shipped ~200 LOC of `widget/css/style.css` with 20 classes and 60 `class="lm*"` XML attributes; **none of it was ever loaded at runtime**. The plugin still looked correct because Fiori theme + `sapUi*Margin*` utility classes already covered the rendering. Delete the file AND strip every `class="lm*"` attribute in the same commit.
+- **No physical `widget/css/*.css` file** unless the widget's `init()` (or a Component `init()`) contains a documented stylesheet loader call: `sap.ui.core.IconPool.registerStyleSheet(...)`, `jQuery.sap.includeStyleSheet(...)` (deprecated but works), or `sap.ui.require(["...css!..."], ...)`. **A CSS file with no loader is dead code** — a real HTML5→POD 2.0 migration shipped ~200 LOC of `widget/css/style.css` with 20 classes and 60 `class="lm*"` XML attributes; **none of it was ever loaded at runtime**. The extension still looked correct because Fiori theme + `sapUi*Margin*` utility classes already covered the rendering. Delete the file AND strip every `class="lm*"` attribute in the same commit.
 - **No `sap.ui.core.HTML` control** with `content` containing `<style` or `style=`. Exception: pass-through of trusted rich text from i18n (`content="{i18n>rich.text}"`) with an explicit marker.
 - **No inline `style="..."` attribute** in an XML view / fragment.
-- **No `addStyleClass("<non-Fiori-prefix>Foo")` / `class="<non-Fiori-prefix>Foo"`** with a plugin-owned class name. Whitelist below.
+- **No `addStyleClass("<non-Fiori-prefix>Foo")` / `class="<non-Fiori-prefix>Foo"`** with a extension-owned class name. Whitelist below.
 - **Fiori-token duplication** (`font-size:1.5rem`, `font-weight:700`, `color:var(--sap*Color)` in any `.css`) — still an error, now as a subset of this umbrella.
 
 ### Whitelist — allowed styleClass / class values
@@ -1448,7 +1448,7 @@ Auto-fixable: **NO** — the resolution is either escalate to a larger standard 
 ### Related
 
 - **M60** — custom control class for pure display composition. M70's escalation ladder tops out at `f:content` fragments and mini-tables — NEVER a custom control class just to inject the missing fields.
-- **M61** — no plugin CSS surface. Escalation to `NumericHeader` + `f:content` is a slot-map change, not a styling change; do NOT solve M70 by adding CSS to squeeze more fields into a `GenericTile`.
+- **M61** — no extension CSS surface. Escalation to `NumericHeader` + `f:content` is a slot-map change, not a styling change; do NOT solve M70 by adding CSS to squeeze more fields into a `GenericTile`.
 - **M62** — view-model raw-number discipline. `NumericHeader.number` and `NumericSideIndicator.number` both require floats, not pre-formatted strings — if the view model was pre-formatted, M62 gets in M70's way.
 - **Cat 29** (`migration-suspect-list.md`) — "Custom composite where a standard SAPUI5 control exists". Cat 29 catches composites that should have been standard-first; M70 catches the follow-on where a standard-first choice was made but the target is too small for the source.
 - **`dashboard-patterns.md`** §"Chart→control decision table" (Slots + Escalate-to columns), §"Slot map — when to escalate GenericTile → sap.f.Card + NumericHeader" — the authoritative slot inventories.

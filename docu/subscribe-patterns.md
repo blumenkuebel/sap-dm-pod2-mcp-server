@@ -126,7 +126,7 @@ For one-time reads (no live updates), use these direct getters:
 
 ---
 
-## Custom Context Paths (for Plugin Communication)
+## Custom Context Paths (for Extension Communication)
 
 Plugins can store their own data in PodContext using custom paths:
 
@@ -272,7 +272,7 @@ sap.ui.define([
 2. **Always unsubscribe in `onExit()`** – prevents memory leaks
 3. **All 3 arguments must match** between subscribe and unsubscribe
 4. **Use `ModelPath` constants** – don't use string paths for standard context data
-5. **Use custom paths (`/customer/...`)** for plugin-specific data exchange
+5. **Use custom paths (`/customer/...`)** for extension-specific data exchange
 6. **Handle empty arrays** in callbacks – selection can be cleared
 7. **Initial load**: After subscribing, check current value immediately (subscribe only fires on *change*)
 

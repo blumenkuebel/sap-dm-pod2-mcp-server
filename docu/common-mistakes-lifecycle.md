@@ -315,7 +315,7 @@ class MyWidget extends Widget {
     async onInit() {
         await super.onInit();
 
-        // Register i18n custom model for this plugin on the POD view.
+        // Register i18n custom model for this extension on the POD view.
         // This is REQUIRED for the POD 2.0 framework to access
         // extension i18n keys (bindings, metadata, POD Designer palette).
         this.getPodRuntime().getView().setModel(
@@ -365,10 +365,10 @@ If the widget has a static `#oI18nModel` but no `setModel(...)` call in `onInit(
 
 ### Multi-Widget Plugins
 
-When a plugin registers **multiple widgets** in `extension.json`, each widget registers its **own** custom i18n model on the POD view — one per widget, uniform with the M32 `<widgetName>.` key convention. No special-casing needed:
+When a extension registers **multiple widgets** in `extension.json`, each widget registers its **own** custom i18n model on the POD view — one per widget, uniform with the M32 `<widgetName>.` key convention. No special-casing needed:
 
 ```javascript
-// Plugin with 2 widgets — each widget's onInit() registers its own i18n model.
+// Extension with 2 widgets — each widget's onInit() registers its own i18n model.
 // The model names are namespaced by widget, so there is no collision.
 
 class CoatingWidget extends Widget {
@@ -392,7 +392,7 @@ class HelloWorldWidget extends Widget {
 }
 ```
 
-Both widgets can share the **same** bundle (`bundleName: "customer.custom.extension.myplugin.i18n.i18n"`) if their i18n keys use the per-widget prefix from M32 (`coating.*` / `helloWorld.*`). The convention is uniform: **always `i18n<WidgetShortName>`**, regardless of how many widgets the plugin has.
+Both widgets can share the **same** bundle (`bundleName: "customer.custom.extension.myplugin.i18n.i18n"`) if their i18n keys use the per-widget prefix from M32 (`coating.*` / `helloWorld.*`). The convention is uniform: **always `i18n<WidgetShortName>`**, regardless of how many widgets the extension has.
 
 ### Related
 
@@ -459,8 +459,8 @@ sap.ui.define([
 | **Custom content widget** (forms, tables, displays) | `Widget` | `sap/dm/dme/pod2/widget/Widget` |
 | **Custom component widget** (wraps a UI5 Component) | `ComponentWidget` | `sap/dm/dme/pod2/widget/ComponentWidget` |
 | **Custom integration widget** (iFrame/external) | `IntegrationWidget` | `sap/dm/dme/pod2/widget/IntegrationWidget` |
-| **Framework-only: layout container** (VBox, HBox) | `LayoutWidget` | Never use in custom plugins |
-| **Framework-only: metadata-driven table** | `ControlWidget` | Never use in custom plugins |
+| **Framework-only: layout container** (VBox, HBox) | `LayoutWidget` | Never use in custom extensions |
+| **Framework-only: metadata-driven table** | `ControlWidget` | Never use in custom extensions |
 
 **Rule:** If your widget renders its own UI via `_createView()`, it MUST extend `Widget`. Period.
 
@@ -515,7 +515,7 @@ grep -A5 "async onInit" widget/ | grep -v "super.onInit"
 - Always extend `Widget` from `sap/dm/dme/pod2/widget/Widget` for custom content widgets
 - Always `await super.onInit()` as the FIRST line in `onInit()`
 - Reference: ALL examples (`Customer.Coating`, `Customer.HelloWorld`, `Customer.TableView`) extend `Widget`
-- Never extend `LayoutWidget` or `ControlWidget` in custom plugins
+- Never extend `LayoutWidget` or `ControlWidget` in custom extensions
 - Never omit `await` before `super.onInit()`
 - Never put logic before `await super.onInit()` that depends on `getView()` or `getPodRuntime()`
 
@@ -533,7 +533,7 @@ grep -A5 "async onInit" widget/ | grep -v "super.onInit"
 
 Attempting to build a POD 2.0 dashboard on top of `sap.dm.dme.pod2.widget.ComponentWidget` triggers a six-step chain of runtime errors, each masked by the next:
 
-1. `404 on widget/Component.js` — the loader searches under the plugin namespace root, not under `widget/`.
+1. `404 on widget/Component.js` — the loader searches under the extension namespace root, not under `widget/`.
 2. `does not extend sap.dm.dme.pod2.base.Component` — extending plain `sap.ui.core.UIComponent` is rejected.
 3. `404 on Component-preload.js` served as `application/json` — strict-MIME blocks the JSON error envelope.
 4. `IAsyncContentCreation must be implemented` — required whenever `createContent()` is async.
@@ -544,7 +544,7 @@ Cost: 6 iterations before the widget shows anything.
 
 ### Why it's wrong (for HTML5 dashboards)
 
-`ComponentWidget` is designed for wrapping an **existing standalone SAPUI5 Component** (its own `Component.js`, `manifest.json`, routing, MVC structure). For a green-field HTML5-migration plugin, this shape is massive overkill and its bootstrap chain is unforgiving.
+`ComponentWidget` is designed for wrapping an **existing standalone SAPUI5 Component** (its own `Component.js`, `manifest.json`, routing, MVC structure). For a green-field HTML5-migration extension, this shape is massive overkill and its bootstrap chain is unforgiving.
 
 The recommended shape is **plain `Widget`** with MVC + views + fragments + `JSONModel` built inline in `_createView()`. No Component, no manifest, no routing. Works on the first try.
 

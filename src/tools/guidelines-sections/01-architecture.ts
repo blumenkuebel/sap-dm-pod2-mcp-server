@@ -1,7 +1,7 @@
-// Section 1: Architecture Rules, Plugin Types, Widget Subtypes
+// Section 1: Architecture Rules, Extension Types, Widget Subtypes
 
 export const SECTION_ARCHITECTURE = [
-  "# POD2 Plugin Development - Essential Guidelines",
+  "# POD2 Extension Development - Essential Guidelines",
   "",
   "## Architecture Rules",
   "1. **Widgets and Actions are independent** - never reference each other directly",
@@ -11,7 +11,7 @@ export const SECTION_ARCHITECTURE = [
   "5. **Namespaces must NOT start with `sap/`** - use your own (e.g. `myCompany.myProject`)",
   "6. **Namespace = extension.json** - The namespace is defined in extension.json (`modulePath`/`type`), NOT derived from the folder/directory name. The POD framework handles the mapping.",
   "",
-  "## Plugin Types",
+  "## Extension Types",
   "| Type | Base Class | Key Method |",
   "|------|-----------|------------|",
   "| Widget | `sap/dm/dme/pod2/widget/Widget` | `_createView()`, `onInit()`, `onExit()` |",

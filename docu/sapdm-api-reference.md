@@ -4,7 +4,7 @@
 **Last Updated**: 2026-08-05  
 **API Specs Location**: [sap-dm-api-specs/](sap-dm-api-specs/)
 
-This document provides a comprehensive reference to all SAP Digital Manufacturing REST APIs available for POD plugin integration.
+This document provides a comprehensive reference to all SAP Digital Manufacturing REST APIs available for POD extension integration.
 
 ---
 
@@ -819,11 +819,11 @@ All 77 API specification files are available in [sap-dm-api-specs/](sap-dm-api-s
 
 - [POD 2.0 API Reference](pod2-api-reference.md) - POD framework APIs
 - [Widget Patterns](widget-patterns.md) - Widget implementation patterns
-- [Common Mistakes](common-mistakes.md) - Common POD plugin errors
+- [Common Mistakes](common-mistakes.md) - Common POD extension errors
 - [SAP Digital Manufacturing API Documentation](https://help.sap.com/docs/sap-digital-manufacturing/operations-guide/prepare-for-api-integration)
 
 ---
 
 **Document Version**: 1.1.0  
 **Last Updated**: 2026-08-05  
-**Maintained by**: POD Plugin Skill Team
+**Maintained by**: POD Extension Skill Team

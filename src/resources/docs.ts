@@ -29,7 +29,7 @@ export function registerResources(server: FastMCP): void {
   server.addResource({
     uri: "pod2://patterns/basics",
     name: "docu-basics",
-    description: "POD2 Development Fundamentals – Architecture, Best Practices, plugin structure, and coding patterns.",
+    description: "POD2 Development Fundamentals – Architecture, Best Practices, extension structure, and coding patterns.",
     mimeType: "text/markdown",
     load: async () => ({
       text: tryReadFileContent(path.join(DOCU_DIR, "basics.md")) ?? "[Error: basics.md not found in docu/]",

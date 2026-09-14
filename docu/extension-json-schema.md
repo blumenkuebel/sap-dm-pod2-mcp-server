@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `extension.json` file is the **plugin manifest** for POD 2.0 extensions. It registers all widgets and actions that should be available in the POD Designer (Manage PODs 2.0 app).
+The `extension.json` file is the **extension manifest** for POD 2.0 extensions. It registers all widgets and actions that should be available in the POD Designer (Manage PODs 2.0 app).
 
 ### Key Rules
 - **MUST** be located at the **ZIP root** (not in a subdirectory)
@@ -113,7 +113,7 @@ The `extension.json` file is the **plugin manifest** for POD 2.0 extensions. It 
 | Part | Convention | Example |
 |------|-----------|---------|
 | namespace | company or project prefix (lowercase) | `customer`, `myCompany` |
-| subpackage | plugin/feature name (lowercase) | `processlot`, `split`, `weighing` |
+| subpackage | extension/feature name (lowercase) | `processlot`, `split`, `weighing` |
 | category | `widget`, `action`, `context` | `widget`, `action` |
 | ClassName | PascalCase class name | `ProcessLotWidget`, `CreateProcessLotAction` |
 

@@ -1,10 +1,10 @@
-# Namespace Notification Update - POD Plugin Skill
+# Namespace Notification Update - POD Extension Skill
 
 ## ✅ Update Applied - 2026-03-12
 
 ### 🎯 What Was Added
 
-The skill now **REQUIRES** notifying the user about the namespace used in their plugin, as this information is **MANDATORY** when uploading extensions to SAP Digital Manufacturing.
+The skill now **REQUIRES** notifying the user about the namespace used in their extension, as this information is **MANDATORY** when uploading extensions to SAP Digital Manufacturing.
 
 ---
 
@@ -38,7 +38,7 @@ asked to provide the namespace. Use: custom/pod2/yourcompany
    that will be needed during upload
 ```
 
-**Updated plugin creation prompt:**
+**Updated extension creation prompt:**
 ```
 7. Namespace: _____ (IMPORTANT: Required for upload to SAP DM)
 ```
@@ -56,7 +56,7 @@ A formatted template that MUST be shown after creating any plugin:
 🎯 NAMESPACE INFORMATION - REQUIRED FOR UPLOAD
 ═══════════════════════════════════════════════════════════════
 
-Your plugin uses the following namespace:
+Your extension uses the following namespace:
 
   📋 Namespace: custom/pod2/[identifier]
   📂 Module Path: custom/pod2/[identifier]/plugins/[pluginname]
@@ -82,7 +82,7 @@ Your plugin uses the following namespace:
 ## 🔍 Why This Is Critical
 
 ### Problem Without Namespace Notification:
-1. User creates plugin successfully
+1. User creates extension successfully
 2. Attempts to upload to SAP DM
 3. Upload wizard asks for namespace
 4. User doesn't know what namespace was used
@@ -90,7 +90,7 @@ Your plugin uses the following namespace:
 6. Potential for typos or mistakes
 
 ### Solution With Namespace Notification:
-1. User creates plugin
+1. User creates extension
 2. **Immediately receives clear namespace information**
 3. Uploads to SAP DM with confidence
 4. Enters correct namespace on first try
@@ -123,18 +123,18 @@ When uploading an extension to SAP Digital Manufacturing:
 
 ---
 
-## ✨ Impact on Plugin Creation
+## ✨ Impact on Extension Creation
 
 ### Before This Update:
 ```
-Plugin created ✅
+Extension created ✅
 Files generated ✅
 User: "What namespace do I use?"  ❓
 ```
 
 ### After This Update:
 ```
-Plugin created ✅
+Extension created ✅
 Files generated ✅
 Namespace clearly displayed ✅
 User: "I know exactly what to enter!" 😊
@@ -144,14 +144,14 @@ User: "I know exactly what to enter!" 😊
 
 ## 📝 Example Usage
 
-When a plugin is created with namespace `custom/pod2/acme`, users will now see:
+When an extension is created with namespace `custom/pod2/acme`, users will now see:
 
 ```
 ═══════════════════════════════════════════════════════════════
 🎯 NAMESPACE INFORMATION - REQUIRED FOR UPLOAD
 ═══════════════════════════════════════════════════════════════
 
-Your plugin uses the following namespace:
+Your extension uses the following namespace:
 
   📋 Namespace: custom/pod2/acme
   📂 Module Path: custom/pod2/acme/plugins/mywidget
@@ -170,10 +170,10 @@ Your plugin uses the following namespace:
 
 ## 🎯 Implementation Requirements
 
-The skill now **MANDATES** that when creating any POD 2.0 plugin:
+The skill now **MANDATES** that when creating any POD 2.0 extension:
 
 1. ✅ Ask for namespace in the initial questions
-2. ✅ Generate plugin with that namespace
+2. ✅ Generate extension with that namespace
 3. ✅ Display the namespace notification template
 4. ✅ Fill in actual namespace values (not placeholders)
 5. ✅ Emphasize this is REQUIRED for upload
@@ -184,7 +184,7 @@ The skill now **MANDATES** that when creating any POD 2.0 plugin:
 
 ### Sections Modified:
 1. **Instructions** - Added step 9 about namespace notification
-2. **Example POD 2.0 Plugin Creation Flow** - Emphasized namespace requirement
+2. **Example POD 2.0 Extension Creation Flow** - Emphasized namespace requirement
 3. **Creating the Deployment Package** - New namespace info section
 4. **End of Skill** - New notification template section
 
@@ -199,10 +199,10 @@ The skill now **MANDATES** that when creating any POD 2.0 plugin:
 
 ## ✅ Verification
 
-Test by creating a plugin - the skill will now:
+Test by creating an extension - the skill will now:
 
 1. Ask for namespace (with note it's required)
-2. Generate plugin files
+2. Generate extension files
 3. Display formatted namespace notification
 4. Remind user to note the namespace
 5. Explain why it's needed

@@ -12,7 +12,7 @@
 
 **Found in**: `i18n_de.properties` files, German labels for table columns, dialogs, buttons.
 
-**Critical for German plants**: SAP Digital Manufacturing's standard German UI uses **PSN** everywhere. A custom plugin that says "SFC" in `i18n_de.properties` instantly looks wrong, breaks user habits, and clashes with the surrounding standard SAP DM screens.
+**Critical for German plants**: SAP Digital Manufacturing's standard German UI uses **PSN** everywhere. A custom extension that says "SFC" in `i18n_de.properties` instantly looks wrong, breaks user habits, and clashes with the surrounding standard SAP DM screens.
 
 ### The Rule: Code stays `sfc` / `SFC`, only the German translation changes
 
@@ -39,8 +39,8 @@ message.sfcNotFound=SFC {0} wurde nicht gefunden
 
 Symptoms in production:
 - German operators ask "Was ist eine SFC?" → they only know PSN
-- Plugin labels stand out as foreign next to the standard SAP DM German UI
-- Training material / SOPs use "PSN" → mismatch with your plugin
+- Extension labels stand out as foreign next to the standard SAP DM German UI
+- Training material / SOPs use "PSN" → mismatch with your extension
 
 ### ✅ CORRECT — German file uses "PSN"
 

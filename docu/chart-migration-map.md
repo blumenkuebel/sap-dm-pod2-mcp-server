@@ -4,7 +4,7 @@
 
 ## Golden rule
 
-Chart libraries are NEVER copied into shipped POD 2.0 plugins. The `<script>` tag, `import Chart from 'chart.js'`, and any `chart.destroy()` are Phase 5 residue errors (see `validate-project-instructions.md` §HTML5 Residue). A shipped plugin's runtime dependency graph is UI5 only.
+Chart libraries are NEVER copied into shipped POD 2.0 extensions. The `<script>` tag, `import Chart from 'chart.js'`, and any `chart.destroy()` are Phase 5 residue errors (see `validate-project-instructions.md` §HTML5 Residue). A shipped extension's runtime dependency graph is UI5 only.
 
 ## Verifying the target control
 
@@ -14,7 +14,7 @@ For every mapping below, verify the target with the SAPUI5 MCP server before com
 - `get_ui5_api({ symbol: "sap.suite.ui.microchart.<Name>" })` — for microcharts
 - `get_ui5_api({ symbol: "sap.gantt.simple.GanttChartWithTable" })` — for Gantt
 
-> **From a POD plugin dir** the tool errors with *"Unable to locate a UI5 project"* — use `get_ui5_api` (bundled offline, no `projectDir` needed) for workarounds (search POD2 docs first, temporary UI5 stub project outside the plugin root, or `ui5.sap.com/api/<class>`).
+> **From a POD extension dir** the tool errors with *"Unable to locate a UI5 project"* — use `get_ui5_api` (bundled offline, no `projectDir` needed) for workarounds (search POD2 docs first, temporary UI5 stub project outside the extension root, or `ui5.sap.com/api/<class>`).
 
 If the API reference call fails, the target does not exist at the project's UI5 version — record this in `MIGRATION_MAPPING.md` and consult the user before falling back.
 
@@ -147,7 +147,7 @@ For any source chart, walk this in order and stop at the first match:
 
 ## Anti-patterns
 
-- Bundling Chart.js / d3 / plotly / echarts into the plugin ZIP — POD 2.0 plugins are UI5-native only. Any `node_modules/chart.js` or `libs/chart.min.js` in the shipped tree is a hard fail.
+- Bundling Chart.js / d3 / plotly / echarts into the extension ZIP — POD 2.0 extensions are UI5-native only. Any `node_modules/chart.js` or `libs/chart.min.js` in the shipped tree is a hard fail.
 - `sap.ui.core.HTML` wrapping a `<canvas>` rendered by Chart.js loaded via CDN — this is HTML5 residue, blocks POD Designer preview, and breaks in offline mode.
 - Iframing an external dashboard for a chart — use `IntegrationWidget` only for entire external UIs, not single charts (see `widget-patterns-advanced.md`).
 - Building a Gantt out of `sap.ui.core.HTML` blocks with absolute-positioned divs — always prefer `sap.gantt.simple.GanttChartWithTable` for anything non-trivial. The bespoke composite above is a last resort with strict gates.

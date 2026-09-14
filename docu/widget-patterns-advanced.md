@@ -924,7 +924,7 @@ import IntegrationWidget from "sap/dm/dme/pod2/widget/IntegrationWidget";
 ### When to Use
 
 - Embedding a third-party web application
-- Embedding a separate SAPUI5 app that is not a POD plugin
+- Embedding a separate SAPUI5 app that is not a POD extension
 - Displaying external dashboards/reports within POD
 
 ---

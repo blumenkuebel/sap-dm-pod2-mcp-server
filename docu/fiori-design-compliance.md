@@ -6,7 +6,7 @@
 
 ## Design goal
 
-The output must be visually indistinguishable from a native SAP DM widget sitting next to it in the same POD page. If a plant supervisor notices that "this widget looks different" — different icon set, different padding rhythm, different color semantics, different typography scale — the migration has failed even if the plugin runs without errors. Off-brand visual is a shipping defect, no different than a broken data binding.
+The output must be visually indistinguishable from a native SAP DM widget sitting next to it in the same POD page. If a plant supervisor notices that "this widget looks different" — different icon set, different padding rhythm, different color semantics, different typography scale — the migration has failed even if the extension runs without errors. Off-brand visual is a shipping defect, no different than a broken data binding.
 
 The Fiori Design System is the target canon, not the HTML5 source's original design. When source and Fiori conflict — HTML5 used red/yellow/green emoji dots for status, Fiori uses `sap.ui.core.IconColor` + `sap-icon://status-*`; source used a hand-tuned `1.5rem` font-size, Fiori has a native typography scale via `sap.m.Title level=` and `NumericContent` — **Fiori wins**. The user gets a chance in Phase 5c to explicitly approve source-preserved deviations, but the default is the Fiori standard. This is the same rule as the Prime Directive ([`basics.md` §0](basics.md#§0-prime-directive-standard-controls-before-custom)), one level of abstraction higher — where §0 says "which control", this doc says "what the control must look like".
 
@@ -56,13 +56,13 @@ Row-per-decision. For every layout choice the migrator makes in Phase 4, the `MI
 
 ## Typography, color, spacing — the semantic controls do the work
 
-The four levers below cover >95 % of visual needs. Reach for a plugin CSS class only after all four have been ruled out (and then via an M61 `standard-only: exception` marker).
+The four levers below cover >95 % of visual needs. Reach for a extension CSS class only after all four have been ruled out (and then via an M61 `standard-only: exception` marker).
 
 ### Typography
 
 - **Page / section titles** → `sap.m.Title level="H4"/"H5"/"H6"` — Fiori-tokenized sizing, correct semantic HTML.
 - **KPI numbers** → `sap.m.NumericContent` (tile-scale) or `sap.f.cards.NumericHeader.number` (card-scale) or `sap.m.ObjectNumber emphasized="true"` (inline emphasis). Never `Text` + a size class.
-- **Body text** → `sap.m.Text` (default typography), `sap.m.Label` (form label), `sap.m.FormattedText` (safe-markdown subset). No plugin `font-size`.
+- **Body text** → `sap.m.Text` (default typography), `sap.m.Label` (form label), `sap.m.FormattedText` (safe-markdown subset). No extension `font-size`.
 - **Reference**: M61 whitelist + `experience.sap.com/fiori-design-web/foundation/#typography`.
 
 Concrete before/after:
@@ -104,7 +104,7 @@ Concrete before/after:
 - **Between controls in a form/panel** → `sapUiTinyMargin{Top,Bottom,Begin,End}` / `sapUiSmallMargin*` / `sapUiMediumMargin*` — theme-aware, RTL-safe.
 - **Inside a card / section** → the container control provides its own padding; adding margin is usually wrong.
 - **Between cards in a grid** → `sap.f.GridContainer` layout properties, not `HBox` gaps.
-- **Never**: `.addStyleClass("lmSmallSpacing")` with a plugin-owned class. See M61 whitelist.
+- **Never**: `.addStyleClass("lmSmallSpacing")` with a extension-owned class. See M61 whitelist.
 
 ### Iconography
 
@@ -134,22 +134,22 @@ Concrete before/after:
 Cat 29's S1-S7 anti-patterns viewed through the **visual design** lens (not the code lens). Each has the same fix as Cat 29 but explains **why it hurts visually**:
 
 - **A widget that "looks fine" but uses a different icon set** breaks the plant supervisor's mental model — the icons in this widget signify different actions than the identical-looking icons in the neighboring native widget. Fix: `sap-icon://` only, Icon Explorer as the reference.
-- **A KPI tile with different padding than the neighboring native tiles** reads as "third-party plugin" instead of "part of SAP DM". The tile IS a third-party plugin — the goal is that this is not visible. Fix: `sap.m.GenericTile` + `TileContent` + `NumericContent` (Cat 29 S1 / M60).
-- **Custom color palettes for chart series** create visual chaos across the POD — every plugin picks its own reds and greens, the operator has to context-switch between meaning-systems. Fix: `sap.m.ValueColor` semantic aliases, or theme parameters.
+- **A KPI tile with different padding than the neighboring native tiles** reads as "third-party extension" instead of "part of SAP DM". The tile IS a third-party extension — the goal is that this is not visible. Fix: `sap.m.GenericTile` + `TileContent` + `NumericContent` (Cat 29 S1 / M60).
+- **Custom color palettes for chart series** create visual chaos across the POD — every extension picks its own reds and greens, the operator has to context-switch between meaning-systems. Fix: `sap.m.ValueColor` semantic aliases, or theme parameters.
 - **Hand-tuned typography** (`font-size: 1.5rem; font-weight: 700`) breaks on the next theme update — Horizon-2027 will move typography tokens. Fix: `sap.m.NumericContent` / `sap.m.ObjectNumber emphasized="true"` / `sap.m.Title level=` (Cat 29 S7 / M61).
 - **A self-owned shell bar / plant label / notification bell** duplicates what POD already renders. Fix: widget renders body only (M59).
 - **A custom Gantt** with `<div>` bars and hand-positioned icons "looks like the source". Native users expect `sap.gantt.simple.GanttChartWithTable` interactions (drag, zoom, dependency arrows). Fix: `sap.gantt` for real; `BulletMicroChart` for the simplified case (Cat 24 / S2).
 - **Custom "Loading…" placeholder text** where a busy indicator or `IllustratedMessage` should be. Fix: `oView.setBusy(true)` (M33) / `sap.m.IllustratedMessage`.
-- **Untranslated German strings** in JS ("Zuletzt vor 7 Sek.") are a design defect, not just an i18n bug — a Fiori widget always speaks the user's language. Fix: 4 i18n bundles per plugin (M30, Cat 27).
+- **Untranslated German strings** in JS ("Zuletzt vor 7 Sek.") are a design defect, not just an i18n bug — a Fiori widget always speaks the user's language. Fix: 4 i18n bundles per extension (M30, Cat 27).
 
 ---
 
 ## Verification during Phase 5c
 
-`migrate_widget` Phase 5c is a **manual visual review** — the agent walks this 10-checkbox list and emits the result in `MIGRATION_VERIFICATION.md`. Any unchecked box requires a one-sentence justification (or the plugin returns to Phase 4).
+`migrate_widget` Phase 5c is a **manual visual review** — the agent walks this 10-checkbox list and emits the result in `MIGRATION_VERIFICATION.md`. Any unchecked box requires a one-sentence justification (or the extension returns to Phase 4).
 
 - [ ] **Icon set** — every `Icon.src` / `Button.icon` uses `sap-icon://<name>` from the Fiori Icon Explorer. No emoji, no PNG imports, no external icon fonts.
-- [ ] **Color semantics** — every color choice comes from `sap.ui.core.ValueState` / `sap.ui.core.IconColor` / `sap.m.ValueColor`. No hex literals, no CSS vars, no plugin CSS classes for color — unless a `standard-only: exception` marker justifies it.
+- [ ] **Color semantics** — every color choice comes from `sap.ui.core.ValueState` / `sap.ui.core.IconColor` / `sap.m.ValueColor`. No hex literals, no CSS vars, no extension CSS classes for color — unless a `standard-only: exception` marker justifies it.
 - [ ] **Typography hierarchy** — page/section titles use `sap.m.Title level="H4"/"H5"/"H6"` (or `NumericHeader.title`); numeric values use `NumericContent` / `ObjectNumber emphasized="true"`. No `Text` with a size class.
 - [ ] **Card vs. Panel** — content that groups a metric + chart + label uses `sap.f.Card`. Content that groups a form or a table uses `sap.m.Panel`. No `Panel` styled to fake a card.
 - [ ] **Page container** — full-page widgets use `sap.f.DynamicPage` (with `title`+`header`+`content`+`footer`) or `sap.m.Page`. Embedded widgets return a bounded layout root — never `sap.m.App` (M58).

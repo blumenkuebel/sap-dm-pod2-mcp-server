@@ -4,7 +4,7 @@
 
 ## Golden rules
 
-1. Every `fetch(...)` becomes `ODataV4Client` or `ApiClient*` — no exceptions inside a POD 2.0 plugin unless the target is a non-DM service and the customer explicitly confirms.
+1. Every `fetch(...)` becomes `ODataV4Client` or `ApiClient*` — no exceptions inside a POD 2.0 extension unless the target is a non-DM service and the customer explicitly confirms.
 2. Every Chart.js / d3 / plotly / echarts call is REMOVED and re-implemented per `chart-migration-map.md`.
 3. Every module-level `let`/`var` becomes a private field on the widget class (`#privateName`).
 4. Every `setInterval` gets a stored handle (`this.#nIntervalId`) and matching `clearInterval` in `onExit()`.
@@ -17,7 +17,7 @@
 11. Every instance referenced from a binding `formatter:` closure (`NumberFormat`, `DateFormat`, `ODataV4Client`, `JSONModel`) is created inside `_createView()` **before** the view tree is built — NOT in `onInit()`. `_createView()` runs before `onInit()`, and UI5 evaluates formatter closures during control construction (see `common-mistakes-lifecycle.md` #M66). Use an idempotent `_ensureRuntime()` helper called from both hooks for defensive parity.
 12. `_createView()` is invoked with **no arguments** — read the widget's config via `this.getConfig()` inside the method (see `common-mistakes-lifecycle.md` #M65).
 
-> **UI5 API verification from within a POD plugin dir**: use `pod2-mcp-server.get_ui5_api({ symbol: "…" })` (or `search_ui5_api` when the class name is unclear). The UI5 API is bundled offline in the server — no `ui5.yaml`/`webapp/` needed in the plugin dir, no external MCP server. See `usage/CLAUDE.md` §"UI5 API lookup". Never `WebFetch` `https://ui5.sap.com/#/api/<Class>` — that URL is a SPA shell with no API payload.
+> **UI5 API verification from within a POD extension dir**: use `pod2-mcp-server.get_ui5_api({ symbol: "…" })` (or `search_ui5_api` when the class name is unclear). The UI5 API is bundled offline in the server — no `ui5.yaml`/`webapp/` needed in the extension dir, no external MCP server. See `usage/CLAUDE.md` §"UI5 API lookup". Never `WebFetch` `https://ui5.sap.com/#/api/<Class>` — that URL is a SPA shell with no API payload.
 
 ## Rewrite recipes
 
@@ -308,4 +308,4 @@ Now the plant supervisor can tune thresholds in POD Designer without a redeploy.
 - `property-editors.md` — thresholds via properties
 - `mdo-extractor-reference.md` — MDO entity reference
 
-Cross-refs: `dashboard-patterns.md` (target-shape decision table), `chart-migration-map.md` (chart control mapping), `common-mistakes-ui.md` #M60 (no custom KPI-tile controls) / #M61 (no plugin CSS).
+Cross-refs: `dashboard-patterns.md` (target-shape decision table), `chart-migration-map.md` (chart control mapping), `common-mistakes-ui.md` #M60 (no custom KPI-tile controls) / #M61 (no extension CSS).

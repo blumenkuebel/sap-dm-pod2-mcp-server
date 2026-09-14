@@ -1,6 +1,6 @@
 # SAP Digital Manufacturing Supported Languages
 
-Complete list of all languages supported by SAP Digital Manufacturing for i18n localization, with the `i18n_<code>.properties` file-naming convention used by POD 2.0 plugins.
+Complete list of all languages supported by SAP Digital Manufacturing for i18n localization, with the `i18n_<code>.properties` file-naming convention used by POD 2.0 extensions.
 
 **Source**: SAP Note 2722461 — "Languages Supported in SAP Digital Manufacturing"
 
@@ -92,9 +92,9 @@ i18n_pt.properties      # Brazilian Portuguese
 
 ---
 
-## Plugin i18n File Structure
+## Extension i18n File Structure
 
-When creating a POD 2.0 plugin with full language support, create all 28 files:
+When creating a POD 2.0 extension with full language support, create all 28 files:
 
 ```
 yourplugin/
@@ -227,7 +227,7 @@ message.itemsSelected={0}個のアイテムが選択されました
 
 ## Validation Checklist
 
-Before deploying a plugin with i18n:
+Before deploying an extension with i18n:
 
 - [ ] All 28 language files created (or subset with clear documentation)
 - [ ] `i18n.properties` (default) exists with English content
@@ -246,7 +246,7 @@ Before deploying a plugin with i18n:
 2. Navigate to User Menu → Settings
 3. Change language preference
 4. Refresh POD
-5. Verify plugin text updates to the selected language
+5. Verify extension text updates to the selected language
 
 ### In POD Designer (Design Mode):
 POD Designer typically uses the system language or English by default. Full language testing requires deploying to the SAP DM runtime environment.
