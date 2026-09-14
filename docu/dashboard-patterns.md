@@ -36,7 +36,7 @@ Related anti-patterns and their standard replacements are enumerated as **Cat 29
 >
 > The output must be visually indistinguishable from a native SAP DM widget sitting next to it in the same POD 2.0 page.
 
-Every widget the migrator produces ends up next to first-party widgets — if it uses a different icon set (emoji, Material, Font Awesome), a different typography scale (`font-size:1.5rem`), a different card padding (hand-tuned `Panel`), or a different color semantics (hex literals instead of `ValueState`), the plant supervisor immediately sees "third-party plugin". Off-brand visual is a shipping defect.
+Every widget the migrator produces ends up next to first-party widgets — if it uses a different icon set (emoji, Material, Font Awesome), a different typography scale (`font-size:1.5rem`), a different card padding (hand-tuned `Panel`), or a different color semantics (hex literals instead of `ValueState`), the plant supervisor immediately sees "third-party extension". Off-brand visual is a shipping defect.
 
 **Load `fiori-design-compliance.md` at Phase 1 alongside `dashboard-patterns.md`.** It contains the positive Fiori design canon: a Fiori design decision table for Card vs. Panel / DynamicPage vs. Page / MessageBox vs. Strip vs. Toast / IllustratedMessage empty states / sap-icon iconography, canonical Fiori Design Guideline URLs (`experience.sap.com/fiori-design-web/`), typography/color/spacing rules — and the 10-checkbox Phase 5c compliance review that every HTML5 migration must pass before sign-off. The negative M61 CSS-ban tells the migrator what NOT to do; `fiori-design-compliance.md` tells it what the output must LOOK like.
 
@@ -592,7 +592,7 @@ Every anti-pattern below has a mechanical rewrite recipe in `html5-migration-gui
 - `.toFixed(2)` — use `sap.ui.core.format.NumberFormat.getFloatInstance({minFractionDigits:2,maxFractionDigits:2})`.
 - `console.log` / `console.error` — use `sap/base/Log`.
 - `fetch("/dmci/...")` — use `ODataV4Client` or the appropriate POD 2.0 API client.
-- **No plugin CSS at all — see M61 umbrella.** No `widget/css/*.css` file, no inline `style="..."`, no `sap.ui.core.HTML` with `<style>`, no `addStyleClass("<plugin-prefix>Foo")`. If you already wrote `widget/css/*.css`, delete it: a real migration shipped ~200 LOC of CSS that was **never loaded at runtime** — every `class="lm*"` attribute rendered nothing because no `includeStyleSheet` call existed. Use `sapUi{Tiny,Small,Medium,Large}Margin*` utility classes for spacing and semantic controls (`ObjectNumber emphasized`, `NumericContent`, `ObjectStatus state`) for everything else.
+- **No extension CSS at all — see M61 umbrella.** No `widget/css/*.css` file, no inline `style="..."`, no `sap.ui.core.HTML` with `<style>`, no `addStyleClass("<extension-prefix>Foo")`. If you already wrote `widget/css/*.css`, delete it: a real migration shipped ~200 LOC of CSS that was **never loaded at runtime** — every `class="lm*"` attribute rendered nothing because no `includeStyleSheet` call existed. Use `sapUi{Tiny,Small,Medium,Large}Margin*` utility classes for spacing and semantic controls (`ObjectNumber emphasized`, `NumericContent`, `ObjectStatus state`) for everything else.
 
 ---
 
@@ -603,9 +603,9 @@ For the widget shell, i18n bundle layout, subscribe/unsubscribe parity, and busy
 - `Customer.Coating` — plain `Widget` + Actions + Context singleton + full i18n bundle set. Load via `get_example({ plugin: "Customer.Coating" })`.
 - `Customer.TableView` — plain `Widget` with configurable properties + `PodContext.subscribe`. Load via `get_example({ plugin: "Customer.TableView" })`.
 
-There is **no dedicated dashboard reference plugin** — dashboards are just plain `Widget`s that follow the patterns above and pull data via `ODataV4Client`. The decision table in this document and `chart-migration-map.md` are the canonical target shapes; hand-built composites (custom `*TileControl` classes, `<Panel><VBox>` KPI groups, plugin CSS) are anti-patterns even if they look tempting during migration.
+There is **no dedicated dashboard reference extension** — dashboards are just plain `Widget`s that follow the patterns above and pull data via `ODataV4Client`. The decision table in this document and `chart-migration-map.md` are the canonical target shapes; hand-built composites (custom `*TileControl` classes, `<Panel><VBox>` KPI groups, extension CSS) are anti-patterns even if they look tempting during migration.
 
-File layout for a dashboard-shaped plugin (flat — no wrapper folder inside the plugin root):
+File layout for a dashboard extension extension (flat — no wrapper folder inside the extension root):
 
 ```
 widget/
@@ -657,8 +657,8 @@ Every time a bespoke composite is replaced with a standard control, 3–6 i18n k
 **Rule**: after each standardisation pass, grep every i18n key against widget + fragments. Orphan keys must be deleted from **all 4 locale files** in the same commit.
 
 ```bash
-# From plugin root — run before every commit that changes a fragment/view.
-prefix="dashboard"   # replace with the plugin's i18n prefix (widget short-name)
+# From extension root — run before every commit that changes a fragment/view.
+prefix="dashboard"   # replace with the extension's i18n prefix (widget short-name)
 for key in $(grep -oE "^${prefix}\\.[a-zA-Z0-9._]+" i18n/i18n.properties | sort -u); do
     refs=$(grep -rn "\\b${key}\\b" widget/ --include='*.js' --include='*.xml' --include='*.fragment.xml' 2>/dev/null | wc -l)
     if [ "$refs" -eq 0 ]; then echo "ORPHAN: $key"; fi
@@ -688,7 +688,7 @@ Runtime traps caught in real HTML5→POD 2.0 migrations against SAP DM 2026-07 (
 
 Refer to the linked mistake numbers in `common-mistakes-imports.md`, `common-mistakes-ui.md`, `common-mistakes-data.md`, `common-mistakes-lifecycle.md` for the full symptom/why/fix/detection story per trap.
 
-> **UI5 API verification from within a POD plugin**: use `pod2-mcp-server.get_ui5_api({ symbol: "…" })` — the UI5 API is bundled offline in the server, so no `ui5.yaml` + `webapp/` project is needed (POD plugins deliberately don't have that). See `usage/CLAUDE.md` §"UI5 API lookup".
+> **UI5 API verification from within a POD extension**: use `pod2-mcp-server.get_ui5_api({ symbol: "…" })` — the UI5 API is bundled offline in the server, so no `ui5.yaml` + `webapp/` project is needed (POD extensions deliberately don't have that). See `usage/CLAUDE.md` §"UI5 API lookup".
 
 ---
 

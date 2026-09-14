@@ -1,6 +1,6 @@
 # POD 2.0 Widget & Action Development – Context & Best Practices
 
-> This document serves as the central context for POD 2.0 plugin development.
+> This document serves as the central context for POD 2.0 extension development.
 > For the API reference use the tools `get_api_doc` or `search_api_docs`.
 
 ---
@@ -37,12 +37,12 @@ Custom controls (`.extend(...)`, `sap/ui/core/Control` subclasses, hand-built co
    ```
    The `<reason>` MUST name the team/person consulted and either a ticket ID or a one-sentence note recording the decision. The generic `// validate: info-only` marker is **not** sufficient — this is a Rule-3 hard finding (see [`common-mistakes.md`](common-mistakes.md) §"What CANNOT be downgraded"). Missing marker → **M60/M61/Cat 29** error.
 
-**Legitimate custom-control cases** — the tail is genuinely narrow: reusable behaviour with an event/state-machine contract used ≥3× in the same plugin (never a pure template — that's a fragment), a genuinely novel input surface that no existing UI5 control provides, or a compatibility shim for a legacy DOM component that the customer explicitly requires. Everything else — every KPI tile shape, every card layout, every chart-that-fits-a-microchart, every table decoration — is composition, not inheritance.
+**Legitimate custom-control cases** — the tail is genuinely narrow: reusable behaviour with an event/state-machine contract used ≥3× in the same extension (never a pure template — that's a fragment), a genuinely novel input surface that no existing UI5 control provides, or a compatibility shim for a legacy DOM component that the customer explicitly requires. Everything else — every KPI tile shape, every card layout, every chart-that-fits-a-microchart, every table decoration — is composition, not inheritance.
 
 **The specialisations of this directive** (do not silence any of them):
 
 - **M60** — custom control class for pure display composition. A `.extend(CustomVBox, {...})` whose body is only `setTitle`/`setValue` forwarders is a fragment masquerading as a control. Use `sap.m.GenericTile` + `NumericContent` or a Fragment.
-- **M61** — plugin CSS surface. A `widget/css/*.css` file, `sap/ui/core/HTML` with `<style>`, or a non-Fiori-prefix `addStyleClass` is a workaround for "the standard control doesn't look quite right" — the correct answer is to escalate to a standard control that already looks that way (or to use `sapUi*Margin*` utility classes).
+- **M61** — extension CSS surface. A `widget/css/*.css` file, `sap/ui/core/HTML` with `<style>`, or a non-Fiori-prefix `addStyleClass` is a workaround for "the standard control doesn't look quite right" — the correct answer is to escalate to a standard control that already looks that way (or to use `sapUi*Margin*` utility classes).
 - **Cat 29** — custom composite where a standard SAPUI5 control exists. Seven anti-patterns caught in real migrations, each with a standard-control replacement.
 - **M70** — silent information loss via standard-control bias. The rule is "the SMALLEST standard control that fits ALL source fields" — a first-choice pick that carries fewer slots than the source composite must escalate (rung 2), not silently drop fields.
 
@@ -73,9 +73,9 @@ POD 2.0 mixes two notations. Use this table to avoid confusion:
 
 ## 1. Core Concept
 
-POD 2.0 plugin development is an extension mechanism for the SAP Digital Manufacturing (SAP DM) Fiori/UI5 framework. Plugins are uploaded as **Extensions** to SAP DM and become configurable through the **POD 2.0 Designer** (WYSIWYG editor).
+POD 2.0 extension development is an extension mechanism for the SAP Digital Manufacturing (SAP DM) Fiori/UI5 framework. Plugins are uploaded as **Extensions** to SAP DM and become configurable through the **POD 2.0 Designer** (WYSIWYG editor).
 
-There are two plugin types:
+There are two extension types:
 
 | Type | Purpose | Base Class |
 |------|---------|------------|
@@ -89,7 +89,7 @@ There are two plugin types:
 ### Widgets and Actions are independent
 
 - A Widget must **never instantiate or reference** an Action directly.
-- Both plugin types are only logically linked by the end user in the POD 2.0 Designer.
+- Both extension types are only logically linked by the end user in the POD 2.0 Designer.
 - Widgets define **Events** (e.g. `buttonPress`) to which the user assigns Action sequences.
 
 ### Data Exchange via PodContext
@@ -127,7 +127,7 @@ The architectural separation rule only prohibits Widgets from **executing busine
 For centralized configuration and a unified mapping structure between Actions and Widgets, a **Context class** is recommended:
 
 - Acts as a **Singleton** (static `get`/`set` methods)
-- Used by both plugin types via dependency injection
+- Used by both extension types via dependency injection
 - Serves as interface between individual Actions and Widgets
 
 > **Example:** See Section 12 "Best Practice Pattern" below for the complete Context Singleton pattern.
@@ -163,7 +163,7 @@ this.getI18nText("myKeyWithParams", sValue1, sValue2);
 
 ```
 myExtension/
-├── extension.json           (Required – plugin registration)
+├── extension.json           (Required – extension registration)
 ├── widget/
 │   └── MyWidget.js          (Widget class)
 ├── action/
@@ -221,7 +221,7 @@ The framework supports third-party libraries:
 
 Plugins can offer configurable settings to the user in the POD Designer:
 
-| Plugin Type | Property Class | Import Path |
+| Extension Type | Property Class | Import Path |
 |-------------|---------------|-------------|
 | Widget | `WidgetProperty` | `sap/dm/dme/pod2/widget/metadata/WidgetProperty` |
 | Action | `ActionProperty` | `sap/dm/dme/pod2/action/metadata/ActionProperty` |
@@ -300,7 +300,7 @@ getProperties() {
 
 ## 10. Framework: Built-in Widgets & Actions
 
-The POD 2.0 Framework (`framework/src/sap/dm/dme/pod2/`) contains numerous **standard Widgets and Actions** available directly in the POD Designer. Before creating a custom plugin, check if the functionality already exists.
+The POD 2.0 Framework (`framework/src/sap/dm/dme/pod2/`) contains numerous **standard Widgets and Actions** available directly in the POD Designer. Before creating a custom extension, check if the functionality already exists.
 
 ### Standard Widgets
 
@@ -377,9 +377,9 @@ The framework folder (`framework/samples/extensions/`) contains official sample 
 
 ---
 
-## 12. Recommended Plugin Pattern (Best Practice)
+## 12. Recommended Extension Pattern (Best Practice)
 
-The following pattern is the **reviewed best practice reference** for POD 2.0 plugins. New plugins should follow this structure.
+The following pattern is the **reviewed best practice reference** for POD 2.0 extensions. New plugins should follow this structure.
 
 ### Pattern: Validation → Execution with Singleton Context
 
@@ -551,7 +551,7 @@ Comprehensive pattern documentation is available for detailed implementation gui
 
 ---
 
-## 15. Step-by-Step: Creating a New Plugin
+## 15. Step-by-Step: Creating a New Extension
 
 ### Checklist
 

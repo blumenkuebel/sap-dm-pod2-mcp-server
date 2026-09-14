@@ -21,13 +21,13 @@ export function buildCapabilities(c: ContentCounts): string {
 | 10 | \`list_rest_apis\` | All ${c.restApis} SAP DM REST API specs grouped by prefix |
 | 11 | \`get_rest_api\` | OpenAPI spec for one service (\`summary\` mode available) |
 | 12 | \`search_rest_apis\` | Search endpoints across all REST specs |
-| 13 | \`list_examples\` | ${c.examples} reference example plugins with file structure |
-| 14 | \`get_example\` | Source from a reference plugin (use \`file\` param for one file) |
+| 13 | \`list_examples\` | ${c.examples} reference example extensions with file structure |
+| 14 | \`get_example\` | Source from a reference extension (use \`file\` param for one file) |
 | 15 | \`list_mdo_entities\` | MDO Extractor OData V4 entity list |
 | 16 | \`get_mdo_entity\` | One MDO entity definition |
 | 17 | \`search_mdo_entities\` | Search MDO entities |
 | 18 | \`search_all\` | Cross-search: patterns + API + REST |
-| 19 | \`validate_project\` | Full plugin validation → VALIDATION-REPORT.md |
+| 19 | \`validate_project\` | Full extension validation → VALIDATION-REPORT.md |
 
 ---
 
@@ -39,7 +39,7 @@ export function buildCapabilities(c: ContentCounts): string {
 | \`create_action\` | Generate Action (validation/execution/standalone) |
 | \`create_extension\` | Generate full plugin (10 files) — reads POD2_PLUGIN_TEMPLATE.md |
 | \`migrate_widget\` | Migrate existing POD 2.0 widget with feature-loss prevention |
-| \`validate_project\` | Validate plugin in cwd against all standards |
+| \`validate_project\` | Validate extension in cwd against all standards |
 
 ---
 
@@ -76,10 +76,10 @@ Use these names with \`get_rest_api({ serviceName: "..." })\`:
 
 **Find a REST endpoint:** \`search_rest_apis({ query: "X" })\` → \`get_rest_api({ serviceName: "...", summary: true })\` → full spec
 
-**Create a plugin:** \`get_pod2_guidelines\` → \`get_pattern_doc({ name: "widget-patterns-core" })\` → \`get_example({ plugin: "Customer.Coating" })\` → \`create_extension\` prompt
+**Create an extension:** \`get_pod2_guidelines\` → \`get_pattern_doc({ name: "widget-patterns-core" })\` → \`get_example({ plugin: "Customer.Coating" })\` → \`create_extension\` prompt
 
 **Call a REST API from widget:** \`get_pattern_doc({ name: "pod2-public-api-pattern" })\` — MUST READ before using RestClient
 
-**Validate an existing plugin:** \`validate_project\` tool or prompt
+**Validate an existing extension:** \`validate_project\` tool or prompt
 `;
 }

@@ -927,7 +927,7 @@ import WorkListType from "sap/dm/dme/pod2/enumeration/WorkListType";
 2. **Reactive Updates:** PodContext subscriptions enable automatic data refresh
 3. **Performance:** Request deduplication, cancellation, and throttling prevent waste
 4. **Real-Time:** WebSocket notifications keep data current
-5. **Design Mode:** Preview data enables plugin development without backend
+5. **Design Mode:** Preview data enables extension development without backend
 6. **Type Safety:** All API responses converted to typed objects
 7. **Error Resilience:** Proper error handling and graceful degradation
 

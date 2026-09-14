@@ -5,7 +5,7 @@
 > `index.html` bootstrap with `sap/ui/core/ComponentSupport`, and inline-script CSP
 > rules are **omitted** — POD 2 hosts the UI5 shell for you, so plugins never own an
 > `index.html`, never sit inside a CAP project, and never bootstrap a Component
-> themselves. What remains is the ~4 KB that actually applies to POD 2 plugin code.
+> themselves. What remains is the ~4 KB that actually applies to POD 2 extension code.
 >
 > **Version pin**: matches SAP DM's UI5 target (see [`ui5-api-specs/VERSION.md`](ui5-api-specs/VERSION.md)).
 >
@@ -23,7 +23,7 @@
   `jQuery.sap.*`). Every module the code touches must be explicitly declared:
 
   - **JavaScript**: `sap.ui.define([...], (...) => { ... })` at the top of every file (this is also what registers the file as a UI5 module). Dynamic imports via `sap.ui.require([...], (...) => { ... })`.
-  - **TypeScript**: ES6 `import` statements (POD 2 plugins are JS-only today — this applies only if SAP DM ever greenlights TS pods).
+  - **TypeScript**: ES6 `import` statements (POD 2 extensions are JS-only today — this applies only if SAP DM ever greenlights TS pods).
   - **XML views**:
     - For controls, the XML namespace declaration is enough — the template engine autoloads control classes (`<m:Button/>`).
     - For programmatic API (formatters, types, helpers) declare a `core:require` directive:
@@ -70,7 +70,7 @@
 
 ## §2 — TypeScript Event Handler Types (UI5 ≥ 1.115.0)
 
-> POD 2 plugins are **JavaScript-only** today — no `@ui5/ts-interface-generator`, no `ui5-tooling-transpile`.
+> POD 2 extensions are **JavaScript-only** today — no `@ui5/ts-interface-generator`, no `ui5-tooling-transpile`.
 > This section is a forward-looking reference for when SAP DM greenlights TS pods.
 
 - **Rule**: for any control event handler, import and use the specific event type from the control's
@@ -134,14 +134,14 @@
 ## What is deliberately NOT covered here
 
 The full SAPUI5 SDK Guidelines doc (as returned by `@ui5/mcp-server` `get_guidelines`) contains
-several sections that do **not** apply to POD 2 plugins and are intentionally omitted:
+several sections that do **not** apply to POD 2 extensions and are intentionally omitted:
 
 - **CAP integration** (`app/` layout, `cds compile`, `cds-plugin-ui5`, `cds watch` from CAP root,
-  `ui5-middleware-simpleproxy`) — POD 2 plugins do not sit inside CAP projects.
+  `ui5-middleware-simpleproxy`) — POD 2 extensions do not sit inside CAP projects.
 - **HTML bootstrap** (`sap/ui/core/ComponentSupport` in `index.html`, `data-sap-ui-*` attributes) —
   POD 2 hosts the UI5 shell; plugins never own an `index.html`.
 - **CSP inline-script rules** — irrelevant because plugins have no `<script>` blocks of their own.
-- **Local `ui5 serve` behavior** — POD 2 plugin development doesn't use `ui5 serve`; deployment
+- **Local `ui5 serve` behavior** — POD 2 extension development doesn't use `ui5 serve`; deployment
   is a ZIP upload to SAP DM.
 - **`run_ui5_linter` invocation** — POD 2 has its own `validate_project` tool that covers the
   linter's POD-relevant rules (M36, deprecated APIs) plus POD 2-specific detections the linter

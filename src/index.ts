@@ -82,7 +82,7 @@ class StderrLogger implements Logger {
 const logger = new StderrLogger();
 
 const INSTRUCTIONS = [
-  "SAP Digital Manufacturing POD2 plugin development knowledge base.",
+  "SAP Digital Manufacturing POD2 extension development knowledge base.",
   "Discovery-first workflow: start with `get_pod2_guidelines` / `list_capabilities`, then narrow down.",
   "For patterns use get_pattern_doc; for class APIs use get_api_doc (accurate) over the coarse *-api-reference docs;",
   "for REST specs prefer get_rest_api with `endpoint` or `summary: true` (full specs can exceed 250 KB);",

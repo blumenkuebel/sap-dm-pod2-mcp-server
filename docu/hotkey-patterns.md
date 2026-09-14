@@ -1,6 +1,6 @@
 # HotKey Patterns
 
-> **Source:** `sap.dm.dme.pod2.hotkey.HotKeyManager` — Framework support for keyboard shortcuts in POD 2.0 plugins.
+> **Source:** `sap.dm.dme.pod2.hotkey.HotKeyManager` — Framework support for keyboard shortcuts in POD 2.0 extensions.
 
 ---
 

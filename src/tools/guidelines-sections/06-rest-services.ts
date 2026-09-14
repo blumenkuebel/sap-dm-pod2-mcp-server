@@ -37,7 +37,7 @@ export const SECTION_REST_SERVICES = [
   "- `PATTERN-INDEX` - Quick-reference index by use case and complexity",
   "",
   "## Reference Examples (use list_examples / get_example)",
-  "- `Customer.Coating` - Full Best Practice plugin (Widget + Validation + Execution + Context + i18n)",
+  "- `Customer.Coating` - Full Best Practice extension (Widget + Validation + Execution + Context + i18n)",
   "- `Customer.TableView` - Widget with PodContext subscribe, dynamic table rendering via PPD",
   "- `Customer.Utils` - Standalone Action with EnumPropertyEditor",
 ].join("\n");

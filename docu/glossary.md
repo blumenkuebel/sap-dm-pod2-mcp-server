@@ -1,6 +1,6 @@
-# POD Plugin Glossary
+# POD Extension Glossary
 
-Key terms and definitions for SAP Digital Manufacturing POD plugin development.
+Key terms and definitions for SAP Digital Manufacturing POD extension development.
 
 ---
 
@@ -13,10 +13,10 @@ Key terms and definitions for SAP Digital Manufacturing POD plugin development.
 
 **Widget**
 - A custom UI component that can be added to a POD page
-- Base class for all POD 2.0 plugins
+- Base class for all POD 2.0 extensions
 - Provides lifecycle management, configuration, and event handling
 
-**Plugin**
+**Extension**
 - Generic term for custom extensions to POD
 - Can be widgets (with UI) or content handlers (business logic only)
 - Registered via extension.json file
@@ -82,10 +82,10 @@ Key terms and definitions for SAP Digital Manufacturing POD plugin development.
 ## Configuration
 
 **extension.json**
-- Registration file for POD 2.0 plugins
+- Registration file for POD 2.0 extensions
 - Contains only `widgets` and `actions` arrays
 - No other metadata fields (name, version, description) are supported
-- Located at root of plugin ZIP file
+- Located at root of extension ZIP file
 
 **getDefaultConfig()**
 - Static method that defines default widget configuration
@@ -205,7 +205,7 @@ Key terms and definitions for SAP Digital Manufacturing POD plugin development.
 ### ❌ WRONG Structure (SAPUI5 App - Don't do this!):
 ```
 my-custom-plugin/
-└── webapp/                      # ❌ Breaks POD plugin upload!
+└── webapp/                      # ❌ Breaks POD extension upload!
     ├── manifest.json           # ❌ Not needed
     ├── Component.js            # ❌ Not needed
     └── extension.json          # ❌ Wrong location!

@@ -1,6 +1,6 @@
 # Widget Patterns — Core
 
-> Essential widget type templates for POD 2.0 plugin development.
+> Essential widget type templates for POD 2.0 extension development.
 > For API integration, pagination, custom cells, ComponentWidget/IntegrationWidget patterns
 > see [`widget-patterns-advanced.md`](widget-patterns-advanced.md).
 
@@ -602,7 +602,7 @@ class DynamicWidget extends Widget {
 
 ## ControlWidget Pattern (For Single Controls)
 
-> ⚠️ **Framework-internal base class — do NOT extend in custom plugins.** See [Mistake #39](common-mistakes-lifecycle.md#mistake-39-wrong-base-class--layoutwidget-instead-of-widget). The pattern below is retained as **reference material** so you can understand how framework-owned widgets (e.g. `TableWidget`, first-party POD 2.0 widgets) compose internally. For your own single-control wrapper, extend `sap/dm/dme/pod2/widget/Widget` and instantiate the control inside `_createView()` — see the "ButtonWidget rewritten as `extends Widget`" example immediately below, and the Ground-Truth reference plugin `Customer.Coating`.
+> ⚠️ **Framework-internal base class — do NOT extend in custom extensions.** See [Mistake #39](common-mistakes-lifecycle.md#mistake-39-wrong-base-class--layoutwidget-instead-of-widget). The pattern below is retained as **reference material** so you can understand how framework-owned widgets (e.g. `TableWidget`, first-party POD 2.0 widgets) compose internally. For your own single-control wrapper, extend `sap/dm/dme/pod2/widget/Widget` and instantiate the control inside `_createView()` — see the "ButtonWidget rewritten as `extends Widget`" example immediately below, and the Ground-Truth reference extension `Customer.Coating`.
 
 ControlWidget wraps single SAPUI5 controls. Historically this was presented as the go-to pattern for simple widgets; that guidance is superseded — customer plugins must extend `Widget` and internally compose the desired control (M39). Framework-owned widgets remain on `ControlWidget` for historical reasons; when reading their source, this section explains the shape.
 
@@ -911,7 +911,7 @@ class DataDisplayWidget extends TextWidget {
 
 ## LayoutWidget Pattern (For Containers)
 
-> ⚠️ **Framework-internal base class — do NOT extend in custom plugins.** See [Mistake #39](common-mistakes-lifecycle.md#mistake-39-wrong-base-class--layoutwidget-instead-of-widget). If your custom widget needs to *contain* other widgets (nested drag-drop in POD Designer), that is not currently a customer-plugin capability — layout widgets are framework-owned. For your own multi-control layout, extend `Widget`, instantiate an `sap.m.VBox` / `sap.m.HBox` / `sap.f.GridContainer` inside `_createView()`, and add child controls directly.
+> ⚠️ **Framework-internal base class — do NOT extend in custom extensions.** See [Mistake #39](common-mistakes-lifecycle.md#mistake-39-wrong-base-class--layoutwidget-instead-of-widget). If your custom widget needs to *contain* other widgets (nested drag-drop in POD Designer), that is not currently a customer-plugin capability — layout widgets are framework-owned. For your own multi-control layout, extend `Widget`, instantiate an `sap.m.VBox` / `sap.m.HBox` / `sap.f.GridContainer` inside `_createView()`, and add child controls directly.
 
 LayoutWidget wraps layout containers that hold other widgets. Framework-owned; read the pattern below only to understand framework internals — never copy into a customer plugin.
 

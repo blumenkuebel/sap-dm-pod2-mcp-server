@@ -4,7 +4,7 @@
 
 ## Core Patterns ([`widget-patterns-core.md`](widget-patterns-core.md))
 
-All widget type templates needed for standard plugin development:
+All widget type templates needed for standard extension development:
 - **POD 2.0 Custom Controls** (CustomText, CustomVBox, CustomHBox)
 - **Timer and Interval Management** 🚨 CRITICAL
 - **setPropertyValue() Override** — live property updates

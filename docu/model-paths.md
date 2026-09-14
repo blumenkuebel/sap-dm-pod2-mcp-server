@@ -241,7 +241,7 @@ PodContext.subscribe("/myPlugin/coatingThickness", (value) => {
 }, this);
 ```
 
-> **Rule:** Standard paths (from `ModelPath`) are managed by the framework — only use the provided setter methods (e.g. `PodContext.setSelectedWorkListItems()`). Custom paths are free for plugin use.
+> **Rule:** Standard paths (from `ModelPath`) are managed by the framework — only use the provided setter methods (e.g. `PodContext.setSelectedWorkListItems()`). Custom paths are free for extension use.
 
 ---
 

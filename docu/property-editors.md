@@ -2,7 +2,7 @@
 
 ## Overview
 
-POD 2.0 plugins can expose **configurable properties** in the POD Designer. These allow administrators to set values (like PPD keys, feature flags, or enum choices) without modifying code.
+POD 2.0 extensions can expose **configurable properties** in the POD Designer. These allow administrators to set values (like PPD keys, feature flags, or enum choices) without modifying code.
 
 There are two property systems:
 - **`ActionProperty`** – for Action plugins

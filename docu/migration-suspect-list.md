@@ -1,6 +1,6 @@
 # Migration Suspect List — Easy-to-Miss Features
 
-> **Purpose**: When migrating an existing POD 2.0 widget/plugin (or refactoring 3rd-party code), agents systematically overlook small-but-critical UX features. This file is the canonical **"things to look for"** checklist.
+> **Purpose**: When migrating an existing POD 2.0 widget/extension (or refactoring 3rd-party code), agents systematically overlook small-but-critical UX features. This file is the canonical **"things to look for"** checklist.
 >
 > **Usage**: Loaded by the `migrate_widget` MCP prompt during the **Feature Inventory** phase. Every category here MUST be actively scanned in the source code; matches MUST be recorded in `MIGRATION_INVENTORY.md`.
 
@@ -467,7 +467,7 @@ Pattern: `fetch(url, { signal: AbortSignal.timeout(3000) })`. **Fix:** the entir
 
 ### B11 \u2014 Non-existent AMD module paths guessed from the class name
 
-Pattern: `"sap/m/Item"` / `"sap/m/Icon"` / `"sap/m/HTML"` etc. in the `sap.ui.define([...])` import block. The class name is `sap.m.Item` but the module lives in `sap/ui/core/Item` \u2014 the wrong path gives a **404 at plugin-load time**, silently breaking the widget with
+Pattern: `"sap/m/Item"` / `"sap/m/Icon"` / `"sap/m/HTML"` etc. in the `sap.ui.define([...])` import block. The class name is `sap.m.Item` but the module lives in `sap/ui/core/Item` \u2014 the wrong path gives a **404 at extension-load time**, silently breaking the widget with
 
 ```
 Error loading custom module \u2026 \u2014 Error: ModuleError: Failed to resolve dependencies of
@@ -480,7 +480,7 @@ Agents that "derive" the module path from the fully-qualified class name are esp
 
 ### B12 \u2014 Loader method name vs. body divergence
 
-Pattern: a method named `_load<Entity>` whose body loads a **different** entity \u2014 typically caused by copy-paste when a plugin has multiple `_load*` methods and the developer forgets to change the OData path.
+Pattern: a method named `_load<Entity>` whose body loads a **different** entity \u2014 typically caused by copy-paste when an extension has multiple `_load*` methods and the developer forgets to change the OData path.
 
 **Example (a real bug caught during migration review):**
 
@@ -495,7 +495,7 @@ async _loadDowntime() {
 
 The widget "works" because the DC data appears \u2014 but there is no DOWNTIME data anywhere, the DC data appears twice (via `_loadDataCollection` too if it exists), and the JSDoc lies. The bug survives review because the widget renders correctly.
 
-**Fix**: ensure the method name, the JSDoc, the OData `$path` in `getAllPages("/\u2026", \u2026)`, and the JSONModel target path all refer to the same entity. When a plugin has multiple `_load*` methods, cross-check names and bodies before shipping.
+**Fix**: ensure the method name, the JSDoc, the OData `$path` in `getAllPages("/\u2026", \u2026)`, and the JSONModel target path all refer to the same entity. When an extension has multiple `_load*` methods, cross-check names and bodies before shipping.
 
 **Detection heuristic**: for every `async _load<Entity>()` method, the body should contain either `"/<Entity>"` as an OData path OR `_fixture("<Entity>")`, matching the method name (case-insensitive, `snake_case` OK). Divergence \u2192 flag.
 
@@ -503,7 +503,7 @@ The widget "works" because the DC data appears \u2014 but there is no DOWNTIME d
 
 ## Category 21 \u2014 Chart Libraries (Chart.js / d3 / plotly / echarts / apexcharts)
 
-**Why often missed**: HTML5 dashboards commonly load Chart.js from a CDN. Agents "keep the visual" by porting Chart.js configuration verbatim into a POD 2.0 plugin \u2014 which then breaks POD Designer preview, CSP, and offline mode.
+**Why often missed**: HTML5 dashboards commonly load Chart.js from a CDN. Agents "keep the visual" by porting Chart.js configuration verbatim into a POD 2.0 extension \u2014 which then breaks POD Designer preview, CSP, and offline mode.
 
 **Detection patterns**:
 
@@ -607,7 +607,7 @@ The widget "works" because the DC data appears \u2014 but there is no DOWNTIME d
 - **Fallback (bespoke composite)** \u2014 only when all of: <5 rows, no dependency arrows, no drag/resize, time-slice bars only. Shape: VBox of row HBoxes, each HBox with a track composed of `ProgressIndicator` + inner FlexItemData positioning.
 - Full fallback rules in `chart-migration-map.md` \u00a7"Custom div-Gantt".
 
-**Note**: A dashboard reference plugin is deliberately NOT shipped as an example — the temptation to reproduce every dashboard shape as a custom control / composite is exactly the anti-pattern this category catches. Follow `dashboard-patterns.md` §"Chart→control decision table" instead.
+**Note**: A dashboard reference extension is deliberately NOT shipped as an example — the temptation to reproduce every dashboard shape as a custom control / composite is exactly the anti-pattern this category catches. Follow `dashboard-patterns.md` §"Chart→control decision table" instead.
 
 **Reference**: `chart-migration-map.md`.
 
@@ -736,7 +736,7 @@ The widget "works" because the DC data appears \u2014 but there is no DOWNTIME d
 
 > **Specialisation of [`basics.md`](basics.md) §0 — Prime Directive: Standard Controls Before Custom.** Cat 29 catches the ladder-skip at the composite level — rung 3 (compose standard controls) got replaced by "build a fake standard control out of `VBox` + `Text` + `ObjectStatus` + custom CSS". The 4-rung Escalation Ladder (search alternatives → escalate within family → compose → custom only after team alignment) covers every one of the S1-S7 anti-patterns below; each has a rung-2 or rung-3 replacement.
 
-**Why often missed**: The migrator's default bias is to reproduce a hand-built HTML5 component (KPI card, timeline strip, "last-indicator" panel, table-totals row) as a composition of `VBox` + `Text` + `ObjectStatus` + custom CSS. Fiori theme tokens don't propagate into hand-drawn compositions, PropertyEditor bindings feel less natural, and the plugin ends up visually *close to* Fiori but off-brand. A real HTML5 dashboard migration had to iterate through six refactor rounds — each round swapped more of the hand-built widget body for pure standard controls, halved the CSS, and deleted a whole custom control class. The suspect list below is the post-mortem of those rounds.
+**Why often missed**: The migrator's default bias is to reproduce a hand-built HTML5 component (KPI card, timeline strip, "last-indicator" panel, table-totals row) as a composition of `VBox` + `Text` + `ObjectStatus` + custom CSS. Fiori theme tokens don't propagate into hand-drawn compositions, PropertyEditor bindings feel less natural, and the extension ends up visually *close to* Fiori but off-brand. A real HTML5 dashboard migration had to iterate through six refactor rounds — each round swapped more of the hand-built widget body for pure standard controls, halved the CSS, and deleted a whole custom control class. The suspect list below is the post-mortem of those rounds.
 
 **Prime Directive pointer**: The 80%-rule prose lives once, in [`basics.md`](basics.md) §0. Cat 29 is the migration-scoped enforcement of that rule — see §0 for the full 4-rung Escalation Ladder wording.
 
@@ -745,7 +745,7 @@ The widget "works" because the DC data appears \u2014 but there is no DOWNTIME d
 | # | Custom composite the agent built | Standard replacement | Grep target |
 |---|---|---|---|
 | S1 | `KpiTileControl extends CustomVBox` (Title + ObjectStatus + Text) driven by threshold helpers | `sap.m.GenericTile` frameType `OneByOne` + `TileContent` + `NumericContent` (`indicator: Up/Down/None`, `valueColor: Good/Critical/Error/Neutral`) | `widget/control/*Tile*.js`, `extend("sap/dm/dme/pod2/control/CustomVBox"` used as a KPI display |
-| S2 | Div-based Gantt / timeline (`<HBox renderType="Div" width="X%"/>` + absolute-positioned icons + hour-tick axis) | `sap.m.GenericTile` `TwoByOne` + `sap.suite.ui.microchart.BulletMicroChart` — or real `sap.gantt.simple.GanttChartWithTable` if interactive editing is needed | `renderType="Div"` with `width="{= ... + '%'}"`, `position:absolute` in the plugin CSS |
+| S2 | Div-based Gantt / timeline (`<HBox renderType="Div" width="X%"/>` + absolute-positioned icons + hour-tick axis) | `sap.m.GenericTile` `TwoByOne` + `sap.suite.ui.microchart.BulletMicroChart` — or real `sap.gantt.simple.GanttChartWithTable` if interactive editing is needed | `renderType="Div"` with `width="{= ... + '%'}"`, `position:absolute` in the extension CSS |
 | S3 | Hand-built "data collection" cards: `Panel` + `Toolbar` + `VBox` + `ObjectStatus class="lmKpiBig"` + big Text row for min→latest→max (chart-substitute) | `sap.f.Card` + `sap.f.cards.NumericHeader` + `sap.suite.ui.microchart.LineMicroChart` using M55 Pattern A (`points="{path:'lm>samples'}"` + implicit `<LineMicroChartPoint x="{lm>x}" y="{lm>y}"/>` child template) | fragment comments saying "sparkline deferred", inline `min/latest/max HBox` as a chart substitute |
 | S4 | 3-cell target/actual/needed KPI cluster inside a Panel (VBox+Text+`lmKpiBig` × 3) + `ProgressIndicator` + formula footer text | `sap.f.Card` + `NumericHeader` (`number = "actual / target"`, `state`, `trend`) + `sap.suite.ui.microchart.RadialMicroChart` (`percentage = pct`) — matches `chart-migration-map.md` "single-percentage KPI" row | any `Panel` where three sibling `VBox`es each contain one big number + one label |
 | S5 | "Last indicator" small info card: `Panel backgroundDesign="Solid"` + `Text class="lmLabel"` + `HBox` with `ObjectStatus class="lmKpiBig"` + Text for age/target range | `sap.f.Card` + `NumericHeader` (`title=name`, `subtitle=targetRange`, `number=latest`, `unitOfMeasurement=unit`, `state`, `trend`, `details=ageText`) | any `Panel` containing exactly one big number + one unit + one age string |

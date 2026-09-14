@@ -82,7 +82,7 @@ Module path: \`${nsPath}/widget/${widgetName}\`
 
 ## File Layout (CRITICAL)
 - Generate ALL files **directly in the current working directory** (= project root = ZIP root).
-- Do **NOT** create a wrapper folder named after the plugin or namespace.
+- Do **NOT** create a wrapper folder named after the extension or namespace.
 - The folders \`widget/\` and \`i18n/\` must be **direct subfolders of the working directory**, NOT nested inside a \`${widgetName}/\` or \`${nsPath}/\` folder.
 - The \`modulePath\` in \`extension.json\` is a UI5 *logical* module name – it is independent of the physical file location.
 
@@ -167,7 +167,7 @@ Module path: \`${nsPath}/action/${actionName}\`
 
 ## File Layout (CRITICAL)
 - Generate ALL files **directly in the current working directory** (= project root = ZIP root).
-- Do **NOT** create a wrapper folder named after the plugin or namespace.
+- Do **NOT** create a wrapper folder named after the extension or namespace.
 - The folders \`action/\` and \`i18n/\` must be **direct subfolders of the working directory**, NOT nested inside a \`${actionName}/\` or \`${nsPath}/\` folder.
 - The \`modulePath\` in \`extension.json\` is a UI5 *logical* module name – it is independent of the physical file location.
 
@@ -279,12 +279,12 @@ Generate a comprehensive README in the style of the examples (see Customer.Coati
 
 ## File Layout (CRITICAL)
 - Generate ALL files **directly in the current working directory** (= project root = ZIP root).
-- Do **NOT** create a wrapper folder named after the plugin (e.g. NO \`<PluginName>/\` subfolder).
+- Do **NOT** create a wrapper folder named after the extension (e.g. NO \`<ExtensionName>/\` subfolder).
 - The folders \`widget/\`, \`action/\`, \`context/\`, \`i18n/\` and the file \`extension.json\` must live **directly in the working directory**.
 - The \`modulePath\` in \`extension.json\` is a UI5 *logical* module name – it is independent of the physical file location. So \`modulePath: "customer.myplugin.widget.MyWidget"\` is fine even when the physical file is at \`./widget/MyWidget.js\`.
 
 ## Important Rules
-- **Flat layout**: Files at working-directory root, no \`<PluginName>/\` wrapper folder.
+- **Flat layout**: Files at working-directory root, no \`<ExtensionName>/\` wrapper folder.
 - **Namespace**: Use the namespace defined in extension.json (\`modulePath\`/\`type\`), independent of the folder structure. The POD framework handles it.
 - **README style**: Write the README.md in the style of the examples.
 - **i18nCustomModel**: Always register in widget.onInit() via \`getPodRuntime().getView().setModel()\`.
@@ -360,7 +360,7 @@ Register all widgets and actions with correct modulePaths and types.
 
 ### 7. \`README.md\` – Project Documentation (REQUIRED)
 Generate a comprehensive README with these sections:
-1. **Title & Description** – Plugin name and purpose
+1. **Title & Description** – Extension name and purpose
 2. **Components Table** – Component | File | Description
 3. **Key Capabilities** – Bullet list of features
 4. **Project Structure** – ASCII tree view
@@ -388,7 +388,7 @@ Generate a comprehensive README with these sections:
 
 ## File Layout (CRITICAL)
 - Generate ALL files **directly in the current working directory** (= project root = ZIP root).
-- Do **NOT** create a wrapper folder named after the plugin (e.g. NO \`${pluginName}/\` subfolder, NO \`${nsPath}/\` subfolder).
+- Do **NOT** create a wrapper folder named after the extension (e.g. NO \`${pluginName}/\` subfolder, NO \`${nsPath}/\` subfolder).
 - The folders \`widget/\`, \`action/\`, \`context/\`, \`i18n/\` and the file \`extension.json\` must live **directly in the working directory**.
 - The \`modulePath\` in \`extension.json\` is a UI5 *logical* module name – it is independent of the physical file location. So \`modulePath: "${namespace}.widget.${pluginName}Widget"\` is fine even when the physical file is at \`./widget/${pluginName}Widget.js\`.
 
@@ -412,12 +412,12 @@ Generate a comprehensive README with these sections:
   server.addPrompt({
     name: "migrate_widget",
     description:
-      "Migrates an EXISTING POD 2.0 widget OR an HTML5 monitoring/dashboard app (Chart.js/d3/plotly/echarts + fetch + inline handlers) into a clean POD 2.0 plugin following Best-Practice. Enforces a phased workflow with mandatory Feature-Inventory, Mapping, Verification and (for HTML5) Residue-Gate artifacts to prevent silent feature loss.",
+      "Migrates an EXISTING POD 2.0 widget OR an HTML5 monitoring/dashboard app (Chart.js/d3/plotly/echarts + fetch + inline handlers) into a clean POD 2.0 extension following Best-Practice. Enforces a phased workflow with mandatory Feature-Inventory, Mapping, Verification and (for HTML5) Residue-Gate artifacts to prevent silent feature loss.",
     arguments: [
       {
         name: "sourceDir",
         description:
-          "Relative path to the source directory (POD2 plugin folder OR HTML5 app folder). If omitted, the agent must ask the user.",
+          "Relative path to the source directory (POD2 extension folder OR HTML5 app folder). If omitted, the agent must ask the user.",
         required: false,
       },
       {
@@ -438,7 +438,7 @@ Generate a comprehensive README with these sections:
       const src = sourceDir ?? "<sourceDir not provided — ASK USER>";
       const ns = targetNamespace ?? "<targetNamespace not provided — read from POD2_PLUGIN_EXAMPLE.md or ASK USER>";
 
-      return `Migrate the existing POD 2.0 widget at \`${src}\` into a clean POD 2.0 plugin following Best-Practice.
+      return `Migrate the existing POD 2.0 widget at \`${src}\` into a clean POD 2.0 extension following Best-Practice.
 
 ## Mission
 
@@ -473,8 +473,8 @@ This applies the Reasoning-First meta-rule from \`get_pod2_guidelines\` Section 
 
 1. Verify \`sourceDir\` exists and contains POD 2.0 sources (\`extension.json\` + \`*.js\` extending \`sap/dm/dme/pod2/widget/Widget\`). If not → abort with a clear error message.
 2. List every file in \`sourceDir\` (skip \`node_modules/\`, \`.git/\`, build artifacts, \`.DS_Store\`).
-3. Identify the source plugin structure: widgets, actions, context, i18n bundles, README, extension.json.
-4. Read \`POD2_PLUGIN_EXAMPLE.md\` in the **target** working directory if present — it may already specify the desired namespace, plugin name, category, etc.
+3. Identify the source extension structure: widgets, actions, context, i18n bundles, README, extension.json.
+4. Read \`POD2_PLUGIN_EXAMPLE.md\` in the **target** working directory if present — it may already specify the desired namespace, extension name, category, etc.
 
 **If \`sourceFormat === "html5"\` (or \`auto\` detects HTML5):**
 
@@ -524,7 +524,7 @@ This applies the Reasoning-First meta-rule from \`get_pod2_guidelines\` Section 
 Then write \`MIGRATION_INVENTORY.md\` to the target working-directory root with this structure:
 
 \`\`\`markdown
-# Migration Inventory — <PluginName>
+# Migration Inventory — <ExtensionName>
 
 **Source**: \`${src}\`
 **Source files**: <list>
@@ -574,7 +574,7 @@ End the inventory with the **Output Contract sentence**:
 For each inventory entry, decide the POD 2.0 target pattern and write \`MIGRATION_MAPPING.md\`:
 
 \`\`\`markdown
-# Migration Mapping — <PluginName>
+# Migration Mapping — <ExtensionName>
 
 ## Cat 1 — Input Validation State
 | # | Source | POD 2.0 Target | Doc Reference | Notes |
@@ -630,9 +630,9 @@ For each inventory entry, decide the POD 2.0 target pattern and write \`MIGRATIO
 >
 > **Overarching rule (the general form of this bias): [\`basics.md\`](basics.md) §0 — Prime Directive: Standard Controls Before Custom.** M60 / M61 / Cat 29 / M70 are all specialisations of the same 4-rung Escalation Ladder (search alternative standard controls → escalate within family → compose → custom only after team alignment). Load \`basics.md\` §0 alongside \`dashboard-patterns.md\` at Phase 1 — the ladder applies to every control decision, not only dashboard tiles.
 
-**No-plugin-CSS bias (Phase 3 XML emission rule — M61 umbrella):**
+**No-extension-CSS bias (Phase 3 XML emission rule — M61 umbrella):**
 
-> Do not create \`widget/css/*.css\`. If a spacing tweak is unavoidable, use a \`sapUi{Tiny,Small,Medium,Large}Margin{,Top,Bottom,Begin,End}\` utility class inline via \`addStyleClass()\`. If you do create a CSS file, you MUST call a stylesheet loader in the widget's \`init()\` (\`sap.ui.core.IconPool.registerStyleSheet(...)\`, \`jQuery.sap.includeStyleSheet(...)\`, or \`sap.ui.require(["...css!..."], ...)\`) — a CSS file with no loader is Phase-5 gate failure per M61 (a real migration shipped ~200 LOC of never-loaded CSS). Prefer utility classes and semantic-control properties (\`ObjectNumber emphasized="true"\`, \`NumericContent.valueColor\`, \`ObjectStatus.state\`, \`IconColor.*\`) over any custom CSS. If you truly need a plugin-owned style, use the \`// standard-only: exception — <reason>\` marker on the offending line (documented in \`common-mistakes-ui.md\` §M61).
+> Do not create \`widget/css/*.css\`. If a spacing tweak is unavoidable, use a \`sapUi{Tiny,Small,Medium,Large}Margin{,Top,Bottom,Begin,End}\` utility class inline via \`addStyleClass()\`. If you do create a CSS file, you MUST call a stylesheet loader in the widget's \`init()\` (\`sap.ui.core.IconPool.registerStyleSheet(...)\`, \`jQuery.sap.includeStyleSheet(...)\`, or \`sap.ui.require(["...css!..."], ...)\`) — a CSS file with no loader is Phase-5 gate failure per M61 (a real migration shipped ~200 LOC of never-loaded CSS). Prefer utility classes and semantic-control properties (\`ObjectNumber emphasized="true"\`, \`NumericContent.valueColor\`, \`ObjectStatus.state\`, \`IconColor.*\`) over any custom CSS. If you truly need a extension-owned style, use the \`// standard-only: exception — <reason>\` marker on the offending line (documented in \`common-mistakes-ui.md\` §M61).
 
 **View-model data discipline** (Cat 29 unblocker — see M62): keep raw numerics (\`float\`/\`int\`) in the JSONModel; add a separate \`*Text\` string field ONLY if a plain \`Text.text\` binding still consumes it. Never store only the pre-formatted string — it blocks \`NumericContent.value\` (needs float), \`NumericHeader.number\` + \`unitOfMeasurement\` (needs a numeric-and-unit split), etc.
 
@@ -640,7 +640,7 @@ Apply the **Source-or-Silence** meta-rule (\`get_pod2_guidelines\` Section 0): i
 
 ## Phase 4 — IMPLEMENTATION
 
-Now and only now: generate the target plugin files in the working-directory root using the Best-Practice pattern:
+Now and only now: generate the target extension files in the working-directory root using the Best-Practice pattern:
 
 - \`extension.json\`
 - \`widget/<Name>Widget.js\`
@@ -649,7 +649,7 @@ Now and only now: generate the target plugin files in the working-directory root
 - \`i18n/i18n.properties\` (+ \`_de\`, \`_en\`, \`_en_US\`) — see common-mistakes #32 for \`widget.\` prefix
 - \`README.md\` — in the style of \`examples/Customer.Coating/README.md\`
 
-**File layout rule** (CRITICAL): Generate ALL files **directly in the working-directory root** (= ZIP root). Do NOT create a wrapper folder named after the plugin or namespace.
+**File layout rule** (CRITICAL): Generate ALL files **directly in the working-directory root** (= ZIP root). Do NOT create a wrapper folder named after the extension or namespace.
 
 **Dashboard-shaped layout** (when the source is an HTML5 monitoring/dashboard app):
 
@@ -710,7 +710,7 @@ Smoke-test view = a plain \`sap.m.VBox\` with:
 - One \`sap.m.MessageStrip\` bound to an error state — proves error surface works.
 
 Upload the smoke-test widget. Verify in POD:
-- Widget appears in the plugin catalog (Manifest OK).
+- Widget appears in the extension catalog (Manifest OK).
 - Widget renders in the target panel (\`_createView\` return contract OK).
 - Bindings show live values (JSONModel + i18nCustomModel OK).
 - Refresh button reacts (\`attachPress\` OK).
@@ -741,7 +741,7 @@ If the checklist doesn't pinpoint the issue, add \`\\Log.info("[<WidgetName>] <s
 After implementation, write \`MIGRATION_VERIFICATION.md\`:
 
 \`\`\`markdown
-# Migration Verification — <PluginName>
+# Migration Verification — <ExtensionName>
 
 **Date**: <ISO 8601>
 
@@ -787,10 +787,10 @@ Silence is not a legal outcome — silent drop is exactly the M70 defect this se
 
 ### Phase 5b — HTML5 Residue Gate (only when \`sourceFormat === "html5"\`)
 
-After the coverage matrix, run these grep commands **against the GENERATED plugin** (not the source). **Zero hits required** — every hit is a ❌ Error and blocks sign-off:
+After the coverage matrix, run these grep commands **against the GENERATED extension** (not the source). **Zero hits required** — every hit is a ❌ Error and blocks sign-off:
 
 \`\`\`bash
-# Chart libraries: never keep in shipped POD 2.0 plugin (Cat 21)
+# Chart libraries: never keep in shipped POD 2.0 extension (Cat 21)
 grep -rnE 'new Chart\\(|Chart\\.register|Chart\\.defaults|d3\\.|Plotly\\.|echarts\\.init|ApexCharts' widget/ action/ context/ util/ 2>/dev/null
 
 # Native fetch / XHR / Ajax (Cat 22)
@@ -825,7 +825,7 @@ done
 # sap/m/BusyIndicator imported inside widget code (M33)
 grep -rn 'sap/m/BusyIndicator' widget/ 2>/dev/null
 
-# Non-existent AMD module paths (M41) — 404 at plugin-load, hard fail
+# Non-existent AMD module paths (M41) — 404 at extension-load, hard fail
 grep -rnE '"sap/m/(Item|Icon|ListItem|Element|Control|Fragment|HTML)"' widget/ action/ context/ util/ 2>/dev/null
 
 # ── Standard-First bias gate (Cat 29 / M60-M61) ──
@@ -837,14 +837,14 @@ grep -rn 'extend("sap/dm/dme/pod2/control/CustomVBox"' widget/control/ 2>/dev/nu
 
 # Custom CSS reproducing Fiori typography/color tokens (M61 subset — Fiori-token duplication):
 grep -rnE 'font-size:\\s*(1\\.[2-9]|2)|font-weight:\\s*(600|700|bold)|color:\\s*var\\(--sap[A-Za-z]+Color\\)' *.css widget/**/*.css 2>/dev/null && \\
-    echo "M61: Fiori-token duplication in plugin CSS — use semantic control (ObjectNumber emphasized / NumericContent / ObjectStatus state) instead"
+    echo "M61: Fiori-token duplication in extension CSS — use semantic control (ObjectNumber emphasized / NumericContent / ObjectStatus state) instead"
 
-# Physical widget/css/*.css file exists — M61 (either has no loader = dead code, or is plugin CSS at all)
+# Physical widget/css/*.css file exists — M61 (either has no loader = dead code, or is extension CSS at all)
 if find widget/ -name "*.css" -not -path "*/node_modules/*" 2>/dev/null | grep -q . ; then
     if ! grep -rq 'includeStyleSheet\\|createStyleSheet\\|IconPool\\.registerStyleSheet\\|css!' widget/ 2>/dev/null ; then
         echo "M61: DEAD CSS — widget/css/ exists but no stylesheet loader call. Delete the file AND every class=\\"lm*\\" attribute (a real migration shipped 200 LOC of never-loaded CSS)."
     else
-        echo "M61: plugin CSS file present with loader — verify Fiori standard controls could not cover it; add \\"// standard-only: exception\\" marker OR delete the CSS and use semantic controls / sapUi*Margin utilities."
+        echo "M61: extension CSS file present with loader — verify Fiori standard controls could not cover it; add \\"// standard-only: exception\\" marker OR delete the CSS and use semantic controls / sapUi*Margin utilities."
     fi
 fi
 
@@ -870,7 +870,7 @@ done
 
 # ── Orphan i18n keys (dashboard-patterns.md §"Orphan-i18n gate") ──
 
-# Replace <PREFIX> with the plugin's i18n widget short-name prefix (e.g. dashboard).
+# Replace <PREFIX> with the extension's i18n widget short-name prefix (e.g. dashboard).
 prefix="<PREFIX>"
 for key in \$(grep -oE "^\${prefix}\\\\.[a-zA-Z0-9._]+" i18n/i18n.properties 2>/dev/null | sort -u); do
     refs=\$(grep -rn "\\\\b\${key}\\\\b" widget/ --include='*.js' --include='*.xml' --include='*.fragment.xml' 2>/dev/null | wc -l)
@@ -923,11 +923,11 @@ Append a **Residue Gate** section to \`MIGRATION_VERIFICATION.md\`:
 | Field-coverage report rows with unapproved \`Dropped fields\` — M70 | 0 | ✅ |
 \`\`\`
 
-Any row with hits > 0 → return to Phase 4. Sign-off requires all-zero. **Cat 29, M61, and M70 rows are gate failures even if the plugin "works" — a standard-first bias miss, a dead CSS file, and a silent slot-drop are all treated identically to a Chart.js residue.**
+Any row with hits > 0 → return to Phase 4. Sign-off requires all-zero. **Cat 29, M61, and M70 rows are gate failures even if the extension 'works' — a standard-first bias miss, a dead CSS file, and a silent slot-drop are all treated identically to a Chart.js residue.**
 
 ### Phase 5c — Fiori Design Compliance Review (only when \`sourceFormat === "html5"\`)
 
-Phase 5b greps for **residue** (things that shouldn't be there). Phase 5c reviews **design compliance** (whether the produced plugin looks native to SAP DM). This is a **manual visual walk-through** guided by the 10-checkbox review in \`fiori-design-compliance.md\` §"Verification during Phase 5c"; it complements the negative Residue Gate with the positive Fiori canon.
+Phase 5b greps for **residue** (things that shouldn't be there). Phase 5c reviews **design compliance** (whether the produced extension looks native to SAP DM). This is a **manual visual walk-through** guided by the 10-checkbox review in \`fiori-design-compliance.md\` §"Verification during Phase 5c"; it complements the negative Residue Gate with the positive Fiori canon.
 
 For every generated view / fragment / control instantiation, walk the checklist and emit the result in \`MIGRATION_VERIFICATION.md\` as a table:
 
@@ -948,13 +948,13 @@ For every generated view / fragment / control instantiation, walk the checklist 
 | 10 | Localisation — 4 bundles; M30 (SFC → PSN in _de); DateFormat/NumberFormat | ✅ | — |
 \`\`\`
 
-Zero ⚠️ / ❌ required for sign-off. Any ⚠️ / ❌ row needs an explicit one-sentence justification (or the plugin returns to Phase 4). Deviations to preserve the source's original design **require user approval in this phase** — the agent posts the review table to chat and STOPS until the user confirms.
+Zero ⚠️ / ❌ required for sign-off. Any ⚠️ / ❌ row needs an explicit one-sentence justification (or the extension returns to Phase 4). Deviations to preserve the source's original design **require user approval in this phase** — the agent posts the review table to chat and STOPS until the user confirms.
 
 Load \`fiori-design-compliance.md\` §"Verification during Phase 5c" for the full check descriptions, and §"Fiori design decision table" for the layout/structure/messaging conventions any row 1-10 might reference.
 
 ## Phase 6 — Final Validation
 
-Run the \`validate_project\` MCP prompt against the generated plugin to catch any common-mistakes (i18n widget. prefix, import paths, etc.). Resolve any ❌ Errors before declaring the migration done.
+Run the \`validate_project\` MCP prompt against the generated extension to catch any common-mistakes (i18n widget. prefix, import paths, etc.). Resolve any ❌ Errors before declaring the migration done.
 
 ## Phase 7 — Chat Summary
 
@@ -975,7 +975,7 @@ Post a concise summary in chat (do NOT repeat the artifacts):
 - MIGRATION_INVENTORY.md   (Phase 2)
 - MIGRATION_MAPPING.md     (Phase 3)
 - MIGRATION_VERIFICATION.md (Phase 5)
-- Plugin files: extension.json, widget/, action/, context/, i18n/
+- Extension files: extension.json, widget/, action/, context/, i18n/
 
 🧪 validate_project: <result summary>
 \\\`\\\`\\\`
@@ -1004,10 +1004,10 @@ Post a concise summary in chat (do NOT repeat the artifacts):
   server.addPrompt({
     name: "validate_project",
     description:
-      "Validates the POD2 plugin in the current working directory against the latest MCP server standards: all 32+ common-mistakes, SAP DM REST API versions (v1/v2/v3), POD2 Public/Internal API usage, ModelPath constants, MDO/OData. Produces VALIDATION-REPORT.md with errors, warnings, info findings and an auto-fixable section.",
+      "Validates the POD2 extension in the current working directory against the latest MCP server standards: all 32+ common-mistakes, SAP DM REST API versions (v1/v2/v3), POD2 Public/Internal API usage, ModelPath constants, MDO/OData. Produces VALIDATION-REPORT.md with errors, warnings, info findings and an auto-fixable section.",
     arguments: [],
     load: async () => {
-      return `Validate the POD 2.0 plugin in the **current working directory** against the latest pod2-mcp-server standards.
+      return `Validate the POD 2.0 extension in the **current working directory** against the latest pod2-mcp-server standards.
 
 Scope is **always full** — every applicable rule must be checked.
 
@@ -1017,7 +1017,7 @@ Scope is **always full** — every applicable rule must be checked.
 
 Before starting validation, post a brief reasoning message in chat:
 
-1. *"Validating POD2 plugin in \`<cwd>\`"*
+1. *"Validating POD2 extension in \`<cwd>\`"*
 2. The list of MCP tools you will call (the Phase 1 list)
 3. The expected report path: \`<cwd>/VALIDATION-REPORT.md\`
 4. The estimated number of files to read
@@ -1028,9 +1028,9 @@ This applies the Reasoning-First meta-rule from \`get_pod2_guidelines\` Section 
 
 ## Phase 0 — Discovery
 
-1. **Verify it is a POD 2.0 plugin project**: \`extension.json\` MUST exist in the working directory root. If not, abort with a clear error message.
+1. **Verify it is a POD 2.0 extension project**: \`extension.json\` MUST exist in the working directory root. If not, abort with a clear error message.
 2. List the project tree (skip \`node_modules/\`, \`.git/\`, \`dist/\`, \`.scaffold-done\`, \`VALIDATION-REPORT.md\`).
-3. Identify the plugin structure:
+3. Identify the extension structure:
    - \`extension.json\`
    - \`widget/*.js\` (zero or one widget)
    - \`action/*.js\` (zero or more actions)
@@ -1053,7 +1053,7 @@ Call these MCP tools in order:
 8. \`list_rest_apis\` — current SAP DM REST API services with version info (v1/v2/v3)
 9. \`list_api_docs({ namespace: "sap.dm.dme.pod2.api", limit: 200 })\` — current Public/Internal POD2 API surface
 
-## Phase 2 — Read Plugin Source
+## Phase 2 — Read Extension Source
 
 Read every relevant file (full text):
 - \`extension.json\`
@@ -1165,13 +1165,13 @@ For each rule in \`common-mistakes.md\`, run a concrete detection. Group finding
 
 ### 4a) SAP DM REST APIs (v1 / v2 / v3)
 
-1. Scan plugin code for any of these patterns:
+1. Scan extension code for any of these patterns:
    - URL strings: \`/dm/<service>/v1/...\`, \`/dm/<service>/v2/...\`, \`/dm/<service>/v3/...\`
    - \`ApiClient.rest.<service>.<method>\` (or any \`RestClient\` usage)
    - Plain \`fetch("...")\` / \`XMLHttpRequest\` to SAP DM URLs
 2. Build a set of (service, version-used) tuples.
 3. Cross-check against \`list_rest_apis\`. For each service:
-   - **Highest version available in specs > version used by plugin** → ⚠️ **Warning** "Upgrade recommended: vX → vY"
+   - **Highest version available in specs > version used by extension** → ⚠️ **Warning** "Upgrade recommended: vX → vY"
    - **Only newer version exists in specs (legacy version no longer documented)** → ❌ **Error** "Used version no longer documented — likely deprecated"
    - **Used version matches latest** → ✅ Info "Up-to-date"
 4. For each used endpoint, optionally call \`get_rest_api({ serviceName, summary: true })\` and verify:
@@ -1198,7 +1198,7 @@ Reference table (from current MCP server snapshot — confirm via \`list_rest_ap
 
 ### 4b) POD2 Public / Internal APIs
 
-1. Find every \`ApiClient.<namespace>.<method>(...)\` call in the plugin.
+1. Find every \`ApiClient.<namespace>.<method>(...)\` call in the extension.
 2. For each call:
    - \`get_api_doc({ className: "sap.dm.dme.pod2.api.<namespace>.<ClientClass>" })\` (e.g. \`OrderPublicApiClient\`)
    - Verify the method still exists with the same signature.
@@ -1221,7 +1221,7 @@ Reference table (from current MCP server snapshot — confirm via \`list_rest_ap
 
 ### 4d) ModelPath / PodContext consistency
 
-1. Extract every \`ModelPath.<X>\` and \`PodContext.<method>(...)\` from the plugin.
+1. Extract every \`ModelPath.<X>\` and \`PodContext.<method>(...)\` from the extension.
 2. Cross-check against:
    - \`get_api_doc({ className: "sap.dm.dme.pod2.context.PodContext" })\`
    - \`get_api_doc({ className: "sap.dm.dme.pod2.context" })\`
@@ -1237,9 +1237,9 @@ Reference table (from current MCP server snapshot — confirm via \`list_rest_ap
 Create the file \`VALIDATION-REPORT.md\` in the working-directory root with this exact structure:
 
 \`\`\`markdown
-# POD 2.0 Plugin Validation Report
+# POD 2.0 Extension Validation Report
 
-**Plugin:** <name from extension.json or directory>
+**Extension:** <name from extension.json or directory>
 **Date:** <ISO 8601 date, e.g. 2026-06-10>
 **Validated against:** pod2-mcp-server v<version from list_capabilities>
 **Scope:** Full validation (common-mistakes + API versions + ModelPath/PodContext)
@@ -1364,7 +1364,7 @@ After writing the report, post a short summary in chat (do NOT repeat the full r
 
 ## When to abort
 
-- No \`extension.json\` in working directory → abort, message: "Not a POD 2.0 plugin project (extension.json missing). Run this in the plugin folder."
+- No \`extension.json\` in working directory → abort, message: "Not a POD 2.0 extension project (extension.json missing). Run this in the extension folder."
 - \`extension.json\` is invalid JSON → write a single-error report and stop.
 `;
     },

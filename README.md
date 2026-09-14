@@ -2,7 +2,7 @@
 
 An MCP (Model Context Protocol) server for **SAP Digital Manufacturing POD 2.0** extension development.
 
-Provides AI assistants with access to pattern documentation, API references, REST API specs, UI5 API, code examples, and validation workflows — everything needed to build, review, and migrate POD 2.0 plugins.
+Provides AI assistants with access to pattern documentation, API references, REST API specs, UI5 API, code examples, and validation workflows — everything needed to build, review, and migrate POD 2.0 extensions.
 
 Built with [FastMCP](https://github.com/punkpeye/fastmcp) — supports both **HTTP Stream** and **stdio** transports.
 
@@ -12,7 +12,7 @@ Built with [FastMCP](https://github.com/punkpeye/fastmcp) — supports both **HT
 > only for identification. **SAP provides no support** for this project — issues and questions
 > go through this repository, not SAP support channels.
 
-> **Note on bundled content.** This repository ships the hand-written pattern & reference docs and the reference example plugins under MIT. It also ships the **POD2 API reference** (`docu/pod2-api-specs/`), generated from the POD 2.0 JSDoc bundle SAP publishes under **Apache-2.0**. The SAPUI5 API metadata is fetched locally from the SAPUI5 SDK under your own SAP license. It does **not** redistribute tenant-bound SAP specs (SAP DM REST OpenAPI specs, MDO metadata) — those are release-bound SAP content you fetch locally for your own licensed release. See [Step 3: Load the REST API specifications](#step-3-load-the-rest-api-specifications).
+> **Note on bundled content.** This repository ships the hand-written pattern & reference docs and the reference example extensions under MIT. It also ships the **POD2 API reference** (`docu/pod2-api-specs/`), generated from the POD 2.0 JSDoc bundle SAP publishes under **Apache-2.0**. The SAPUI5 API metadata is fetched locally from the SAPUI5 SDK under your own SAP license. It does **not** redistribute tenant-bound SAP specs (SAP DM REST OpenAPI specs, MDO metadata) — those are release-bound SAP content you fetch locally for your own licensed release. See [Step 3: Load the REST API specifications](#step-3-load-the-rest-api-specifications).
 
 ---
 
@@ -44,12 +44,12 @@ Built with [FastMCP](https://github.com/punkpeye/fastmcp) — supports both **HT
 | `search_ui5_api` | Search SAPUI5 symbols across all libraries |
 | `get_ui5_api` | Full metadata for a UI5 class (properties, methods, events) |
 | `get_ui5_guidelines` | Curated SAPUI5 coding guidelines |
-| `list_examples` | List reference example plugins with file structure |
-| `get_example` | Read source code from a reference plugin |
+| `list_examples` | List reference example extensions with file structure |
+| `get_example` | Read source code from a reference extension |
 | `list_mdo_entities` | List SAP DM MDO Extractor OData V4 entities *(requires fetched specs)* |
 | `get_mdo_entity` | Full property list for an MDO entity |
 | `search_mdo_entities` | Search MDO entity definitions |
-| `validate_project` | Validate a POD2 plugin against all standards |
+| `validate_project` | Validate a POD2 extension against all standards |
 | `search_all` | Cross-area search: pattern docs + API specs + REST specs |
 
 ---
@@ -279,7 +279,7 @@ sap-dm-pod2-mcp-server/
 │   └── sap-dm-mdo-specs/     ← MDO Extractor metadata — fetched locally, not shipped
 ├── scripts/                  ← Spec fetch/extract generators (prepare:specs, fetch-rest-specs, …)
 ├── test/                     ← Node built-in test suite (helpers, tools, server)
-├── examples/                 ← Production-grade reference plugins
+├── examples/                 ← Production-grade reference extensions
 │   ├── Customer.Coating/
 │   ├── Customer.HelloWorld/
 │   ├── Customer.TableView/

@@ -172,7 +172,7 @@ https://help.sap.com/docs/help/95abdf318cec40bb84bc487fdaa03691/8dbdab1343184bf1
 
 **Error**: `ReferenceError: moment is not defined` or library not available even after script loads
 
-When including third-party libraries (moment.js, lodash, etc.) in POD 2.0 plugins:
+When including third-party libraries (moment.js, lodash, etc.) in POD 2.0 extensions:
 
 ```javascript
 // ❌ WRONG - Async loading, library not ready when used
@@ -194,7 +194,7 @@ document.head.appendChild(script);
 
 // ✅ CORRECT - Use Function() constructor to bypass AMD detection
 #loadExternalLibraries() {
-    // Get base path for plugin resources
+    // Get base path for extension resources
     let sBasePath = "";
     try {
         const sModuleUrl = sap.ui.require.toUrl("my/plugin/namespace/plugins/MyWidget");
@@ -453,7 +453,7 @@ Regex over widget files: an identifier whose name matches a `new <Control>({ id:
 
 ---
 
-## Mistake #41: Non-existent module paths (`sap/m/Item`, `sap/m/Icon`, …) ❌ → ✅ (RUNTIME 404 — plugin fails to load)
+## Mistake #41: Non-existent module paths (`sap/m/Item`, `sap/m/Icon`, …) ❌ → ✅ (RUNTIME 404 — extension fails to load)
 
 **Symptom (verbatim)**:
 
@@ -466,7 +466,7 @@ from https://sapui5.hana.ondemand.com/1.136.15/resources/sap/m/Item.js: 404
 
 **Why it's wrong**: Several UI5 classes have a `sap.<lib>.<Name>` fully-qualified name that does **not** match a physical module. The AMD path lives in a different library.
 
-Agents that "guess" the module path from the class name (`sap.m.Item` → `sap/m/Item`) hit a hard 404 at plugin-load time — the whole widget never registers.
+Agents that "guess" the module path from the class name (`sap.m.Item` → `sap/m/Item`) hit a hard 404 at extension-load time — the whole widget never registers.
 
 ### The trap list (known cases)
 
@@ -513,7 +513,7 @@ sap.ui.define([
 
 Before shipping any import, verify the module path via `get_ui5_api({ symbol: "<sap.class.name>" })` — the `module` field in the response is the AMD path (with slashes). Do NOT derive the module path from the fully-qualified class name.
 
-> **From a POD plugin dir** the tool errors with *"Unable to locate a UI5 project"* — use `get_ui5_api` (bundled offline, no `projectDir` needed) for the three workarounds (search POD2 docs / stub-project / `ui5.sap.com/api`).
+> **From a POD extension dir** the tool errors with *"Unable to locate a UI5 project"* — use `get_ui5_api` (bundled offline, no `projectDir` needed) for the three workarounds (search POD2 docs / stub-project / `ui5.sap.com/api`).
 
 For POD2 classes: `pod2-mcp-server.get_api_doc({ name: "<sap.dm.dme.pod2.class.name>" })`.
 
@@ -634,8 +634,8 @@ this.#oLog.warn("…");     // ✅
 
 ### Detection pattern (validation)
 
-- `grep -rn "callback:\|listener:" <plugin>/**/*.js` near a `PodNotificationWebSocket.subscribe(` → replace with `onMessage:` and drop `listener:`.
-- `grep -rn "\.warning(" <plugin>/**/*.js` → any `Logger`/`oLog` receiver must become `.warn(`; leave `MessageBox.warning(` alone.
+- `grep -rn "callback:\|listener:" <extension>/**/*.js` near a `PodNotificationWebSocket.subscribe(` → replace with `onMessage:` and drop `listener:`.
+- `grep -rn "\.warning(" <extension>/**/*.js` → any `Logger`/`oLog` receiver must become `.warn(`; leave `MessageBox.warning(` alone.
 
 ### Related
 

@@ -23,7 +23,7 @@ export function registerDocsTools(server: FastMCP): void {
       const descriptions: Record<string, string> = {
         "advanced-patterns.md":
           "11 advanced enterprise patterns (custom toolbars, authorization, dynamic columns, error handling with retry, async popovers, optimistic UI, master-detail navigation, warning dialogs, no-data messages, table selection, JSDoc extensibility)",
-        "basics.md": "POD2 Development Fundamentals – Architecture, Best Practices, plugin structure",
+        "basics.md": "POD2 Development Fundamentals – Architecture, Best Practices, extension structure",
         "binding-patterns.md": "Data binding patterns (multi-part, expression, formatter classes)",
         "cache-patterns.md": "Caching strategies for API data and computed values",
         "common-mistakes.md":

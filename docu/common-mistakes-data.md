@@ -354,7 +354,7 @@ If any hit shows up — fix it to a string comparison.
 
 **Found in**: Any widget that takes numeric user input via `sap.m.Input` (manual measurements, quantities, prices, dimensions, …).
 
-**Critical**: SAP DM is deployed in production plants worldwide. The browser/POD locale is **not always English**. A custom plugin that hard-codes `parseFloat()` works only in `en-*` locales and silently breaks in `de-*`, `fr-*`, `es-*`, `it-*`, `pt-*`, etc.
+**Critical**: SAP DM is deployed in production plants worldwide. The browser/POD locale is **not always English**. A custom extension that hard-codes `parseFloat()` works only in `en-*` locales and silently breaks in `de-*`, `fr-*`, `es-*`, `it-*`, `pt-*`, etc.
 
 ### Why JavaScript's `parseFloat()` Is Locale-Blind
 
@@ -403,7 +403,7 @@ oInput.setValue(calculatedThickness.toString());     // "12.5" — wrong for Ger
 oOutput.setText(`${calculatedThickness} µm`);         // template literals also use toString()
 ```
 
-A German user sees `12.5` next to standard SAP DM screens that show `12,5`. The plugin looks like a foreign body.
+A German user sees `12.5` next to standard SAP DM screens that show `12,5`. The extension looks like a foreign body.
 
 ### ✅ CORRECT — Use UI5's `NumberFormat` for both parse and format
 
@@ -607,15 +607,15 @@ onExit() {
 
 ---
 
-## Mistake #72: Hard-wiring an INTERNAL / app-router API into plugin source instead of the public REST API ❌ → ✅
+## Mistake #72: Hard-wiring an INTERNAL / app-router API into extension source instead of the public REST API ❌ → ✅
 
 ### Symptom
 
-The plugin works in one tenant, then breaks in another (or after a release) with 404 / HTML login-redirect / auth errors. The code calls an **execution / app-router host** — a URL containing `*.execution.*.web.dmc.cloud.sap`, a `~GUID~` path segment, or a `dmi/cdt` / `dim/destinations` service prefix — copied from a browser or from an agent's `call_internal_api` exploration.
+The extension works in one tenant, then breaks in another (or after a release) with 404 / HTML login-redirect / auth errors. The code calls an **execution / app-router host** — a URL containing `*.execution.*.web.dmc.cloud.sap`, a `~GUID~` path segment, or a `dmi/cdt` / `dim/destinations` service prefix — copied from a browser or from an agent's `call_internal_api` exploration.
 
 ### Why it's wrong
 
-Those are **internal, unversioned, per-deployment** surfaces the Fiori UIs use. The host, the `~GUID~`, and the service paths are not a stable contract — they differ across tenants and change between releases. They are fine for **agent-side discovery/diagnosis** (`sap-dm-api-mcp-server.call_internal_api` exists exactly for that), but that tool's results are **not plugin code**. A shipped plugin must go through the **public SAP DM REST APIs** (versioned, documented in `list_rest_apis` / `get_rest_api`), which POD proxies with correct auth via `RestClient` + `ApiPaths` and the typed `*PublicApiClient`s.
+Those are **internal, unversioned, per-deployment** surfaces the Fiori UIs use. The host, the `~GUID~`, and the service paths are not a stable contract — they differ across tenants and change between releases. They are fine for **agent-side discovery/diagnosis** (`sap-dm-api-mcp-server.call_internal_api` exists exactly for that), but that tool's results are **not extension code**. A shipped extension must go through the **public SAP DM REST APIs** (versioned, documented in `list_rest_apis` / `get_rest_api`), which POD proxies with correct auth via `RestClient` + `ApiPaths` and the typed `*PublicApiClient`s.
 
 > **Not this mistake:** `ApiClient.internal.processengine.start(...)` is a **documented POD2 framework API** for triggering a Production Process — it is the *correct* Option-1 pattern and is fully allowed. "Internal API" here means raw calls to app-router execution hosts, NOT the `ApiClient.internal.*` namespace.
 
@@ -642,17 +642,17 @@ const oResult = await RestClient.get(sUrl, { plant: PodContext.getPlant(), sfc: 
 
 If — and only if — no public API can satisfy the requirement:
 1. State which public services you checked (`search_rest_apis`, `list_rest_apis`) and why none fit.
-2. Present the internal call and get **explicit user confirmation** before writing it into the plugin. Silence is not consent.
+2. Present the internal call and get **explicit user confirmation** before writing it into the extension. Silence is not consent.
 
 ### Rule of thumb
 
 - **Public-API-First.** Verify a public endpoint exists (`search_rest_apis` / `get_rest_api`) before reaching for anything internal.
-- Never paste an execution-host URL, a `~GUID~`, or a `dmi/cdt` path into plugin source.
+- Never paste an execution-host URL, a `~GUID~`, or a `dmi/cdt` path into extension source.
 - `ApiClient.internal.processengine.start(...)` (PPD trigger) is allowed and unaffected by this rule.
 
 ### Detection pattern (validation)
 
-- `grep -rnE '\.execution\.[a-z0-9-]+\.web\.dmc\.cloud\.sap|~[A-Za-z0-9-]+~|dmi/cdt|dim/destinations' widget/ action/ context/ util/` — internal/app-router surface hard-wired into plugin source.
+- `grep -rnE '\.execution\.[a-z0-9-]+\.web\.dmc\.cloud\.sap|~[A-Za-z0-9-]+~|dmi/cdt|dim/destinations' widget/ action/ context/ util/` — internal/app-router surface hard-wired into extension source.
 
 ### Related
 

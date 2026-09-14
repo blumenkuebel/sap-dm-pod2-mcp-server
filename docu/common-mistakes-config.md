@@ -24,12 +24,12 @@ async onInit() {
         );
     }
 }
-// ❌ Missing onExit()! Subscription persists after plugin destroyed
+// ❌ Missing onExit()! Subscription persists after extension destroyed
 ```
 
 **What happens:**
-1. User opens plugin → subscription registered
-2. User closes plugin → widget destroyed BUT subscription still active
+1. User opens extension → subscription registered
+2. User closes extension → widget destroyed BUT subscription still active
 3. Context changes → callback fires on destroyed widget → errors
 4. Memory leak accumulates with each open/close cycle
 
@@ -74,7 +74,7 @@ onExit() {
 
 **Real scenario:**
 ```
-User workflow: Open plugin → Close → Open → Close (10x per day)
+User workflow: Open extension → Close → Open → Close (10x per day)
 After 1 week: 50 orphaned subscriptions
 Result: Browser slowdown, errors, crashes
 ```
@@ -255,7 +255,7 @@ onExit() { // ← MUST exist!
 ```
 1. Open browser dev tools → Memory tab
 2. Take heap snapshot
-3. Open plugin → Close plugin → Repeat 10x
+3. Open extension → Close extension → Repeat 10x
 4. Take another heap snapshot
 5. Compare: Check for retained widget instances
 ```
@@ -579,7 +579,7 @@ class ProductionTableWidget extends TableWidget {
 
 ## Mistake #32: Widget Metadata i18n Keys — Use Named Prefix (`<widgetName>.displayName`, etc.)
 
-**Error #1**: All custom plugins land in the **same** group ("CUSTOMER", "Examples", …) in
+**Error #1**: All custom extensions land in the **same** group ("CUSTOMER", "Examples", …) in
 the POD Designer Widget Palette, regardless of what the request spec said in `Category`.
 
 **Error #2**: i18n bundles use an **inconsistent key style** for the widget metadata trio:
@@ -630,7 +630,7 @@ static getDescription()  { return this.getI18nText("description"); }   // ❌
 static getCategory()     { return this.getI18nText("widget.category"); } // ✅
 ```
 
-This compiles and runs, but it's a code smell that propagates through every plugin the
+This compiles and runs, but it's a code smell that propagates through every extension the
 agent generates afterwards (the agent copies the example's mixed style verbatim).
 
 ### ❌ WRONG #2 — Copy-paste the example value, ignore the spec
@@ -693,18 +693,18 @@ If the spec says:
 - The same key set appears in **all 4 locale bundles** (`i18n.properties`, `i18n_de.properties`,
   `i18n_en.properties`, `i18n_en_US.properties`)
 - Translate `displayName` / `description` per locale; **do not translate `category`** unless
-  the customer explicitly asked for it (otherwise the same plugin shows up under different
+  the customer explicitly asked for it (otherwise the same extension shows up under different
   group names per language → looks broken in mixed-locale teams)
 - The widget reads each value via `getI18nText("<widgetName>.…")` from the matching static accessor
-- This convention applies **uniformly** regardless of whether the plugin has 1 widget or N widgets — no special-casing needed
+- This convention applies **uniformly** regardless of whether the extension has 1 widget or N widgets — no special-casing needed
 
 ### Multi-Widget Plugins
 
-When a plugin registers **multiple widgets** in `extension.json`, each widget already has
+When a extension registers **multiple widgets** in `extension.json`, each widget already has
 its own unique named prefix — no special-casing needed:
 
 ```properties
-# Plugin with 2 widgets — each uses its own camelCase widget name as prefix
+# Extension with 2 widgets — each uses its own camelCase widget name as prefix
 filterableWorkList.displayName=Filterable Work List
 filterableWorkList.description=...
 filterableWorkList.category=Customer
@@ -723,7 +723,7 @@ static getDisplayName() { return this.getI18nText("statusMonitor.displayName"); 
 ```
 
 The convention is uniform: **always `<widgetName>.*`**, regardless of how many widgets
-the plugin has.
+the extension has.
 
 ### Why the Trio Pattern Matters
 
@@ -761,7 +761,7 @@ everywhere.
 ### Prevention
 
 - ✅ Read `Plugin Name`, `Description`, `Category` from the spec **before** writing the i18n bundles
-- ✅ Derive the camelCase widget name from the plugin name (e.g. `Step Status` → `stepStatus`)
+- ✅ Derive the camelCase widget name from the extension name (e.g. `Step Status` → `stepStatus`)
 - ✅ Use the `<widgetName>.` prefix consistently — `stepStatus.displayName`, `stepStatus.description`, `stepStatus.category`
 - ✅ Verify all 4 locale bundles carry the same key set
 - ✅ When referencing an example, look at the **structure** (`getI18nText("<widgetName>.…")`),
@@ -769,7 +769,7 @@ everywhere.
 - ❌ Don't keep unprefixed `displayName=` / `description=` from older examples
 - ❌ Don't use the generic `widget.*` prefix — it is deprecated
 - ❌ Don't hardcode `<widgetName>.category=CUSTOMER` regardless of spec
-- ❌ Don't use the plugin name as the category — `Coating` is not a category, `Customer` is
+- ❌ Don't use the extension name as the category — `Coating` is not a category, `Customer` is
 - ❌ Don't translate `category` unless the customer explicitly asked for it
 
 ### Related
