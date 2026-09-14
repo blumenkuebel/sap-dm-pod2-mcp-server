@@ -17,16 +17,17 @@ sap.ui.define([
     "sap/m/VBox",
     "sap/m/MessageStrip",
     "sap/m/OverflowToolbar",
-    "sap/m/BackgroundDesign",
-    "sap/m/ListSeparators",
+    "sap/m/library",
     "sap/ui/core/Icon",
 ], (
     I18nResourceModel, Widget, WidgetProperty, StringPropertyEditor,
     PodContext, ModelPath, ApiClient, Log, JSONModel,
     Table, Column, ColumnListItem, Text, Label, Title, VBox,
-    MessageStrip, OverflowToolbar, BackgroundDesign, ListSeparators, Icon
+    MessageStrip, OverflowToolbar, mLibrary, Icon
 ) => {
     "use strict";
+
+    const { BackgroundDesign, ListSeparators } = mLibrary;
 
     const Logger = Log.getLogger("customer.custom.extensions.tableview.widget.TableViewWidget");
 

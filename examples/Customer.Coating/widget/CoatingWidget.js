@@ -9,26 +9,26 @@ sap.ui.define([
     "sap/ui/layout/form/FormElement",
     "sap/ui/layout/form/ResponsiveGridLayout",
     "sap/ui/core/format/NumberFormat",
-    "sap/ui/core/ValueState",
+    "sap/ui/core/library",
+    "sap/m/library",
     "sap/m/HBox",
     "sap/m/VBox",
     "sap/m/FlexItemData",
     "sap/m/Input",
-    "sap/m/InputType",
     "sap/m/Label",
     "sap/m/Text",
     "sap/m/Table",
     "sap/m/Column",
-    "sap/m/ColumnListItem",
-    "sap/m/BackgroundDesign",
-    "sap/m/ListSeparators"
+    "sap/m/ColumnListItem"
 ], (
     CoatingContext, I18nResourceModel, Widget, PodContext, JSONModel,
-    Form, FormContainer, FormElement, ResponsiveGridLayout, NumberFormat, ValueState,
-    HBox, VBox, FlexItemData, Input, InputType, Label, Text, Table, Column, ColumnListItem,
-    BackgroundDesign, ListSeparators
+    Form, FormContainer, FormElement, ResponsiveGridLayout, NumberFormat, coreLibrary, mLibrary,
+    HBox, VBox, FlexItemData, Input, Label, Text, Table, Column, ColumnListItem
 ) => {
     "use strict";
+
+    const { ValueState } = coreLibrary;
+    const { BackgroundDesign, ListSeparators } = mLibrary;
 
     class CoatingWidget extends Widget {
 
@@ -107,7 +107,7 @@ sap.ui.define([
             const oConfig = this.getConfig()
             const mkEl = (labelText, editable, showHint) => {
                 const oInput = new Input({
-                    width: "100%", type: InputType.Text,
+                    width: "100%",
                     editable: editable !== false,
                     liveChange: this._onCalcInputChange.bind(this)
                 });
