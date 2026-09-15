@@ -58,7 +58,7 @@ The framework-provided HTTP client. **Automatically handles:**
 | `put` | `put(sUrl, vBody, oOptions?)` | PUT with JSON body |
 | `patch` | `patch(sUrl, vBody, oOptions?)` | PATCH with JSON body |
 | `delete` | `delete(sUrl, oOptions?)` | DELETE request |
-| `fetch` | `fetch(sUrl, oOptions?)` | Raw fetch with DM headers |
+| `fetch` | `fetch(sUrl, oOptions?)` | DM headers + auth, but returns a **post-processed body** (`Promise.<any>`), _not_ a raw `Response`. ⚠️ Unusable for binary payloads — see [Binary Downloads](#binary-downloads-format-binary--restclient-does-not-work). |
 
 ### 2. ApiPaths (`sap/dm/dme/pod2/api/ApiPaths`)
 
@@ -221,6 +221,74 @@ const oResult = await RestClient.post(sUrl, {
     members: []
 });
 ```
+
+---
+
+## Binary Downloads (`format: binary`) — RestClient does NOT work
+
+**Use case:** load a file attached to a Work Instruction (e.g. a ZIP, possibly
+uploaded with a misleading `.txt` extension) as raw bytes (`ArrayBuffer`) to
+process it client-side (unzip, render, …).
+
+### Verified facts
+
+1. **No byte/blob download method on the public client.**
+   `WorkInstructionPublicApiClient` exposes only `getWorkInstructions(...)`
+   (lookup by key) and `getAttachedWorkInstructions(...)` — neither returns the
+   attachment as bytes. *(via `get_api_doc WorkInstructionPublicApiClient`)*
+
+2. **The file URL lives inside the WI element.** From the WI response, take the
+   element with `type === "FILE"`; its **`fileExternalUrl`** is the blob path
+   (e.g. `dme-workinstruction-ms/<guid>/work-instruction-element-content/<ts>-<name>`).
+   ⚠️ **Never use `fileName` / `mimeType` / the extension for format detection** —
+   an attachment can be uploaded as `.txt` but actually be a ZIP. Sniff the bytes.
+
+3. **Download endpoint.** Public REST service `sapdme_workinstruction_file`,
+   `GET /file?externalFileUrl=<blob>`. The `200` response schema is
+   `{ type: "string", format: "binary" }` — i.e. raw bytes.
+   *(via `get_rest_api sapdme_workinstruction_file GET /file`)*
+
+4. **`RestClient.*` (including `RestClient.fetch`) is unusable here.** Despite the
+   JSDoc "adds DM headers" + MDN link, `RestClient.fetch` does **not** return a raw
+   `Response` — its return type is `Promise.<any>` and the body is already
+   post-processed. On a binary payload the body is decoded to a string →
+   runtime error `oResponse.arrayBuffer is not a function`, and the binary (ZIP)
+   would be corrupted anyway. **For JSON endpoints `RestClient` remains correct.**
+
+### Solution: native `fetch` against the root-relative public path
+
+Use a browser `fetch` (same-origin, cookie auth) against the root-relative public
+path with the App-Router mount `/sapdmdmepod2/` in front — the same mount
+`RestClient` prepends internally. **No execution host, no `~GUID~`, no
+`dmi/cdt` / `dim` / `destinations`** → the Public-API-First rule (M72 /
+Critical Rule #11) stays satisfied.
+
+```javascript
+// WI_FILE_PATH = ApiPaths.WORKINSTRUCTION_MS_PATH + "/api/v1/workinstructions/file"
+//              = "dme/workinstruction-ms/api/v1/workinstructions/file"
+const sUrl = "/sapdmdmepod2/" + WI_FILE_PATH + "?externalFileUrl=" +
+    encodeURIComponent(sFileUrl).replace(/%2F/g, "/"); // keep "/" literal
+const oResponse = await fetch(sUrl, { credentials: "same-origin" });
+if (!oResponse.ok) {
+    throw new Error("HTTP " + oResponse.status + " " + oResponse.statusText);
+}
+const oBuffer = await oResponse.arrayBuffer(); // raw bytes → JSZip etc.
+```
+
+### Gotchas
+
+- **Rule:** for binary downloads (`format: binary`) **never** use `RestClient.*`
+  (it decodes the body). Reach for native `fetch` only for the binary case; keep
+  `RestClient` for every JSON endpoint.
+- **Percent-encode `externalFileUrl` but keep literal `/`**
+  (`.replace(/%2F/g, "/")`), otherwise the endpoint returns `404`.
+- **`fetch` root-relative** (`/sapdmdmepod2/...`) → same-origin, so the session
+  cookie authenticates automatically (the same URL works when pasted into a
+  browser tab).
+- **Validation:** native `fetch` here is a legitimate HTML5-FETCH / Cat-22
+  exception (no public client method for bytes; `RestClient` unsuitable). Document
+  it with an explanatory comment (Info / Rule-2 auto-downgrade) so the check does
+  not flag it as a violation.
 
 ---
 
