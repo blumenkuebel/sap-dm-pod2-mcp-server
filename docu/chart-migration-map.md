@@ -221,3 +221,9 @@ When migrating against a newer UI5 release, re-verify these traps by calling `ge
 - `validate-project-instructions.md` §HTML5 Residue — Phase 5 residue rules
 - `common-mistakes-ui.md` #M43, #M52-#M56 — parser-strictness traps for UI5 v1.136+
 - `get_ui5_api` — verify every target control at implementation time
+
+## Related / See also
+
+- [`html5-migration-guide.md`](html5-migration-guide.md) — the per-line mechanical rewrite recipes this map feeds into
+- [`dashboard-patterns.md`](dashboard-patterns.md#chartcontrol-decision-table) — Chart→control decision table for choosing the target control
+- [`fiori-design-compliance.md`](fiori-design-compliance.md) — Fiori design canon (chart series colors, iconography)

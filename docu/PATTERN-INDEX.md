@@ -224,6 +224,7 @@ Specific to TableWidget:
 
 | File | Focus | Patterns Count |
 |------|-------|----------------|
+| widget-patterns.md | Router → core / advanced | index only (start here for widget templates) |
 | widget-patterns-core.md | Core widget templates | ControlWidget, LayoutWidget, TableWidget, timers, i18n |
 | widget-patterns-advanced.md | Advanced widget patterns | SAP DM API integration, pagination, API examples |
 | tablewidget-complete.md | Complete TableWidget | 1 comprehensive guide |
@@ -234,8 +235,8 @@ Specific to TableWidget:
 | common-mistakes-*.md | Error prevention | documented mistakes by category + fixes |
 | delegate-architecture.md | Delegates | 8 official delegates |
 | pod2-public-api-pattern.md | REST API calls | RestClient, ApiPaths, URL resolution |
-| model-paths.md | PodContext model paths | 39 standard paths + subscribe patterns |
-| enumerations-reference.md | Framework enumerations | 23 enums with all values |
+| model-paths.md | PodContext model paths | standard paths + subscribe patterns |
+| enumerations-reference.md | Framework enumerations | internal enum value sets (⚠ internal ≠ Public-API) |
 | hotkey-patterns.md | Keyboard shortcuts | HotKeyManager API + patterns |
 | status-icon-control.md | StatusIcon control | SFC status → icon/color mapping |
 

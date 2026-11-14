@@ -238,3 +238,8 @@ The framework provides these i18n keys for localized modifier names:
 | `keyboard.alt` | Alt | Alt | Option |
 | `keyboard.meta` | Windows | Windows | — |
 | `keyboard.meta.mac` | — | — | ⌘ |
+
+## Related / See also
+
+- [`widget-patterns-core.md`](widget-patterns-core.md) — widget lifecycle where `unsubscribeAll(this)` belongs (`destroy()` / `onExit()`)
+- [`subscribe-patterns.md`](subscribe-patterns.md) — same subscribe/unsubscribe-in-`onExit()` discipline for PodContext listeners

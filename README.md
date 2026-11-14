@@ -255,7 +255,12 @@ npm start           # HTTP on port 3001
 npm run start:stdio # stdio transport
 npm run lint        # ESLint
 npm run format      # Prettier (write)
+npm run check-doc-links # Verify docu/ internal cross-links (also run by npm test)
 ```
+
+> **Editing the docs?** Cross-links in `docu/*.md` are checked by `npm test`. Keep one
+> canonical source per topic and link to it rather than copying snippets, and avoid baking
+> fixed counts ("23 enums", "28 mistakes") into prose — they go stale.
 
 ---
 
@@ -277,8 +282,8 @@ sap-dm-pod2-mcp-server/
 │   ├── sap-dm-api-specs/     ← REST API OpenAPI specs — fetched locally, not shipped
 │   ├── ui5-api-specs/        ← SAPUI5 API metadata — generated locally, not shipped
 │   └── sap-dm-mdo-specs/     ← MDO Extractor metadata — fetched locally, not shipped
-├── scripts/                  ← Spec fetch/extract generators (prepare:specs, fetch-rest-specs, …)
-├── test/                     ← Node built-in test suite (helpers, tools, server)
+├── scripts/                  ← Spec fetch/extract generators (prepare:specs, fetch-rest-specs, …) + check-doc-links (doc cross-link checker)
+├── test/                     ← Node built-in test suite (helpers, tools, server, doc-links)
 ├── examples/                 ← Production-grade reference extensions
 │   ├── Customer.Coating/
 │   ├── Customer.HelloWorld/

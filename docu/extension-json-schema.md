@@ -304,3 +304,9 @@ Before uploading an extension, verify:
 - [ ] All class names match between filename and the class exported in `sap.ui.define`
 - [ ] No `.js` extension in any modulePath
 - [ ] Types are unique (not already used by another extension in the tenant)
+
+## Related / See also
+
+- [`basics.md`](basics.md#4-project-structure) — where `extension.json` sits in the overall project / folder structure
+- [`basics.md`](basics.md#0-namespace-cheatsheet-read-first) — namespace rules for the `type` / `modulePath` values
+- [`common-mistakes-setup.md`](common-mistakes-setup.md#mistake-0-wrong-namespace-in-extensionjson) — the namespace/structure mistakes that break registration

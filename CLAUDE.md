@@ -37,8 +37,8 @@ sap-dm-pod2-mcp-server/
 │   ├── sap-dm-api-specs/     ← REST OpenAPI specs (SAP-proprietary, git-ignored)
 │   ├── ui5-api-specs/        ← SAPUI5 API metadata (SAP-proprietary, git-ignored)
 │   └── sap-dm-mdo-specs/     ← MDO Extractor metadata (SAP-proprietary, git-ignored)
-├── scripts/                  ← Spec fetch/extract scripts
-├── test/                     ← helpers.test.js, tools.test.js, server.test.js, tool-modules.test.js
+├── scripts/                  ← Spec fetch/extract scripts + check-doc-links.mjs (doc cross-link checker)
+├── test/                     ← helpers.test.js, tools.test.js, server.test.js, tool-modules.test.js, doc-links.test.js
 └── examples/                 ← Production-grade reference extensions
     ├── Customer.Coating/
     ├── Customer.HelloWorld/
@@ -91,6 +91,7 @@ npm start              # HTTP on port 3001
 npm run start:stdio    # stdio transport
 npm run lint           # ESLint
 npm run format         # Prettier (write)
+npm run check-doc-links # Verify docu/ internal cross-links (also part of npm test)
 ```
 
 ### Spec Generation
@@ -171,6 +172,14 @@ When developing POD2 extensions, use tools in this priority order:
 
 ### Git-ignored Directories
 `docu/sap-dm-api-specs/`, `docu/ui5-api-specs/`, `docu/sap-dm-mdo-specs/` are SAP-proprietary and not committed. The server starts without them — tools that require them return a clear explanatory message.
+
+### Documentation Maintenance Rules
+When editing anything under `docu/`, follow these rules (each prevents a defect class found in past QA):
+
+1. **No dead cross-links.** After changing, splitting, renaming, or renumbering any `docu/*.md`, run `npm run check-doc-links` (also enforced by `test/doc-links.test.js` in `npm test`). Internal links use GitHub heading-slug anchors — when you change a heading, fix every link that targets it.
+2. **No counts in prose.** Never write fixed numbers like "28 mistakes", "23 enums", "39 model paths" into doc text or tool descriptions — they go stale. List categories or say "by category" instead.
+3. **Single source of truth.** Don't copy a code snippet or table into a second file. Keep it in the one canonical doc for that topic and link to it from elsewhere (e.g. cell types → `tablecell-patterns.md`, bindings → `binding-patterns.md`, mistakes → `common-mistakes-<category>.md`, REST calling → `pod2-public-api-pattern.md`).
+4. **Keep `src/tools/docs.ts` in sync with `docu/`.** When you add, delete, or repurpose a `docu/*.md`, update its entry in the `list_pattern_docs` description map so the description matches the file's actual content (a deleted file must have no entry; a repurposed file must not keep its old description).
 
 ### Authentication (HTTP)
 Optional via `MCP_AUTH_TOKEN`. Without a token set: no auth (for localhost dev). The `/health` endpoint is always public.

@@ -309,3 +309,9 @@ Now the plant supervisor can tune thresholds in POD Designer without a redeploy.
 - `mdo-extractor-reference.md` — MDO entity reference
 
 Cross-refs: `dashboard-patterns.md` (target-shape decision table), `chart-migration-map.md` (chart control mapping), `common-mistakes-ui.md` #M60 (no custom KPI-tile controls) / #M61 (no extension CSS).
+
+## Related / See also
+
+- [`chart-migration-map.md`](chart-migration-map.md) — canonical chart-library → UI5 control mapping for recipe #8
+- [`migration-suspect-list.md`](migration-suspect-list.md) — Cat 21-28 detection catalog that feeds each rewrite recipe
+- [`fiori-design-compliance.md`](fiori-design-compliance.md#phase-5c--fiori-design-compliance-review) — Fiori design canon and the Phase 5c review checklist

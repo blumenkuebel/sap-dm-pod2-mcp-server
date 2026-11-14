@@ -1,5 +1,9 @@
 # Widget Patterns Reference
 
+> **This file is a router** for the two widget-pattern files only. For the broad, cross-file
+> entry point (by widget type, use case, complexity), start at
+> [`PATTERN-INDEX.md`](PATTERN-INDEX.md).
+>
 > Content is split into two files for efficient loading — load only what you need.
 
 ## Core Patterns ([`widget-patterns-core.md`](widget-patterns-core.md))
