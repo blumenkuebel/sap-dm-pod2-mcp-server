@@ -62,72 +62,20 @@ _createToolbarTitle() {
 - Clean separation of display logic
 - ALWAYS validate parameters (null checks)
 
-### Date Range Pattern
+### Common multi-part cell examples
 
-**Production Pattern**:
-```javascript
-_createPlannedDateRangeCell() {
-    return new Text({
-        text: {
-            parts: [
-                { path: "orderPlannedStartDate" },
-                { path: "orderPlannedCompleteDate" }
-            ],
-            formatter: (oStartDate, oEndDate) => {
-                // CRITICAL: Defensive null checking
-                if (!oStartDate || !oEndDate) {
-                    return "";
-                }
-                return `${DateTimeUtils.localeDate(oStartDate)} – ${DateTimeUtils.localeDate(oEndDate)}`;
-            }
-        }
-    });
-}
-```
+The multi-part mechanism above powers several standard table cells. The **full, copy-ready
+code for each lives in the cell catalog** — not duplicated here:
 
-**Required Import**:
-```javascript
-import DateTimeUtils from "sap/dm/dme/pod2/DateTimeUtils";
-```
+- **Date range** (`start – end`, en-dash, null-safe) →
+  [`tablecell-patterns.md` → 4. Date Range Cell](tablecell-patterns.md#4-date-range-cell)
+- **Quantity + UOM** (`"{quantity} {uom}"`, trimmed) →
+  [`tablecell-patterns.md` → 12. UOM Quantity Cell](tablecell-patterns.md#12-uom-quantity-cell)
+- **Actual / planned** (`"{actual} / {planned} {uom}"`) →
+  [`tablecell-patterns.md` → Complete Example](tablecell-patterns.md#complete-example-production-table-cell)
 
-### Quantity with UOM Pattern
-
-```javascript
-_createQuantityCell() {
-    return new Text({
-        text: {
-            parts: [
-                { path: "quantity" },
-                { path: "uom" }
-            ],
-            formatter: (fQty, sUom) => {
-                if (fQty == null) return "";
-                return `${fQty} ${sUom || ""}`.trim();
-            }
-        }
-    });
-}
-```
-
-### Actual/Planned Pattern
-
-```javascript
-_createProgressCell() {
-    return new Text({
-        text: {
-            parts: [
-                { path: "actualQty" },
-                { path: "plannedQty" },
-                { path: "uom" }
-            ],
-            formatter: (fActual, fPlanned, sUom) => {
-                if (fActual == null || fPlanned == null) return "";
-                return `${fActual} / ${fPlanned} ${sUom || ""}`.trim();
-            }
-        }
-    });
-}
-```
+Each uses the same shape: `parts: [...]` + a `formatter(...)` that null-checks every part.
+Required import for date formatting: `import DateTimeUtils from "sap/dm/dme/pod2/DateTimeUtils";`.
 
 ## Composite Binding
 
@@ -186,52 +134,27 @@ new Button({
 
 ### State-Based Rendering
 
-**Production Pattern**:
+The binding mechanic: give a control a `visible` binding whose `path: ""` binds to the
+**entire row context object**, and let the formatter decide from object state:
+
 ```javascript
-_createActionCell() {
-    return new HBox({
-        items: [
-            new CustomButton({
-                text: this.getI18nText("PhaseTableWidget.phase.start.text"),
-                type: ButtonType.Success,
-                visible: {
-                    path: "",  // Current context
-                    formatter: (oPhase) => {
-                        return !oPhase.isActive() && !oPhase.isComplete();
-                    }
-                },
-                enabled: "{userAuthorizedForWorkCenter}",
-                press: this._startPhase.bind(this)
-            }),
-            new CustomButton({
-                text: this.getI18nText("PhaseTableWidget.phase.complete.text"),
-                type: ButtonType.Emphasized,
-                visible: {
-                    path: "",
-                    formatter: (oPhase) => {
-                        return oPhase.isActive() && !oPhase.isComplete();
-                    }
-                },
-                enabled: "{userAuthorizedForWorkCenter}",
-                press: this._completePhase.bind(this)
-            }),
-            new Text({
-                text: this.getI18nText("PhaseTableWidget.phase.completed.text"),
-                visible: {
-                    path: "",
-                    formatter: (oPhase) => oPhase.isComplete()
-                }
-            })
-        ]
-    });
-}
+new CustomButton({
+    text: this.getI18nText("PhaseTableWidget.phase.start.text"),
+    visible: {
+        path: "",  // "" = bind to the whole context object
+        formatter: (oPhase) => !oPhase.isActive() && !oPhase.isComplete()
+    },
+    enabled: "{userAuthorizedForWorkCenter}"
+})
 ```
 
 **Key Points**:
-- Empty path (`""`) binds to entire context object
-- Formatter receives full object
-- Different controls for different states
-- Clean business logic separation
+- Empty path (`""`) binds to the entire context object; the formatter receives the full object
+- Different controls shown for different states; clean business-logic separation
+
+> Full state-based **action cell** (start / complete buttons + completed text, with the
+> pre-selection handler) lives in the cell catalog — not duplicated here:
+> [`tablecell-patterns.md` → 8. Action Cell](tablecell-patterns.md#8-action-cell-buttons).
 
 ## Dynamic Enabling/Disabling
 

@@ -44,7 +44,7 @@ Call these MCP tools in order:
 3. `get_pattern_doc({ name: "basics" })` — architecture & best practices
 4. `get_pattern_doc({ name: "extension-json-schema" })` — extension.json contract
 5. `get_pattern_doc({ name: "subscribe-patterns" })` — PodContext subscribe/unsubscribe lifecycle
-6. `get_pattern_doc({ name: "namespace-update" })` — current namespace conventions
+6. `get_pattern_doc({ name: "basics", section: "0. Namespace Cheatsheet" })` — namespace conventions + upload namespace
 7. `get_pattern_doc({ name: "deprecated-imports" })` — **exhaustive** deprecated enum list for M36 detection
 8. `list_rest_apis` — current SAP DM REST API services with version info (v1/v2/v3)
 9. `list_api_docs({ namespace: "sap.dm.dme.pod2.api", limit: 200 })` — current Public/Internal POD2 API surface
@@ -263,7 +263,7 @@ For each rule in the common-mistakes category files, run a concrete detection. G
     - `grep -rnE 'sap/m/BusyIndicator' widget/` — import of `sap/m/BusyIndicator` in widget code is forbidden (use `getView().setBusy()`).
     - `grep -rnE '\.setBusy\(\s*true\s*\)' widget/` followed by a check that the preceding line is `setBusyIndicatorDelay(0)` — if missing, this is a **Warning** (perceived "no feedback" UX due to 1000ms default delay). Auto-fix: insert `oView.setBusyIndicatorDelay(0);` before `oView.setBusy(true);`.
     - Single-control busy on tables/lists in widget code (e.g. `oTable.setBusy(`, `oList.setBusy(`) when there is no clear reason — **Warning**, replace with `oView.setBusy()`. NOTE: single-control busy on a separate dialog/popover controller is legitimate and must NOT be flagged.
-  - Reference: [`docu/common-mistakes.md` #33](common-mistakes.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator).
+  - Reference: [`docu/common-mistakes.md` #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator).
   - Auto-fixable: yes (all variants are mechanical).
 - **M34 — `parseFloat()` on user input breaks localized number formats** → ⚠️ Warning (silent data loss in non-`en-*` locales)
   - In any `widget/*.js`: `parseFloat(oInput.getValue())`, `Number(oInput.getValue())`, or `parseFloat(o<X>Input.getValue())` is locale-blind and silently truncates German `"1,5"` to `1`.

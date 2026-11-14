@@ -103,7 +103,7 @@ grep -nE '=\s*.*PSN' i18n/i18n.properties i18n/i18n_en.properties
 ### Related
 
 - [`docu/worklist-data-structure.md`](worklist-data-structure.md) — `sfc` field reference
-- [Mistake #35: Missing i18nCustomModel Registration in `onInit()`](common-mistakes-lifecycle.md#mistake-35-missing-i18ncustommodel-registration-in-oninit) — how to load i18n in a widget
+- [Mistake #35: Missing i18nCustomModel Registration in `onInit()`](common-mistakes-lifecycle.md#mistake-35-missing-i18ncustommodel-registration-in-oninit---) — how to load i18n in a widget
 
 ---
 
@@ -220,7 +220,7 @@ grep -nE "[^']'[^']" i18n/*.properties | grep -v "'\{" | grep -v "'\}"
 
 ### Related
 
-- [Mistake #30: Wrong German i18n](#mistake-30-wrong-german-i18n--sfc-instead-of-psn) - other i18n pitfall
+- [Mistake #30: Wrong German i18n](#mistake-30-wrong-german-i18n--sfc-instead-of-psn---) - other i18n pitfall
 - [UI5 API: sap.base.i18n.ResourceBundle](https://sapui5.hana.ondemand.com/sdk/#/api/module:sap/base/i18n/ResourceBundle)
 - [Java MessageFormat spec](https://docs.oracle.com/javase/8/docs/api/java/text/MessageFormat.html) - the underlying syntax UI5 implements
 

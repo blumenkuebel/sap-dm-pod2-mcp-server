@@ -275,7 +275,7 @@ Before submitting widget code:
 
 - [Widget Lifecycle](widget-patterns-core.md#controlwidget-pattern-for-single-controls) - Complete lifecycle documentation
 - [PodContext API](pod2-api-reference.md#podcontext) - subscribe/unsubscribe documentation
-- [TableWidget Pattern](widget-patterns.md#tablewidget) - Complete TableWidget with onExit()
+- [TableWidget Pattern](widget-patterns-core.md#tablewidget-complete-pattern-for-complex-tables) - Complete TableWidget with onExit()
 
 ---
 
@@ -306,7 +306,7 @@ async _fetchPostings() {
 
 **Why Critical:** Essential for pagination to work - without incrementing, same page loads repeatedly.
 
-**See also:** [widget-patterns.md - GrowingJSONModel](widget-patterns.md#tablewidget-with-growingjsonmodel-pagination-pattern)
+**See also:** [widget-patterns.md - GrowingJSONModel](widget-patterns-advanced.md#growingpagination-pattern-for-tablewidget)
 
 ---
 
@@ -774,8 +774,8 @@ everywhere.
 
 ### Related
 
-- [Mistake #2: Binding Syntax in WidgetProperty Metadata](#mistake-2-binding-syntax-in-widgetproperty-metadata) — same family: i18n must come from the right source
-- [Mistake #30: Wrong German i18n — "SFC" Instead of "PSN"](#mistake-30-wrong-german-i18n--sfc-instead-of-psn) — same family: bundle values matter
+- [Mistake #2: Binding Syntax in WidgetProperty Metadata](common-mistakes-setup.md#mistake-2-binding-syntax-in-widgetproperty-metadata) — same family: i18n must come from the right source
+- [Mistake #30: Wrong German i18n — "SFC" Instead of "PSN"](common-mistakes-i18n.md#mistake-30-wrong-german-i18n--sfc-instead-of-psn---) — same family: bundle values matter
 
 
 ---

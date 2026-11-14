@@ -429,7 +429,7 @@ class ResourceHierarchyDialog {
 ---
 
 ## Related Patterns
-- [Form Validation](form-patterns.md#validation-pattern) - Comprehensive validation for dialogs
-- [Token-Based MultiInput](form-patterns.md#token-input) - Multi-select input fields
+- [Form Validation](form-patterns.md#complex-form-validation-) - Comprehensive validation for dialogs
+- [Token-Based MultiInput](form-patterns.md#token-based-multiinput-) - Multi-select input fields
 - [Static Cache](cache-patterns.md) - Sharing data across dialog instances
 - [Error Handling](error-handling.md) - Error handling in dialogs

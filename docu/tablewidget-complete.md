@@ -548,6 +548,11 @@ setPropertyValue(sName, vValue) {
 
 ## Complete Production Example
 
+> This is an end-to-end, copy-ready widget. The individual cell renderers it uses
+> (status icon+text, date range, …) are shown inline here so the example runs as-is; their
+> canonical, standalone documentation — with all 13 cell types — is in
+> [`tablecell-patterns.md`](tablecell-patterns.md). When building a new cell type, start there.
+
 ```javascript
 sap.ui.define([
     "sap/dm/dme/pod2/widget/core/TableWidget",

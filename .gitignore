@@ -22,3 +22,4 @@ docu/ui5-api-specs/
 
 # Local migration input (real customer data) — never commit.
 docu/_import/
+*PLAN.md

@@ -95,7 +95,7 @@ static #oI18nModel = new I18nResourceModel({
 
 ## Mistake #1: Missing onExit() After PodContext.subscribe()
 
-> **Stub — merged into [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit-unsubscribe--memory-leak) (canonical treatment).** Load `common-mistakes-config` for the full pattern (subscribe/unsubscribe pairing, `_activeSubs` bookkeeping, MyView cleanup, validator hook). The one-line summary: every `PodContext.subscribe(...)` in `onInit()` MUST have a matching `PodContext.unsubscribe(...)` in `onExit()` using the exact same callback reference — otherwise callbacks fire on destroyed widgets and memory grows over time.
+> **Stub — merged into [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit-unsubscribe---memory-leak-) (canonical treatment).** Load `common-mistakes-config` for the full pattern (subscribe/unsubscribe pairing, `_activeSubs` bookkeeping, MyView cleanup, validator hook). The one-line summary: every `PodContext.subscribe(...)` in `onInit()` MUST have a matching `PodContext.unsubscribe(...)` in `onExit()` using the exact same callback reference — otherwise callbacks fire on destroyed widgets and memory grows over time.
 
 ```javascript
 // ❌ WRONG — no onExit
@@ -113,7 +113,7 @@ onExit() {
 }
 ```
 
-See [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit-unsubscribe--memory-leak) for the full rule, the `_activeSubs` counter pattern, and the multi-subscribe edge cases.
+See [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit-unsubscribe---memory-leak-) for the full rule, the `_activeSubs` counter pattern, and the multi-subscribe edge cases.
 
 ---
 
@@ -157,7 +157,7 @@ Read together with #0: the folder-name is a free-form identifier used for git/ZI
 
 ## Mistake #15: Not Destroying Dynamic Dialogs/Popovers
 
-> **Stub — merged into [Mistake #19](common-mistakes-lifecycle.md#mistake-19-not-destroying-dialogs-in-afterclose).** Load `common-mistakes-lifecycle` for the canonical treatment (generic `sap.m.Dialog`, `sap.m.Popover`, and `PodDialog` all covered, plus the `Fragment.load` corollary).
+> **Stub — merged into [Mistake #19](common-mistakes-lifecycle.md#mistake-19-not-destroying-dialogs-in-afterclose-).** Load `common-mistakes-lifecycle` for the canonical treatment (generic `sap.m.Dialog`, `sap.m.Popover`, and `PodDialog` all covered, plus the `Fragment.load` corollary).
 
 ```javascript
 // ❌ WRONG

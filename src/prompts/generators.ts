@@ -1049,7 +1049,7 @@ Call these MCP tools in order:
 4. \`get_pattern_doc({ name: "widget-patterns" })\` — widget templates
 5. \`get_pattern_doc({ name: "extension-json-schema" })\` — extension.json contract
 6. \`get_pattern_doc({ name: "subscribe-patterns" })\` — PodContext subscribe/unsubscribe lifecycle
-7. \`get_pattern_doc({ name: "namespace-update" })\` — current namespace conventions
+7. \`get_pattern_doc({ name: "basics", section: "0. Namespace Cheatsheet" })\` — namespace conventions + upload namespace
 8. \`list_rest_apis\` — current SAP DM REST API services with version info (v1/v2/v3)
 9. \`list_api_docs({ namespace: "sap.dm.dme.pod2.api", limit: 200 })\` — current Public/Internal POD2 API surface
 

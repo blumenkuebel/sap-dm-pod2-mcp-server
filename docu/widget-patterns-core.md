@@ -645,7 +645,7 @@ sap.ui.define([
 });
 ```
 
-Notes: the control ID MUST be the first positional constructor argument (`new Button(oConfig.id, {...})`) — see [Mistake #6](common-mistakes-imports.md#mistake-6-missing-view-id-in-_createview) and [Mistake #31](#mistake-31-control-id-must-be-first-constructor-argument). `_createView()` receives NO arguments — read config via `this.getConfig()` — see [Mistake #65](#mistake-65-_createview-receives-no-arguments).
+Notes: the control ID MUST be the first positional constructor argument (`new Button(oConfig.id, {...})`) — see [Mistake #6](common-mistakes-imports.md#mistake-6-missing-view-id-in-_createview---) and [Mistake #31](common-mistakes-ui.md#mistake-31-control-id-must-be-first-constructor-argument). `_createView()` receives NO arguments — read config via `this.getConfig()` — see [Mistake #65](common-mistakes-lifecycle.md#mistake-65-_createview-receives-no-arguments--get-widget-config-via-thisgetconfig----runtime-undefined-access).
 
 ### Framework-internal `ControlWidget` pattern (read-only reference — do NOT copy)
 
@@ -1311,7 +1311,7 @@ _updateModel(aData) {
 ✅ Logging with context
 ✅ Clear data on error/null request
 
-See [common-mistakes.md #33](common-mistakes.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator) for the full rule.
+See [common-mistakes.md #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator) for the full rule.
 
 ### Common Patterns
 
