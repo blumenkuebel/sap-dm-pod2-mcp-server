@@ -175,13 +175,17 @@ const selectedItems = this.getPodContext().getSelectedWorkListItems();
 
 ## Status Codes Reference
 
+> **Canonical source.** This table is the single source of truth for SFC numeric status
+> codes. [`enumerations-reference.md` → SFCStatusCode](enumerations-reference.md#sfcstatuscode-public-api-worklist-business-status)
+> mirrors it for the enum overview — update this table first.
+
 | Code | Description | Usage Context |
 |------|-------------|---------------|
 | `401` | New | SFC created and released but not started at any operation |
 | `402` | InQueue | SFC completed an operation or placed in queue at an operation |
 | `403` | Active | SFC started at operation activity/phase, visible in POD |
 | `404` | Hold | SFC on hold, cannot continue until hold is released |
-| `405` | Done | SFC reached final operation or completed last operation |
+| `405` | Done | SFC reached final operation or completed last operation. Undergoes no more processing. |
 | `406` | Done(Hold) | SFC completed but with hold status |
 | `407` | Scrapped | SFC has been scrapped during production |
 | `408` | Invalid | SFC has zero quantity (serialized, split, or merged) |

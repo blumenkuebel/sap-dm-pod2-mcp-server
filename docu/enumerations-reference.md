@@ -1,6 +1,28 @@
 # POD2 Enumerations Reference
 
-> **Source:** `sap.dm.dme.pod2.enumeration.*` — All framework enumerations extracted from the POD 2.0 runtime library.
+> **Source:** `sap.dm.dme.pod2.enumeration.*` (plus `…batch.enumeration`,
+> `…datacollection.enumeration`, `…timetracking.action`) — enumerations from the POD 2.0
+> runtime library.
+>
+> ⚠️ **Everything in this file is POD-framework-internal.** Every enum below is the value
+> set the **POD 2.0 UI framework uses internally**. These are **not** the SAP Digital
+> Manufacturing **Public API / REST** values and do **not** necessarily match them — same
+> concept, different value space. Treat this file as a reference for *framework-internal*
+> code (binding against POD models, framework comparisons), **not** as the contract for data
+> you send to or receive from the Public API.
+>
+> - When you read or write data via the **Public API / REST**, use the values from that
+>   API's own spec — use the `get_rest_api` tool or
+>   [`sapdm-api-reference.md`](sapdm-api-reference.md), not the keys here.
+> - **Worklist data** likewise carries **Public-API** values. The clearest trap is SFC
+>   status: the internal [`SFCStatus`](#sfcstatus-internal-framework-enum) enum is a broad
+>   catch-all, while a worklist item exposes the business status as
+>   [`sfcStatusCode`](#sfcstatuscode-public-api-worklist-business-status) (canonical:
+>   [`worklist-data-structure.md`](worklist-data-structure.md#status-codes-reference)).
+>   The same internal-vs-business split applies, in principle, to the other enums too.
+> - Values here are taken from the framework source (`Object.freeze({…})`); the official
+>   JSDoc bundle lists the enum **names** but not their members, so individual values are
+>   **not** independently verified against SAP documentation.
 
 ---
 
@@ -8,78 +30,103 @@
 
 ```js
 sap.ui.define([
-  "sap/dm/dme/pod2/enumeration/SFCStatus",
   "sap/dm/dme/pod2/enumeration/WorkListType"
-], (SFCStatus, WorkListType) => {
-  
-  if (item.sfcStatus === SFCStatus.ACTIVE) { /* ... */ }
-  
+], (WorkListType) => {
+
+  // Worklist items expose sfcStatusCode (a Public-API code string), NOT the internal SFCStatus enum.
+  // Compare against the business code — see SFCStatusCode / worklist-data-structure.md.
+  if (item.sfcStatusCode === "403") { /* Active */ }
+
   const type = WorkListType.WorkCenter;
 });
 ```
 
-> **Best Practice:** Always import the enum module and use the constant. Never use string literals like `"ACTIVE"` — they are not type-safe and can't be refactored.
+> **Best Practice:** For the enums listed below, import the enum module and use the
+> constant rather than a bare string literal — it is type-safe and refactorable. (The one
+> exception is the **business SFC status on worklist items**: that arrives as a Public-API
+> code string in `sfcStatusCode`, e.g. `"403"`, and is compared as such — it is not the
+> internal `SFCStatus` enum. See the warning under [SFCStatus](#sfcstatus-internal-framework-enum).)
 
 ---
 
 ## Core Enumerations
 
-### SFCStatus
+### SFCStatus (internal framework enum)
+
 **Module:** `sap/dm/dme/pod2/enumeration/SFCStatus`
 **Registered as:** `sap.dm.dme.pod2.enumeration.SFCStatus`
 
-| Key | Value | Description |
-|-----|-------|-------------|
-| `ALL` | `"ALL"` | Filter: all statuses |
-| `NEW` | `"NEW"` | Newly created |
-| `IN_QUEUE` | `"IN_QUEUE"` | Queued for processing |
-| `ACTIVE` | `"ACTIVE"` | Currently being processed |
-| `HOLD` | `"HOLD"` | On hold |
-| `DONE` | `"DONE"` | Processing complete |
-| `DONE_HOLD` | `"DONE_HOLD"` | Done but on hold |
-| `COMPLETED` | `"COMPLETED"` | Fully completed |
-| `SCRAPPED` | `"SCRAPPED"` | Scrapped |
-| `DELETED` | `"DELETED"` | Deleted |
-| `RETURNED` | `"RETURNED"` | Returned |
-| `GOLDEN_UNIT` | `"GOLDEN_UNIT"` | Golden unit |
-| `INVALID` | `"INVALID"` | Invalid |
-| `FROZEN` | `"FROZEN"` | Frozen state |
-| `RELEASABLE` | `"RELEASABLE"` | Ready to release |
-| `RELEASED` | `"RELEASED"` | Released |
-| `PARTIALLY_RELEASED` | `"PARTIALLY_RELEASED"` | Partially released |
-| `NOT_RELEASABLE` | `"NOT_RELEASABLE"` | Not releasable |
-| `NOT_IN_EXECUTION` | `"NOT_IN_EXECUTION"` | Not in execution |
-| `PARTIALLY_CREATED` | `"PARTIALLY_CREATED"` | Partially created |
-| `OBSOLETE` | `"OBSOLETE"` | Obsolete |
-| `ENABLED` | `"ENABLED"` | Enabled |
-| `DISABLED` | `"DISABLED"` | Disabled |
-| `OPEN` | `"OPEN"` | Open |
-| `CLOSED` | `"CLOSED"` | Closed |
-| `DISCARDED` | `"DISCARDED"` | Discarded |
-| `PRODUCTIVE` | `"PRODUCTIVE"` | Productive |
-| `SCHEDULED_DOWN` | `"SCHEDULED_DOWN"` | Scheduled downtime |
-| `UNSCHEDULED_DOWN` | `"UNSCHEDULED_DOWN"` | Unscheduled downtime |
-| `UNKNOWN` | `"UNKNOWN"` | Unknown |
-| `UNLOADED` | `"UNLOADED"` | Unloaded |
-| `ENGINEERING` | `"ENGINEERING"` | Engineering state |
-| `MULTIPLE` | `"MULTIPLE"` | Multiple statuses (UI display) |
+> ⚠️ **SFC status is the biggest internal-vs-business trap** (the file-level warning above
+> applies to every enum, but this one bites most often). `SFCStatus` is a framework-internal
+> catch-all; a worklist item's business status is the Public-API
+> [`sfcStatusCode`](#sfcstatuscode-public-api-worklist-business-status) /
+> [`worklist-data-structure.md`](worklist-data-structure.md#status-codes-reference).
+>
+> - The business SFC statuses are only: New, In Queue, Active, Hold, Done, Scrapped, Invalid.
+> - Several keys here (`COMPLETED`, `FORMATMSG`, `PARSEMSG`, `PRODUCTIVE`, `SCHEDULED_DOWN`,
+>   `ENABLED`, `OPEN` …) are internal/cross-domain and do **not** correspond to a business
+>   SFC status. In particular **`COMPLETED` is an internal key — there is no “Completed”
+>   business SFC status; the business term is `Done`.**
+> - When filtering worklist items, compare against the **business code** (`sfcStatusCode`,
+>   e.g. `"403"`), not against an internal `SFCStatus` key.
+
+The full internal enum (`Object.freeze`), as defined in the framework:
+
+| Key | Value |
+|-----|-------|
+| `ALL` | `"ALL"` |
+| `NEW` | `"NEW"` |
+| `RELEASABLE` | `"RELEASABLE"` |
+| `OBSOLETE` | `"OBSOLETE"` |
+| `HOLD` | `"HOLD"` |
+| `FROZEN` | `"FROZEN"` |
+| `ENABLED` | `"ENABLED"` |
+| `DISABLED` | `"DISABLED"` |
+| `DONE` | `"DONE"` |
+| `OPEN` | `"OPEN"` |
+| `CLOSED` | `"CLOSED"` |
+| `DISCARDED` | `"DISCARDED"` |
+| `PRODUCTIVE` | `"PRODUCTIVE"` |
+| `SCHEDULED_DOWN` | `"SCHEDULED_DOWN"` |
+| `UNSCHEDULED_DOWN` | `"UNSCHEDULED_DOWN"` |
+| `IN_QUEUE` | `"IN_QUEUE"` |
+| `ACTIVE` | `"ACTIVE"` |
+| `DONE_HOLD` | `"DONE_HOLD"` |
+| `SCRAPPED` | `"SCRAPPED"` |
+| `INVALID` | `"INVALID"` |
+| `DELETED` | `"DELETED"` |
+| `RETURNED` | `"RETURNED"` |
+| `GOLDEN_UNIT` | `"GOLDEN_UNIT"` |
+| `UNKNOWN` | `"UNKNOWN"` |
+| `UNLOADED` | `"UNLOADED"` |
+| `ENGINEERING` | `"ENGINEERING"` |
+| `FORMATMSG` | `"FORMATMSG"` |
+| `PARSEMSG` | `"PARSEMSG"` |
+| `DATEFORMATMSG` | `"DATEFORMATMSG"` |
+| `PARTIALLY_RELEASED` | `"PARTIALLY_RELEASED"` |
+| `RELEASED` | `"RELEASED"` |
+| `NOT_RELEASABLE` | `"NOT_RELEASABLE"` |
+| `NOT_IN_EXECUTION` | `"NOT_IN_EXECUTION"` |
+| `COMPLETED` | `"COMPLETED"` (internal only — **not** a business SFC status) |
+| `PARTIALLY_CREATED` | `"PARTIALLY_CREATED"` |
+| `MULTIPLE` | `"MULTIPLE"` (UI display: multiple statuses) |
 
 ---
 
-### SFCStatusCode
-**Module:** `sap/dm/dme/pod2/enumeration/SFCStatusCode`
+### SFCStatusCode (Public-API Worklist business status)
 
-Numeric status codes used in some API responses:
+The business SFC status on a worklist item is **not** an internal
+[`SFCStatus`](#sfcstatus-internal-framework-enum) key — it arrives as a Public-API code
+string in `sfcStatusCode` (e.g. `"403"` = Active), with `sfcStatusDescription` alongside.
 
-| Key | Value | Maps to SFCStatus |
-|-----|-------|-------------------|
-| `NEW` | `"401"` | NEW |
-| `IN_QUEUE` | `"402"` | IN_QUEUE |
-| `ACTIVE` | `"403"` | ACTIVE |
-| `HOLD` | `"404"` | HOLD |
-| `COMPLETED` | `"405"` | COMPLETED |
-| `SCRAPPED` | `"407"` | SCRAPPED |
-| `MULTIPLE` | `"MULTIPLE"` | MULTIPLE |
+👉 **Canonical, complete list:**
+[`worklist-data-structure.md` → Status Codes Reference](worklist-data-structure.md#status-codes-reference)
+(codes `401`–`411`). Not duplicated here — keep that one table as the single source of truth.
+
+> Business codes `401`–`411` are a different value space from the internal `SFCStatus` enum
+> above, which additionally carries cross-domain/internal keys (`COMPLETED`, `PRODUCTIVE`,
+> `FORMATMSG` …) that never appear as a worklist SFC status. In particular there is **no
+> “Completed” business status** — the business term for a finished SFC is `Done` (`405`).
 
 ---
 
@@ -429,15 +476,17 @@ Determines how the worklist is grouped/loaded:
 ## Usage Examples
 
 ### Filtering by SFC Status
+
+Worklist items expose **`sfcStatusCode`** (a Public-API business code), not the internal
+`SFCStatus` enum. Compare against the code — see
+[SFCStatusCode](#sfcstatuscode-public-api-worklist-business-status) and the canonical
+[`worklist-data-structure.md`](worklist-data-structure.md#status-codes-reference).
+
 ```js
-sap.ui.define([
-  "sap/dm/dme/pod2/enumeration/SFCStatus"
-], (SFCStatus) => {
-  
-  const activeItems = workListItems.filter(
-    item => item.sfcStatus === SFCStatus.ACTIVE
-  );
-});
+// "403" = Active (see the SFCStatusCode table)
+const activeItems = workListItems.filter(
+  item => item.sfcStatusCode === "403"
+);
 ```
 
 ### Checking Work List Type
