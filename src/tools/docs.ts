@@ -60,8 +60,6 @@ export function registerDocsTools(server: FastMCP): void {
         "form-patterns.md": "Form validation, input handling, and submit patterns",
         "glossary.md": "POD2 terminology and concept definitions",
         "PATTERN-INDEX.md": "Quick-reference index by widget type, use case, and complexity",
-        "pod2-api-reference.md":
-          "Coarse POD2 API overview (handwritten summary). For accurate, detailed class docs use get_api_doc instead.",
         "pod2-public-api-pattern.md":
           "REST API calling pattern – RestClient, ApiPaths, PodContext usage for custom widgets/actions",
         "sapdm-api-reference.md":

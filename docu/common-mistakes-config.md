@@ -274,7 +274,7 @@ Before submitting widget code:
 ### See Also
 
 - [Widget Lifecycle](widget-patterns-core.md#controlwidget-pattern-for-single-controls) - Complete lifecycle documentation
-- [PodContext API](pod2-api-reference.md#podcontext) - subscribe/unsubscribe documentation
+- [PodContext subscribe/unsubscribe](subscribe-patterns.md#the-subscribe-pattern-complete) - subscribe/unsubscribe documentation
 - [TableWidget Pattern](widget-patterns-core.md#tablewidget-complete-pattern-for-complex-tables) - Complete TableWidget with onExit()
 
 ---

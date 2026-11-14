@@ -169,7 +169,7 @@ _onWorkListSelectionChanged(aSelectedItems, sPath) {
 ```
 
 **How to Find Correct Constants:**
-1. Always check [references/pod2-api-reference.md](pod2-api-reference.md#modelpath-constants) for exact constant names
+1. Always check [model-paths.md](model-paths.md#all-standard-model-paths) for exact constant names
 2. Look for "Items" (plural) suffix for arrays
 3. Check return type (array vs single object vs primitive)
 4. Use TypeScript definitions or JSDoc if available
