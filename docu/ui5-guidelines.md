@@ -35,7 +35,9 @@
           number="{ parts: ['invoice>Price', 'view>/currency'], type: 'Currency' }"
       />
       ```
-    - Reference: SAPUI5 SDK topic *"Require Modules in XML View and Fragment"*.
+    - Reference: bundled SAPUI5 API — use `get_ui5_api({ symbol: "sap.ui.core.mvc.XMLView" })`
+      for the full XMLView class, or `search_ui5_api({ query: "require" })` to discover
+      related module-loading APIs.
 
 - **Cross-reference (POD 2-specific detections)**: [`common-mistakes-imports.md`](common-mistakes-imports.md) covers
   the concrete traps — M36 (deprecated pseudo-module enum imports), M41 (non-existent module paths
@@ -128,6 +130,9 @@
 - [`fiori-design-compliance.md`](fiori-design-compliance.md) — the visual-fidelity companion.
   These guidelines say *how the code should be shaped*; that doc says *what the rendered result
   should look like*.
+- `get_ui5_api` / `search_ui5_api` — bundled SAPUI5 API reference (Properties, Methods, Events)
+  for all classes used in these guidelines. Start with
+  `search_ui5_api({ query: "<class-name>" })` to find symbols.
 
 ---
 

@@ -45,7 +45,7 @@ export function registerExamplesTools(server: FastMCP): void {
           `📦 **${dir.name}**${description ? ` – ${description}` : ""}\n` + files.map((f) => `  ${f}`).join("\n"),
         );
       }
-      return `POD2 Reference Examples (${entries.length} extensions):\n\n${sections.join("\n\n")}\n\n→ Use 'get_example' with the extension name (the `plugin` parameter) and optional file path to read source code.`;
+      return `POD2 Reference Examples (${entries.length} extensions):\n\n${sections.join("\n\n")}\n\n→ Use 'get_example' with the extension name (the \`plugin\` parameter) and optional file path to read source code.`;
     },
   });
 
