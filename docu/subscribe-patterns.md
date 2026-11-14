@@ -353,3 +353,9 @@ import { ManagedSubscription } from "sap/dm/dme/pod2/notification/ManagedSubscri
 | Transport | In-memory pub/sub | WebSocket |
 | Use Case | React to selection changes, filter updates | React to MES events (SFC started, order released) |
 | Cleanup | `PodContext.unsubscribe()` | `subscription.unsubscribe()` |
+
+## Related / See also
+
+- [`model-paths.md`](model-paths.md#all-standard-model-paths) — full `ModelPath` constant catalog to subscribe against
+- [`delegate-architecture.md`](delegate-architecture.md) — how the official delegates use these subscriptions to drive data refresh
+- [`widget-patterns-core.md`](widget-patterns-core.md) — widget lifecycle (`onInit` / `onExit`) hosting subscribe & unsubscribe

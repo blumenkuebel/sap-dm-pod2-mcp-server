@@ -420,3 +420,9 @@ new WidgetProperty(this, "titlePath", new BindStringPropertyEditor(this, "titleP
 | OperationActivityPropertyEditor | `sap/dm/dme/pod2/propertyeditor/OperationActivityPropertyEditor` | Op. activity value help |
 | BindBooleanPropertyEditor | `sap/dm/dme/pod2/propertyeditor/BindBooleanPropertyEditor` | Boolean + context binding |
 | BindStringPropertyEditor | `sap/dm/dme/pod2/propertyeditor/BindStringPropertyEditor` | String + context binding |
+
+## Related / See also
+
+- [`extension-json-schema.md`](extension-json-schema.md) — the manifest that registers the widgets/actions these properties configure
+- [`widget-patterns-core.md`](widget-patterns-core.md#exclude_properties---hiding-properties-from-pod-designer) — `EXCLUDE_PROPERTIES` / `getProperties()` for hiding properties from the Designer
+- [`common-mistakes-config.md`](common-mistakes-config.md#mistake-26-using-wrong-property-exclusion-pattern) — property-exclusion mistakes and the right pattern per property

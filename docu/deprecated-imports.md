@@ -199,3 +199,8 @@ sap.ui.define([
 ```
 
 **Rule:** If `"sap/m/library"` or `"sap/ui/core/library"` is already in the dependency array, just add the destructuring — do not duplicate the import.
+
+## Related / See also
+
+- [`common-mistakes-imports.md`](common-mistakes-imports.md#mistake-36-deprecated-sapui5-pseudo-module-enum-imports) — Mistake #36 drives detection off this exhaustive list
+- [`ui5-guidelines.md`](ui5-guidelines.md#dependency-loading-never-globals) — the dependency-loading rules (never globals, always `sap.ui.define`) these fixes follow

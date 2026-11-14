@@ -220,6 +220,9 @@ Every extension must contain an `extension.json` in the root:
 
 > **Caution:** Namespaces starting with `sap/` are reserved and will cause upload errors.
 
+> **Full contract:** see [`extension-json-schema.md`](extension-json-schema.md) for the complete
+> `extension.json` JSON schema, naming conventions, and common structural mistakes.
+
 ---
 
 ## 5. Third-Party Libraries
