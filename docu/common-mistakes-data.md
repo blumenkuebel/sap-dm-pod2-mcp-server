@@ -342,7 +342,7 @@ If any hit shows up — fix it to a string comparison.
 
 - [`docu/worklist-data-structure.md`](worklist-data-structure.md) — full SFC status code table
 - [`docu/pod2-api-specs/sap.dm.dme.pod2.api.internal.worklist.md`](pod2-api-specs/sap.dm.dme.pod2.api.internal.worklist.md) — `sfcStatus: string`
-- [Mistake #7: No Defensive Type Checking](common-mistakes-imports.md#mistake-7-no-defensive-type-checking) — same family of "silent type" bugs
+- [Mistake #7: No Defensive Type Checking](common-mistakes-imports.md#mistake-7-no-defensive-type-checking---) — same family of "silent type" bugs
 
 ---
 
@@ -518,8 +518,8 @@ If hits in the first three groups → migrate to `_parseNumber()`. Hits in the l
 ### Related
 
 - [SAP UI5 API: sap.ui.core.format.NumberFormat](https://sapui5.hana.ondemand.com/sdk/#/api/sap.ui.core.format.NumberFormat) — official documentation
-- [Mistake #7: No Defensive Type Checking](common-mistakes-imports.md#mistake-7-no-defensive-type-checking) — same family of "silent type" bugs
-- [Mistake #28: Multi-Part Bindings Without Defensive Checks](#mistake-28-multi-part-bindings-without-defensive-checks) — defensive null/undefined for formatter inputs
+- [Mistake #7: No Defensive Type Checking](common-mistakes-imports.md#mistake-7-no-defensive-type-checking---) — same family of "silent type" bugs
+- [Mistake #28: Multi-Part Bindings Without Defensive Checks](common-mistakes-ui.md#mistake-28-multi-part-bindings-without-defensive-checks) — defensive null/undefined for formatter inputs
 - See `examples/Customer.Coating/widget/CoatingWidget.js` — full reference implementation of `_getNumberFormat` / `_parseNumber` / `_formatNumber`
 
 ---

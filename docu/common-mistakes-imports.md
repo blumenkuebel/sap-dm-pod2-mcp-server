@@ -35,7 +35,7 @@ _createView() {
 
 **Why this happens**: POD 2.0 requires the view ID to match the widget configuration ID for proper lifecycle management.
 
-**See also**: [Mistake #31](#mistake-31-control-id-must-be-first-constructor-argument) — the related anti-pattern when the ID *is* available but assigned the wrong way (via `setId()` or as `{ id: ... }` in the settings object).
+**See also**: [Mistake #31](common-mistakes-ui.md#mistake-31-control-id-must-be-first-constructor-argument) — the related anti-pattern when the ID *is* available but assigned the wrong way (via `setId()` or as `{ id: ... }` in the settings object).
 
 ---
 
@@ -279,13 +279,14 @@ Rule: If the import path is `"sap/m/<Name>"` or `"sap/ui/core/<Name>"` where `<N
 
 ### Known Deprecated Pseudo-Modules (EXHAUSTIVE — see `deprecated-imports.md`)
 
-> **IMPORTANT:** The complete, exhaustive list is in `docu/deprecated-imports.md`.
-> Load it via: `get_pattern_doc({ name: "deprecated-imports" })`
-> It contains exact grep commands for reliable detection.
+> **IMPORTANT:** The complete, exhaustive list (48 `sap/m/` + 24 `sap/ui/core/` enums) plus
+> exact grep commands for reliable detection lives in **one place** —
+> [`deprecated-imports.md`](deprecated-imports.md). Load it via
+> `get_pattern_doc({ name: "deprecated-imports" })`. It is not duplicated here.
 
-**`sap/m/` enums (48 total):** BackgroundDesign, ButtonType, DeviationIndicator, DialogRoleType, DialogType, FlexAlignItems, FlexAlignSelf, FlexDirection, FlexJustifyContent, FlexRendertype, FlexWrap, FrameType, GenericTileMode, HeaderLevel, IBarHTMLTag, ImageMode, InputTextFormatMode, InputType, LabelDesign, LinkConversion, ListGrowingDirection, ListHeaderDesign, ListKeyboardMode, ListMode, ListSeparators, ListType, LoadState, MenuButtonMode, OverflowToolbarPriority, PageBackgroundDesign, PlacementType, PopinDisplay, PopinLayout, QuickViewGroupElementType, RatingIndicatorVisualMode, ScreenSize, SelectType, Size, SplitAppMode, StandardTileType, SwipeDirection, SwitchType, TileSizeBehavior, ToolbarDesign, ToolbarStyle, ValueColor, ValueCSSColor, WrappingType.
-
-**`sap/ui/core/` enums (24 total):** AccessibleLandmarkRole, BarColor, BusyIndicatorSize, CSSColor, CSSSize, Dock, HorizontalAlign, IconColor, ImeMode, IndicationColor, InvisibleMessageMode, MessageType, OpenState, Orientation, Priority, ScrollBarAction, Scrolling, SortOrder, TextAlign, TextDirection, TitleLevel, ValueState, VerticalAlign, Wrapping.
+Representative examples (see `deprecated-imports.md` for the full set):
+- `sap/m/` enums: `ButtonType`, `FlexAlignItems`, `PlacementType`, `ValueColor`, `WrappingType`, …
+- `sap/ui/core/` enums: `ValueState`, `TextAlign`, `MessageType`, `IconColor`, `VerticalAlign`, …
 
 ### ❌ Wrong (deprecated)
 
@@ -344,7 +345,7 @@ Yes — mechanical replacement:
 
 ### Related
 
-- [Mistake #12: Wrong PlacementType Import](common-mistakes-ui.md#mistake-12-wrong-placementtype-import) — specific case of the same pattern
+- [Mistake #12: Wrong PlacementType Import](common-mistakes-ui.md#mistake-12-wrong-placementtype-import---) — specific case of the same pattern
 - SAP UI5 Best Practices for Loading Modules documentation
 
 

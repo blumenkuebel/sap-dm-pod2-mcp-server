@@ -20,10 +20,9 @@ This document provides a comprehensive API reference for SAP Digital Manufacturi
 10. [REST Client](#rest-client)
 11. [OData Clients](#odata-clients)
 12. [Public API Clients](#public-api-clients)
-13. [Logger](#logger)
-14. [DateTimeUtils](#datetimeutils)
-15. [Widget Registry](#widget-registry)
-16. [Action Registry](#action-registry)
+13. [DateTimeUtils](#datetimeutils)
+14. [Widget Registry](#widget-registry)
+15. [Action Registry](#action-registry)
 
 ---
 
@@ -2378,7 +2377,7 @@ async _fetch() {
 }
 ```
 
-**See also:** [widget-patterns.md - GrowingJSONModel](widget-patterns.md#tablewidget-with-growingjsonmodel-pagination-pattern)
+**See also:** [widget-patterns.md - GrowingJSONModel](widget-patterns-advanced.md#growingpagination-pattern-for-tablewidget)
 
 ---
 

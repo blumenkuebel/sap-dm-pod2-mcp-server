@@ -24,7 +24,7 @@ This is the dashboard-scoped statement of the general **Escalation Ladder** in [
 
 The HTML5 migrator's default bias goes the other way: presented with a hand-built KPI card, it happily reproduces the composition in `VBox` + `ObjectStatus` + `Text` + custom CSS. That is visually functional, semantically off-brand, and doubles the CSS surface. Fiori theme tokens don't propagate into hand-drawn compositions; PropertyEditor bindings feel less natural; every screen looks *close to* Fiori but not on-brand.
 
-The fix is a hard **standard-first bias**: look up the row in the [Chart→control decision table](#chart→control-decision-table) below **before** you write XML. **Read the Slots column BEFORE the First choice column** — the rule is "the SMALLEST standard control that fits ALL source fields", not "the first-choice control from the row that matched the primary KPI". If the source composite has more fields than the first-choice control has slots, escalate to the row named in the "Escalate to" column. If you cannot use any standard control, `MIGRATION_MAPPING.md` gets a one-sentence justification field. Empty justification = Phase-5 gate failure.
+The fix is a hard **standard-first bias**: look up the row in the [Chart→control decision table](#chartcontrol-decision-table) below **before** you write XML. **Read the Slots column BEFORE the First choice column** — the rule is "the SMALLEST standard control that fits ALL source fields", not "the first-choice control from the row that matched the primary KPI". If the source composite has more fields than the first-choice control has slots, escalate to the row named in the "Escalate to" column. If you cannot use any standard control, `MIGRATION_MAPPING.md` gets a one-sentence justification field. Empty justification = Phase-5 gate failure.
 
 Related anti-patterns and their standard replacements are enumerated as **Cat 29** in `migration-suspect-list.md` (S1–S7 anti-patterns) and as common-mistakes **M60–M63** and **M70** in `common-mistakes-ui.md` — all specialisations of `basics.md` §0.
 
@@ -32,7 +32,7 @@ Related anti-patterns and their standard replacements are enumerated as **Cat 29
 
 ## Fiori-native rendering rule: look native to SAP DM
 
-> **Complements — does not replace — the [Prime Directive](basics.md#§0-prime-directive-standard-controls-before-custom). Where the Prime Directive governs *which control* to pick, this rule governs *what the pick must look like*.**
+> **Complements — does not replace — the [Prime Directive](basics.md#0--prime-directive-standard-controls-before-custom). Where the Prime Directive governs *which control* to pick, this rule governs *what the pick must look like*.**
 >
 > The output must be visually indistinguishable from a native SAP DM widget sitting next to it in the same POD 2.0 page.
 
@@ -222,7 +222,7 @@ Cross-ref: `widget-patterns-core.md` §Widget, `common-mistakes-lifecycle.md` #M
 
 Threshold constants come from widget properties (see `property-editors.md`, `common-mistakes-config.md` for property editor patterns). Never inline magic numbers — cat 28.
 
-Full standard-control catalog for other dashboard shapes: [§Chart→control decision table](#chart→control-decision-table) below.
+Full standard-control catalog for other dashboard shapes: [§Chart→control decision table](#chartcontrol-decision-table) below.
 
 ### When NOT a KPI tile
 

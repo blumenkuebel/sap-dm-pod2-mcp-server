@@ -134,7 +134,7 @@ new PodDialog({
 
 **Why Critical:** Every dialog instance without `destroy()` leaks memory. In long-running POD sessions, this accumulates. The same rule applies to popovers opened via `.openBy(...)` and to fragments loaded via `Fragment.load(...)` — if you construct it dynamically, you must destroy it in `afterClose`.
 
-**See also:** [form-patterns.md#poddialog-extension](form-patterns.md#poddialog-extension)
+**See also:** [dialog-patterns.md#standalone-dialog-handler-pattern](dialog-patterns.md#standalone-dialog-handler-pattern)
 
 ---
 
@@ -268,7 +268,7 @@ Any hit → replace with the canonical pattern shown above (Widget) or `BusyIndi
 
 ### Related
 
-- [Mistake #23: Forgetting to Clear Busy State on Error](#mistake-23-forgetting-to-clear-busy-state-on-error)
+- [Mistake #23: Forgetting to Clear Busy State on Error](common-mistakes-data.md#mistake-23-forgetting-to-clear-busy-state-on-error---)
 - [SAP UI5 API: sap.ui.core.BusyIndicator](https://sapui5.hana.ondemand.com/sdk/#/api/sap.ui.core.BusyIndicator)
 
 ---
@@ -396,7 +396,7 @@ Both widgets can share the **same** bundle (`bundleName: "customer.custom.extens
 
 ### Related
 
-- [Mistake #32: Widget Metadata i18n Keys](#mistake-32-widget-metadata-i18n-keys--use-named-prefix-widgetnamedisplayname-etc) — the keys that the framework reads from the registered model
+- [Mistake #32: Widget Metadata i18n Keys](common-mistakes-config.md#mistake-32-widget-metadata-i18n-keys--use-named-prefix-widgetnamedisplayname-etc) — the keys that the framework reads from the registered model
 - [usage/CLAUDE.md Critical Rule #9](../../usage/CLAUDE.md) — `i18nCustomModel` registration is listed as a critical rule
 - See all 3 reference examples: `Customer.Coating`, `Customer.HelloWorld`, `Customer.TableView` — they all register the model in `onInit()`
 
@@ -521,7 +521,7 @@ grep -A5 "async onInit" widget/ | grep -v "super.onInit"
 
 ### Related
 
-- [Mistake #35: Missing i18nCustomModel Registration in onInit()](#mistake-35-missing-i18ncustommodel-registration-in-oninit) — depends on super.onInit() completing first
+- [Mistake #35: Missing i18nCustomModel Registration in onInit()](#mistake-35-missing-i18ncustommodel-registration-in-oninit---) — depends on super.onInit() completing first
 - [Widget Patterns (widget-patterns-core.md)](widget-patterns-core.md) — canonical Widget structure
 - All reference examples: `Customer.Coating`, `Customer.HelloWorld`, `Customer.TableView`
 

@@ -47,35 +47,12 @@ clearInterval(this.#intervalId);
 
 ## Error Handling & Retry ⭐⭐⭐⭐⭐
 
-```javascript
-try {
-    const oResponse = await ApiClient.post(oPayload);
-    const oItem = oResponse.lineItems?.[0];
-    
-    if (oItem.error) {
-        MessageHistory.showError(oItem.errorMessage);
-        return;
-    }
-    
-    MessageHistory.toast({ message: "Success", type: MessageHistory.Success });
-} catch (oError) {
-    const oErr = oError.body?.lineItems?.[0] || oError;
-    
-    if (oErr.errorCode === "warning.tolerance") {
-        MessageHistory.showWarning(oErr.errorMessage, {
-            actions: [MessageBox.Action.YES, MessageBox.Action.NO],
-            onClose: (sAction) => {
-                if (sAction === MessageBox.Action.YES) {
-                    this.#model.setProperty("/ignoreWarnings", true);
-                    this._onConfirmPost(); // RETRY
-                }
-            }
-        });
-    } else {
-        MessageHistory.showError(oErr.errorMessage || "Error");
-    }
-}
-```
+Form submits that post to SAP DM APIs must handle tolerance-warning responses and offer a
+retry (user confirms → resubmit with `ignoreWarnings`). This is the same error/retry pattern
+used by all posting dialogs — **don't reimplement it here**. See the canonical, fully
+explained version (including the three SAP error-response shapes):
+
+👉 [`advanced-patterns.md` → §4 Advanced Error Handling with Retry Logic](advanced-patterns.md#4-advanced-error-handling-with-retry-logic)
 
 ## Static Configuration ⭐⭐⭐⭐
 

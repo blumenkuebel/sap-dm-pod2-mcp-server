@@ -42,36 +42,36 @@ Quick reference index organized by widget type, use case, technical pattern, and
 ## By Use Case
 
 ### Data Display
-- [Basic Table](widget-patterns.md#tablewidget) - Simple data table
-- [Growing Table](widget-patterns.md#tablewidget-with-growingjsonmodel-pagination-pattern) - Paginated table
+- [Basic Table](widget-patterns-core.md#tablewidget-complete-pattern-for-complex-tables) - Simple data table
+- [Growing Table](widget-patterns-advanced.md#pagination-pattern) - Paginated table
 - [Table Cells](tablecell-patterns.md) - 13 cell types
-- [No-Data Messages](advanced-patterns.md#17-contextual-no-data-messages) - Context-aware messages
+- [No-Data Messages](advanced-patterns.md#9-contextual-no-data-messages) - Context-aware messages
 
 ### Data Input & Forms
 - [Form Patterns](form-patterns.md) - Complete form guide
-- [ContentHandler](advanced-patterns.md#7-contenthandler-with-dialog-and-form) - Dialog forms
-- [Validation](form-patterns.md#validation-patterns) - Real-time validation
-- [Custom Fields](advanced-patterns.md#12-custom-field-extensibility-pattern) - Extensible fields
+- [ContentHandler](form-patterns.md#complex-form-validation-) - Dialog forms
+- [Validation](form-patterns.md#complex-form-validation-) - Real-time validation
+- [Custom Fields](advanced-patterns.md#11-jsdoc-extensible-markers) - Extensible fields
 
 ### API Integration
 - [REST API Calling Pattern](pod2-public-api-pattern.md) - RestClient + ApiPaths official pattern (GET, POST, PUT, DELETE)
-- [API Patterns](widget-patterns.md#api-integration-widget) - REST API calls from widgets
-- [Error Handling](advanced-patterns.md#15-error-handling--retry-pattern) - Complete error management
-- [Retry Pattern](advanced-patterns.md#15-error-handling--retry-pattern) - Tolerance warnings
+- [API Patterns](widget-patterns-advanced.md#sap-dm-api-integration-pattern) - REST API calls from widgets
+- [Error Handling](advanced-patterns.md#4-advanced-error-handling-with-retry-logic) - Complete error management
+- [Retry Pattern](advanced-patterns.md#4-advanced-error-handling-with-retry-logic) - Tolerance warnings
 
 ### State Management
-- [PodContext Subscription](widget-patterns.md#context-aware-widget) - Subscribe to changes
+- [PodContext Subscription](subscribe-patterns.md#the-subscribe-pattern-complete) - Subscribe to changes
 - [ModelPath Reference](model-paths.md) - All 39 standard model paths
-- [Selection Sync](common-mistakes.md#mistake-27) - Table↔PodContext sync
-- [Data Delegates](advanced-patterns.md#11-data-delegate-pattern) - Shared state
-- [Optimistic UI](advanced-patterns.md#23-optimistic-ui-update-pattern) - Instant feedback
+- [Selection Sync](common-mistakes-data.md#mistake-27-missing-selection-synchronization-with-podcontext) - Table↔PodContext sync
+- [Data Delegates](model-paths.md#subscribe-patterns) - Shared state
+- [Optimistic UI](advanced-patterns.md#6-optimistic-ui-updates) - Instant feedback
 
 ### User Interaction
-- [Button Actions](widget-patterns.md#controlwidget) - Button press handlers
+- [Button Actions](widget-patterns-core.md#controlwidget-pattern-for-single-controls) - Button press handlers
 - [HotKey Shortcuts](hotkey-patterns.md) - Keyboard shortcuts via HotKeyManager
-- [Popover](advanced-patterns.md#16-async-popover-pattern) - Async popovers
-- [Warning Dialogs](advanced-patterns.md#13-warning-dialog-pattern) - Custom actions
-- [Dynamic Enabling](advanced-patterns.md#6-dynamic-button-enabling-with-authorization) - Authorization checks
+- [Popover](advanced-patterns.md#5-async-popover-with-lifecycle-management) - Async popovers
+- [Warning Dialogs](advanced-patterns.md#8-warning-dialogs-with-custom-actions) - Custom actions
+- [Dynamic Enabling](advanced-patterns.md#2-authorization-based-ui-state-management) - Authorization checks
 
 ### Enumerations & Constants
 - [Enumerations Reference](enumerations-reference.md) - All 23 framework enums (SFCStatus, WorkListType, ResourceStatus, ...)
@@ -83,26 +83,26 @@ Quick reference index organized by widget type, use case, technical pattern, and
 ## By Technical Pattern
 
 ### Modern JavaScript
-- [Private Fields (#)](advanced-patterns.md#1-modern-javascript-private-fields) - ES2022 encapsulation
-- [Static Enums](advanced-patterns.md#2-static-propertyid-enum-pattern) - Object.freeze() type safety
-- [JSDoc @extensible](advanced-patterns.md#16-jsdoc-extensible-markers-pattern) - Extension points
+- [Private Fields (#)](widget-patterns-core.md#common-patterns) - ES2022 encapsulation
+- [Static Enums](widget-patterns-core.md#common-patterns) - Object.freeze() type safety
+- [JSDoc @extensible](advanced-patterns.md#11-jsdoc-extensible-markers) - Extension points
 
 ### Binding & Formatting
-- [Multi-Part Binding](binding-patterns.md#multi-part-bindings) - Composite values
-- [Expression Binding](advanced-patterns.md#14-expression-binding) - Computed properties
-- [Formatter Classes](advanced-patterns.md#9-formatter-utility-class-pattern) - Reusable formatters
-- [Defensive Formatters](common-mistakes.md#mistake-28) - Null-safe formatters
+- [Multi-Part Binding](binding-patterns.md#multi-part-binding) - Composite values
+- [Expression Binding](binding-patterns.md#expression-binding) - Computed properties
+- [Formatter Classes](binding-patterns.md#formatter-utility-classes) - Reusable formatters
+- [Defensive Formatters](common-mistakes-ui.md#mistake-28-multi-part-bindings-without-defensive-checks) - Null-safe formatters
 
 ### Lifecycle & Memory
-- [onExit Cleanup](common-mistakes.md#mistake-1) - Memory leak prevention
-- [Dialog Destruction](common-mistakes.md#mistake-19) - afterClose destroy
-- [Timer Management](widget-patterns-core.md#timer-and-interval-management-pattern) - Interval cleanup
+- [onExit Cleanup](common-mistakes-setup.md#mistake-1-missing-onexit-after-podcontextsubscribe) - Memory leak prevention
+- [Dialog Destruction](common-mistakes-lifecycle.md#mistake-19-not-destroying-dialogs-in-afterclose-) - afterClose destroy
+- [Timer Management](widget-patterns-core.md#timer-and-interval-management-pattern--critical) - Interval cleanup
 - [Subscription Arrays](subscribe-patterns.md) - Multi-subscribe
 
 ### Enterprise Patterns
-- [Dynamic Columns](advanced-patterns.md#14-dynamic-column-creation-pattern) - Conditional columns
-- [UOM Handling](advanced-patterns.md#10-uom-unit-of-measure-handling-pattern) - Unit conversion
-- [Authorization](advanced-patterns.md#6-dynamic-button-enabling-with-authorization) - Permission checks
+- [Dynamic Columns](advanced-patterns.md#3-dynamic-column-creation) - Conditional columns
+- [UOM Handling](binding-patterns.md#formatter-utility-classes) - Unit conversion
+- [Authorization](advanced-patterns.md#2-authorization-based-ui-state-management) - Permission checks
 - [Audit Trail](advanced-patterns.md) - MessageHistory patterns
 
 ---
@@ -110,30 +110,30 @@ Quick reference index organized by widget type, use case, technical pattern, and
 ## By Complexity Level
 
 ### ⭐ Beginner (1 star)
-- [Basic ControlWidget](widget-patterns.md#controlwidget)
-- [Basic Properties](widget-patterns.md#widget-with-properties)
+- [Basic ControlWidget](widget-patterns-core.md#controlwidget-pattern-for-single-controls)
+- [Basic Properties](widget-patterns-core.md#common-patterns)
 
 ### ⭐⭐ Intermediate (2 stars)
-- [LayoutWidget](widget-patterns.md#layoutwidget)
-- [API Widget](widget-patterns.md#api-integration-widget)
-- [Context Subscription](widget-patterns.md#context-aware-widget)
+- [LayoutWidget](widget-patterns-core.md#layoutwidget-pattern-for-containers)
+- [API Widget](widget-patterns-advanced.md#sap-dm-api-integration-pattern)
+- [Context Subscription](subscribe-patterns.md#the-subscribe-pattern-complete)
 - [REST API Calling Pattern](pod2-public-api-pattern.md)
 
 ### ⭐⭐⭐ Advanced (3 stars)
-- [Basic TableWidget](widget-patterns.md#tablewidget)
-- [Growing Table](widget-patterns.md#tablewidget-with-growingjsonmodel-pagination-pattern)
-- [Custom Toolbar](advanced-patterns.md#4-advanced-tablewidget---custom-toolbar)
+- [Basic TableWidget](widget-patterns-core.md#tablewidget-complete-pattern-for-complex-tables)
+- [Growing Table](widget-patterns-advanced.md#pagination-pattern)
+- [Custom Toolbar](advanced-patterns.md#1-custom-toolbars-and-headerbar-integration)
 
 ### ⭐⭐⭐⭐ Expert (4 stars)
 - [TableWidget Complete](tablewidget-complete.md)
 - [Complex Cells](tablecell-patterns.md)
-- [Custom Dialog](advanced-patterns.md#8-custom-dialog-extension-pattern)
-- [Dynamic Columns](advanced-patterns.md#14-dynamic-column-creation-pattern)
+- [Custom Dialog](advanced-patterns.md#8-warning-dialogs-with-custom-actions)
+- [Dynamic Columns](advanced-patterns.md#3-dynamic-column-creation)
 
 ### ⭐⭐⭐⭐⭐ Master (5 stars)
-- [ContentHandler + Forms](advanced-patterns.md#7-contenthandler-with-dialog-and-form)
-- [Error Handling](advanced-patterns.md#15-error-handling--retry-pattern)
-- [Selection Sync](common-mistakes.md#mistake-27)
+- [ContentHandler + Forms](form-patterns.md#complex-form-validation-)
+- [Error Handling](advanced-patterns.md#4-advanced-error-handling-with-retry-logic)
+- [Selection Sync](common-mistakes-data.md#mistake-27-missing-selection-synchronization-with-podcontext)
 - [Complete Form Patterns](form-patterns.md)
 
 ---
@@ -173,7 +173,7 @@ Specific to TableWidget:
 - [ ] _onSelectionChange preserves existing selections
 - [ ] Multi-part formatters have null checks for ALL parameters
 
-**See**: [Mistake #26](common-mistakes.md#mistake-26) and [Mistake #27](common-mistakes.md#mistake-27)
+**See**: [Mistake #26](common-mistakes-config.md#mistake-26-using-wrong-property-exclusion-pattern) and [Mistake #27](common-mistakes-data.md#mistake-27-missing-selection-synchronization-with-podcontext)
 
 ---
 
@@ -181,20 +181,20 @@ Specific to TableWidget:
 
 ### I need to...
 
-**Display a single control** → [ControlWidget](widget-patterns.md#controlwidget) ⭐
-**Show a container** → [LayoutWidget](widget-patterns.md#layoutwidget) ⭐⭐
-**Display tabular data** → [TableWidget](widget-patterns.md#tablewidget) ⭐⭐⭐
-**Create a form** → [ContentHandler](advanced-patterns.md#7-contenthandler-with-dialog-and-form) ⭐⭐⭐⭐⭐
+**Display a single control** → [ControlWidget](widget-patterns-core.md#controlwidget-pattern-for-single-controls) ⭐
+**Show a container** → [LayoutWidget](widget-patterns-core.md#layoutwidget-pattern-for-containers) ⭐⭐
+**Display tabular data** → [TableWidget](widget-patterns-core.md#tablewidget-complete-pattern-for-complex-tables) ⭐⭐⭐
+**Create a form** → [ContentHandler](form-patterns.md#complex-form-validation-) ⭐⭐⭐⭐⭐
 
 **Call a REST API** → [REST API Calling Pattern](pod2-public-api-pattern.md) ⭐⭐
-**React to selections** → [Context Subscription](widget-patterns.md#context-aware-widget) ⭐⭐
-**Paginate data** → [Growing Table](widget-patterns.md#tablewidget-with-growingjsonmodel-pagination-pattern) ⭐⭐⭐⭐
-**Custom table columns** → [Dynamic Columns](advanced-patterns.md#14-dynamic-column-creation-pattern) ⭐⭐⭐⭐
+**React to selections** → [Context Subscription](subscribe-patterns.md#the-subscribe-pattern-complete) ⭐⭐
+**Paginate data** → [Growing Table](widget-patterns-advanced.md#pagination-pattern) ⭐⭐⭐⭐
+**Custom table columns** → [Dynamic Columns](advanced-patterns.md#3-dynamic-column-creation) ⭐⭐⭐⭐
 
-**Validate input** → [Form Validation](form-patterns.md#validation-patterns) ⭐⭐⭐⭐⭐
-**Handle errors** → [Error Handling](advanced-patterns.md#15-error-handling--retry-pattern) ⭐⭐⭐⭐⭐
-**Share data** → [Data Delegates](advanced-patterns.md#11-data-delegate-pattern) ⭐⭐⭐⭐
-**Show warnings** → [Warning Dialog](advanced-patterns.md#13-warning-dialog-pattern) ⭐⭐⭐
+**Validate input** → [Form Validation](form-patterns.md#complex-form-validation-) ⭐⭐⭐⭐⭐
+**Handle errors** → [Error Handling](advanced-patterns.md#4-advanced-error-handling-with-retry-logic) ⭐⭐⭐⭐⭐
+**Share data** → [Data Delegates](model-paths.md#subscribe-patterns) ⭐⭐⭐⭐
+**Show warnings** → [Warning Dialog](advanced-patterns.md#8-warning-dialogs-with-custom-actions) ⭐⭐⭐
 
 ---
 
@@ -202,21 +202,21 @@ Specific to TableWidget:
 
 ### TableWidget + API + Pagination
 1. Start with [TableWidget Complete](tablewidget-complete.md)
-2. Add [GrowingJSONModel](widget-patterns.md#tablewidget-with-growingjsonmodel-pagination-pattern)
-3. Implement [Selection Sync](common-mistakes.md#mistake-27)
+2. Add [GrowingJSONModel](widget-patterns-advanced.md#pagination-pattern)
+3. Implement [Selection Sync](common-mistakes-data.md#mistake-27-missing-selection-synchronization-with-podcontext)
 4. Add [Complex Cells](tablecell-patterns.md) as needed
 
 ### Form + Validation + API
-1. Start with [ContentHandler](advanced-patterns.md#7-contenthandler-with-dialog-and-form)
-2. Add [Form Validation](form-patterns.md#validation-patterns)
-3. Implement [Error Handling](advanced-patterns.md#15-error-handling--retry-pattern)
-4. Add [Custom Fields](advanced-patterns.md#12-custom-field-extensibility-pattern) if needed
+1. Start with [ContentHandler](form-patterns.md#complex-form-validation-)
+2. Add [Form Validation](form-patterns.md#complex-form-validation-)
+3. Implement [Error Handling](advanced-patterns.md#4-advanced-error-handling-with-retry-logic)
+4. Add [Custom Fields](advanced-patterns.md#11-jsdoc-extensible-markers) if needed
 
 ### Context-Aware Table
-1. Start with [Basic TableWidget](widget-patterns.md#tablewidget)
-2. Add [PodContext Subscription](widget-patterns.md#context-aware-widget)
-3. Implement [Selection Sync](common-mistakes.md#mistake-27)
-4. Add [Contextual No-Data](advanced-patterns.md#17-contextual-no-data-messages)
+1. Start with [Basic TableWidget](widget-patterns-core.md#tablewidget-complete-pattern-for-complex-tables)
+2. Add [PodContext Subscription](subscribe-patterns.md#the-subscribe-pattern-complete)
+3. Implement [Selection Sync](common-mistakes-data.md#mistake-27-missing-selection-synchronization-with-podcontext)
+4. Add [Contextual No-Data](advanced-patterns.md#9-contextual-no-data-messages)
 
 ---
 
@@ -224,14 +224,14 @@ Specific to TableWidget:
 
 | File | Focus | Patterns Count |
 |------|-------|----------------|
-| widget-patterns.md | Widget templates | 8 core patterns |
+| widget-patterns-core.md | Core widget templates | ControlWidget, LayoutWidget, TableWidget, timers, i18n |
+| widget-patterns-advanced.md | Advanced widget patterns | SAP DM API integration, pagination, API examples |
 | tablewidget-complete.md | Complete TableWidget | 1 comprehensive guide |
 | tablecell-patterns.md | Table cells | 13 cell types |
 | binding-patterns.md | Bindings & formatters | 6 binding patterns |
-| advanced-patterns.md | Enterprise patterns | 23 production patterns |
 | advanced-patterns.md | Enterprise patterns | 11 advanced patterns |
 | form-patterns.md | Forms & validation | 5 form patterns |
-| common-mistakes.md | Error prevention | 28 mistakes + fixes |
+| common-mistakes-*.md | Error prevention | documented mistakes by category + fixes |
 | delegate-architecture.md | Delegates | 8 official delegates |
 | pod2-public-api-pattern.md | REST API calls | RestClient, ApiPaths, URL resolution |
 | model-paths.md | PodContext model paths | 39 standard paths + subscribe patterns |
@@ -250,4 +250,4 @@ Specific to TableWidget:
   - 400+ lines of organized pattern references
   - Covers all complexity levels (⭐ to ⭐⭐⭐⭐⭐)
 
-**See**: [README.md](../../README.md#changelog) for complete version history
+See the README changelog for complete version history.

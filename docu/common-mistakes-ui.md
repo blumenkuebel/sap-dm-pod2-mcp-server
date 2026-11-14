@@ -391,7 +391,7 @@ formatter: (param1, param2, param3) => {
 **Error**: `"getView method returned a view with a different ID than configuration"`,
 silent ID mismatch, broken POD lifecycle, or `sap.ui.getCore().byId(...)` lookups returning the wrong control.
 
-This is the **sibling pitfall** to [#6](#mistake-6-missing-view-id-in-_createview--).
+This is the **sibling pitfall** to [#6](common-mistakes-imports.md#mistake-6-missing-view-id-in-_createview---).
 Even when the developer remembers that `_createView()` needs `oConfig.id`, the ID is often
 attached the wrong way: via `setId()`, via the settings object, or only after the control
 has already been built. All three are broken.
@@ -504,8 +504,8 @@ Any hit is a bug — convert it to the positional form.
 
 ### Related
 
-- [Mistake #6: Missing View ID in `_createView()`](#mistake-6-missing-view-id-in-_createview--) — the case when no ID is passed at all
-- [Mistake #21: `sap.m.Panel` vs `CustomPanel`](#mistake-21-using-sapmpanel-instead-of-custompanel----critical) — also shows the `id: this.getId()` settings-property style; for `CustomPanel` constructor the positional form is preferred wherever supported
+- [Mistake #6: Missing View ID in `_createView()`](common-mistakes-imports.md#mistake-6-missing-view-id-in-_createview---) — the case when no ID is passed at all
+- [Mistake #21: `sap.m.Panel` vs `CustomPanel`](common-mistakes-config.md#mistake-21-using-sapmpanel-instead-of-custompanel----critical) — also shows the `id: this.getId()` settings-property style; for `CustomPanel` constructor the positional form is preferred wherever supported
 
 ---
 
@@ -581,7 +581,7 @@ The `render` property inside the passed-in `renderer` object (or the object itse
 
 ### Related
 
-- [Mistake #41: Non-existent module paths](common-mistakes-imports.md#mistake-41-non-existent-module-paths-sapmitem-sapmicon----runtime-404--extension-fails-to-load) — same failure mode (404 during extension load), different trap.
+- [Mistake #41: Non-existent module paths](common-mistakes-imports.md#mistake-41-non-existent-module-paths-sapmitem-sapmicon-----runtime-404--extension-fails-to-load) — same failure mode (404 during extension load), different trap.
 
 ---
 

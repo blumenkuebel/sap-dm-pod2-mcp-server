@@ -52,7 +52,6 @@ export function registerDocsTools(server: FastMCP): void {
           "Mapping table: every Chart.js / d3 / plotly / echarts / apexcharts chart type → SAPUI5 target control",
         "html5-migration-guide.md":
           "Mechanical before/after rewrites for HTML5 → POD 2.0 migrations: fetch → ODataV4Client, setInterval → Timer pattern, etc.",
-        "complete-patterns.md": "Complete end-to-end widget implementation examples",
         "delegate-architecture.md": "8 official data delegates (WorkList, DataCollection, etc.)",
         "dialog-patterns.md": "Dialog creation, lifecycle, and destruction patterns",
         "extension-json-schema.md":
@@ -60,13 +59,11 @@ export function registerDocsTools(server: FastMCP): void {
         "error-handling.md": "Error handling, retry patterns, and user feedback",
         "form-patterns.md": "Form validation, input handling, and submit patterns",
         "glossary.md": "POD2 terminology and concept definitions",
-        "namespace-update.md": "Namespace migration guide (sap.dm.dme → pod2)",
         "PATTERN-INDEX.md": "Quick-reference index by widget type, use case, and complexity",
         "pod2-api-reference.md":
           "Coarse POD2 API overview (handwritten summary). For accurate, detailed class docs use get_api_doc instead.",
         "pod2-public-api-pattern.md":
           "REST API calling pattern – RestClient, ApiPaths, PodContext usage for custom widgets/actions",
-        "production-errors.md": "Common production errors and their solutions",
         "sapdm-api-reference.md":
           "Coarse SAP DM REST API overview (handwritten summary). For accurate specs use get_rest_api instead.",
         "sap-dm-languages.md": "SAP DM i18n language reference — all 28 supported UI languages with ISO 639-1 codes",

@@ -69,6 +69,22 @@ POD 2.0 mixes two notations. Use this table to avoid confusion:
 
 > Old POD 1.0 / legacy refs (`sap.dm.dme.pod2`) still appear in API docs because they are the framework's internal name. Your custom code uses your own namespace (e.g. `customer.custom.extension.*`).
 
+### Namespace for upload (REQUIRED)
+
+When uploading an extension to the SAP DM Extension Center you must supply its namespace.
+A common, conflict-safe convention is `custom/pod2/<identifier>`:
+
+| | Value |
+|---|---|
+| **Namespace** | `custom/pod2/<identifier>` |
+| **Module Path** | `custom/pod2/<identifier>/plugins/<pluginname>` |
+| **Type** | `custom.pod2.<identifier>.plugins.<pluginname>` |
+
+The namespace must **not** start with `sap/` or `sap.` (reserved → upload error). It groups
+related plugins, prevents naming conflicts, and enables selective activation/deactivation.
+Note the namespace from `extension.json` `modulePath` before uploading — the Extension
+Center will ask for it.
+
 ---
 
 ## 1. Core Concept
