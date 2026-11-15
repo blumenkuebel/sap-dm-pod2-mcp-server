@@ -178,6 +178,28 @@ Determines how the worklist is grouped/loaded:
 | `UNSCHEDULED_DOWN` | `"UNSCHEDULED_DOWN"` | Unplanned downtime |
 | `UNKNOWN` | `"UNKNOWN"` | Status unknown |
 
+> ⚠️ **MDO Extractor: numeric ERP codes in `RESOURCE.STATUS`.** The POD2 framework enum above
+> uses text values. However, the **MDO Extractor** (`RESOURCE.STATUS`) delivers a *mixed* value
+> space depending on data origin:
+>
+> | MDO value | Meaning | Origin |
+> |-----------|---------|--------|
+> | `"301"` | ENABLED | ERP-migrated resource (dominant in most tenants) |
+> | `"1"` | DISABLED | ERP-migrated resource |
+> | `"5"` | SCHEDULED_DOWN | ERP-migrated resource |
+> | `"ENABLED"` | Enabled | SAP DM native resource |
+> | `"DISABLED"` | Disabled | SAP DM native resource |
+> | `"SCHEDULED_DOWN"` | Planned downtime | SAP DM native resource |
+>
+> When filtering or comparing against `RESOURCE.STATUS` in **MDO queries**, do **not** assume
+> text values only — a filter like `STATUS eq 'ENABLED'` will miss the majority of resources
+> on ERP-migrated tenants where `"301"` is the dominant value. Filter against both:
+> ```js
+> $filter=STATUS eq 'ENABLED' or STATUS eq '301'
+> ```
+> The `ResourceStatus` enum is correct for **POD2 framework-internal comparisons** (Worklist
+> data, PodContext); only MDO Extractor raw queries are affected.
+
 ---
 
 ### RoutingType
@@ -195,6 +217,30 @@ Determines how the worklist is grouped/loaded:
 | `SHOPORDER_SPECIFIC_RECIPE` | `"I"` | Shop order specific recipe |
 | `CONFIGURABLE` | `"G"` | Configurable routing |
 | `SERVICE_ORDER_ROUTING` | `"R"` | Service order routing |
+
+> ⚠️ **MDO Extractor uses Klartext names, not ERP codes.** The single-letter values above
+> (`"U"`, `"H"`, `"D"`, …) are what the **POD2 framework** stores internally and what
+> appears in **Worklist item** `routingType` (e.g. `routingType: "H"`). The **MDO Extractor**
+> (`ROUTING.ROUTING_TYPE`) delivers full text names instead:
+>
+> | MDO `ROUTING_TYPE` value | Corresponding enum key |
+> |--------------------------|------------------------|
+> | `"PRODUCTION"` | `RoutingType.PRODUCTION` (`"U"`) |
+> | `"SHOP_ORDER"` | `RoutingType.SHOP_ORDER` (`"H"`) |
+> | `"DISPOSITION"` | `RoutingType.DISPOSITION` (`"D"`) |
+> | `"SPECIAL"` | `RoutingType.SPECIAL` (`"C"`) |
+> | `"NC"` | `RoutingType.NC` (`"N"`) |
+> | `"PRODUCTION_RECIPE"` | `RoutingType.PRODUCTION_RECIPE` (`"V"`) |
+> | `"SHOPORDER_SPECIFIC_RECIPE"` | `RoutingType.SHOPORDER_SPECIFIC_RECIPE` (`"I"`) |
+>
+> When filtering MDO data use the Klartext names:
+> ```js
+> $filter=ROUTING_TYPE eq 'PRODUCTION'   // MDO query
+> ```
+> When comparing against Worklist item `routingType`, use the single-letter ERP code:
+> ```js
+> item.routingType === RoutingType.SHOP_ORDER  // "H"
+> ```
 
 ---
 
@@ -269,6 +315,27 @@ Determines how the worklist is grouped/loaded:
 | `LINE` | `"LINE"` |
 | `LINE_GROUP` | `"LINE_GROUP"` |
 | `BUILDING` | `"BUILDING"` |
+
+> ⚠️ **MDO Extractor: additional `LEVEL*` values in `WORKCENTER.CATEGORY`.** The enum above
+> lists the POD2 framework-known values. Live MDO data additionally delivers `"LEVEL0"`,
+> `"LEVEL1"`, `"LEVEL2"`, `"LEVEL3"` (ERP work-center hierarchy levels) that are **not**
+> present in the `WorkCenterCategory` enum constants. When filtering or displaying
+> `WORKCENTER.CATEGORY` from MDO queries, account for these extra values:
+>
+> | MDO value | Description |
+> |-----------|-------------|
+> | `"NONE"` | No category (enum: `WorkCenterCategory.NONE`) |
+> | `"CELL"` | Single machine or station (enum: `WorkCenterCategory.CELL`) |
+> | `"CELL_GROUP"` | Group of cells (enum: `WorkCenterCategory.CELL_GROUP`) |
+> | `"LINE"` | Production line (enum: `WorkCenterCategory.LINE`) |
+> | `"LINE_GROUP"` | Group of lines (enum: `WorkCenterCategory.LINE_GROUP`) |
+> | `"BUILDING"` | Building (enum: `WorkCenterCategory.BUILDING`) |
+> | `"LEVEL0"` | ERP hierarchy level 0 — no enum constant |
+> | `"LEVEL1"` | ERP hierarchy level 1 — no enum constant |
+> | `"LEVEL2"` | ERP hierarchy level 2 — no enum constant |
+> | `"LEVEL3"` | ERP hierarchy level 3 — no enum constant |
+>
+> Use a `switch`/`default` or `?.` guard when mapping MDO category values to UI labels.
 
 ---
 

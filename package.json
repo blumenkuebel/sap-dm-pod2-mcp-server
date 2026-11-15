@@ -24,6 +24,7 @@
     "update-ui5-api-specs": "node scripts/update-ui5-api-specs.mjs",
     "check-ui5-api-freshness": "node scripts/check-ui5-api-freshness.mjs",
     "check-doc-links": "node scripts/check-doc-links.mjs",
+    "check-doc-api-refs": "node scripts/check-doc-api-refs.mjs",
     "prepare:specs": "node scripts/extract-jsdoc.cjs && node scripts/generate-mdo-index.cjs && node scripts/update-ui5-api-specs.mjs"
   },
   "dependencies": {

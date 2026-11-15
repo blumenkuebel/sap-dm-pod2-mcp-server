@@ -16,8 +16,8 @@ Static class with cached data shared across widget instances, preventing redunda
 ### Production Example
 
 ```javascript
-import ApiClient from "sap/dm/dme/pod2/ApiClient";
-import PodContext from "sap/dm/dme/pod2/PodContext";
+import ApiClient from "sap/dm/dme/pod2/api/ApiClient";
+import PodContext from "sap/dm/dme/pod2/context/PodContext";
 import MessageBox from "sap/m/MessageBox";
 
 /**

@@ -553,7 +553,7 @@ The widget "works" because the DC data appears \u2014 but there is no DOWNTIME d
 | `SAP_MDO_STANDARD_RATE_V` | `STANDARD_RATE` |
 
 **POD 2.0 target pattern**:
-- For MDO views: `sap/dm/dme/pod2/api/ODataV4Client` \u2014 see `basics.md` \u00a7"OData V4 for Custom Queries" and `mdo-extractor-reference.md`.
+- For MDO views: `sap/dm/dme/pod2/api/odata/ODataV4Client` \u2014 see `basics.md` \u00a7"OData V4 for Custom Queries" and `mdo-extractor-reference.md`.
 - For SAP DM REST APIs: `ApiClient.rest.<service>.<method>` \u2014 see `pod2-public-api-pattern.md`.
 - Never inline URL literals \u2014 go through the API clients.
 

@@ -35,7 +35,7 @@ const { orders } = await r.json();
 ✅ After (import block + method):
 ```js
 sap.ui.define([
-    "sap/dm/dme/pod2/api/ODataV4Client",
+    "sap/dm/dme/pod2/api/odata/ODataV4Client",
     "sap/base/Log"
 ], (ODataV4Client, Log) => {
     async _loadOee(sPlant, sPeriod) {

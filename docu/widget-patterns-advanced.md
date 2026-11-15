@@ -757,7 +757,7 @@ Any widget class from `sap/dm/dme/pod2/widget/...` can serve as a base. Common o
 | Framework Widget | Import Path |
 |---|---|
 | WorkListTableWidget | `sap/dm/dme/pod2/widget/worklist/WorkListTableWidget` |
-| OrderListTableWidget | `sap/dm/dme/pod2/widget/orderlist/OrderListTableWidget` |
+| OrderListTableWidget | `sap/dm/dme/pod2/widget/worklist/OrderListTableWidget` |
 | Any other visible in the standard POD | Check `docu/pod2-api-specs/` for classes under `sap.dm.dme.pod2.widget.*` |
 
 ### Pattern — FilterableWorkListWidget (reference: `examples/Customer.Utils`)
