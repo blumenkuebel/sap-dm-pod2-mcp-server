@@ -462,7 +462,7 @@ Bind a `CustomText` in the header to `/lastRefresh` via a formatter using `sap.u
 For analytics use the MDO Extractor — see `basics.md` §"OData V4 for Custom Queries" and `mdo-extractor-reference.md` for entity coverage. **Never** `fetch()` directly.
 
 ```javascript
-import ODataV4Client from "sap/dm/dme/pod2/api/ODataV4Client";
+import ODataV4Client from "sap/dm/dme/pod2/api/odata/ODataV4Client";
 import PodContext    from "sap/dm/dme/pod2/context/PodContext";
 import ModelPath     from "sap/dm/dme/pod2/context/ModelPath";
 import Log           from "sap/base/Log";

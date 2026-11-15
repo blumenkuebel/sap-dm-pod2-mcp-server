@@ -19,6 +19,8 @@ POD 2.0 provides **8 official data delegates** that manage different aspects of 
 | **WorkInstructionDelegate** | Work instructions and elements | On-demand loading, request ID tracking |
 | **WorkListDelegate** | Work list items (SFC/order-based) | Most complex, multi-type, notifications |
 
+> **Note (api-specs coverage):** Six of the eight delegates above have JSDoc spec files in `pod2-api-specs/` (SAP DM 2608 Apache-2.0 bundle): `ActivityConfirmationDelegate`, `DataCollectionDelegate`, `OperationActivityDelegate`, `QuantityConfirmationDelegate`, `WorkInstructionDelegate`, `WorkListDelegate`. **`GoodsReceiptDelegate`** and **`QualityInspectionDelegate`** are **not** in the bundled specs — they are part of separately distributed optional libraries. The behavioral documentation in this file is derived from source inspection.
+
 ---
 
 ## Core Delegate Pattern

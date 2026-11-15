@@ -1,7 +1,7 @@
 # SAP Digital Manufacturing API Reference
 
-**Version**: 1.1.0  
-**Last Updated**: 2026-08-05  
+**Version**: 1.2.0  
+**Last Updated**: 2026-11-14  
 **API Specs Location**: [sap-dm-api-specs/](sap-dm-api-specs/)
 
 This document provides a comprehensive reference to all SAP Digital Manufacturing REST APIs available for POD extension integration.
@@ -40,10 +40,12 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 | Complete SFC at operation | `sfc` | `POST /sfcs/complete` | `sapdme_sfc.json` |
 | Split / merge / scrap SFC | `sfc` | `POST /sfcs/split \| /merge \| /scrap` | `sapdme_sfc.json` |
 | Serialize / relabel SFC | `sfc` | `POST /sfcs/serialize \| /relabel` | `sapdme_sfc.json` |
+| SFC operations v2 | `sfc_v2` | `/sfc/v2/*` | `sapdme_sfc_v2.json` |
 | Read order details | `order` | `GET /v1/orders` | `sapdme_order.json` |
 | List orders with filters | `order` | `GET /v1/orders/list` | `sapdme_order.json` |
 | Release order for production | `order` | `POST /v1/orders/release` | `sapdme_order.json` |
 | Update order custom values | `order` | `PATCH /v1/orders/customValues` | `sapdme_order.json` |
+| Orders v2 (extended schema) | `order_v2` | `/order/v2/*` | `sapdme_order_v2.json` |
 | Book quantity confirmation (yield/scrap/rework) | `quantityConfirmation` | `POST /quantityConfirmation/v1/...` | `sapdme_quantityConfirmation.json` |
 | Confirm activity (labor) on SFC | `activityConfirmation` | `POST /activity/v1/...` | `sapdme_activityConfirmation.json` |
 | Read operation/activity master data | `operation` / `operationactivity` | `GET /operation/v1/...` | `sapdme_operation.json` |
@@ -64,9 +66,12 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 |----------|---------|-----------|
 | Read / search materials | `material` | `sapdme_material.json` |
 | Manage material groups | `materialgroup` | `sapdme_materialgroup.json` |
-| Manage batches & traceability | `batch` | `sapdme_batch.json` (v2) |
-| Inventory levels and movements | `inventory` | `sapdme_inventory.json` (v2) |
-| Stage materials for operation | `staging` | `sapdme_staging.json` (v2) |
+| Manage batches & traceability | `batch` | `sapdme_batch.json` |
+| Batches v2 (extended schema) | `batch_v2` | `sapdme_batch_v2.json` |
+| Inventory levels and movements | `inventory` | `sapdme_inventory.json` |
+| Inventory v2 | `inventory_v2` | `sapdme_inventory_v2.json` |
+| Stage materials for operation | `staging` | `sapdme_staging.json` |
+| Staging v2 | `staging_v2` | `sapdme_staging_v2.json` |
 | Logistics & movements | `logistics` | `sapdme_logistics.json` |
 | Manage packing units | `packingunit` | `sapdme_packingunit.json` |
 | Track WIP inventory | `wip` | `sapdme_wip.json` |
@@ -79,7 +84,9 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 | Log standalone data collection (non-WIP) | `datacollection` | `POST /standalone/log` | `sapdme_datacollection.json` |
 | Read DC group definitions | `datacollection` | `GET /dataCollectionGroups` | `sapdme_datacollection.json` |
 | Create / update quality inspection | `qualityinspection` | `/qualityinspection/v1/...` | `sapdme_qualityinspection.json` |
+| Quality inspection v2 | `qualityinspection_v2` | `/qualityinspection/v2/...` | `sapdme_qualityinspection_v2.json` |
 | Report nonconformance (defect) | `nonconformance` | `/nonconformance/v1/...` | `sapdme_nonconformance.json` |
+| Nonconformance v2 | `nonconformance_v2` | `/nonconformance/v2/...` | `sapdme_nonconformance_v2.json` |
 | Manage NC codes / groups | `nonconformancecode` / `nonconformancegroup` | — | `sapdme_nonconformancecode.json` |
 | Electronic Batch Records (EBR) | `ebr` | `/ebr/v1/...` | `sapdme_ebr.json` |
 | Classification (characteristics) | `classification` | `/classification/v1/...` | `sapdme_classification.json` |
@@ -89,8 +96,10 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 
 | Use Case | Service | Spec File |
 |----------|---------|-----------|
-| Manage process orders | `processorder` | `sapdme_processorder.json` (v2) |
-| Manage process lots | `processlot` | `sapdme_processlot.json` (v2) |
+| Manage process orders | `processorder` | `sapdme_processorder.json` |
+| Process orders v2 | `processorder_v2` | `sapdme_processorder_v2.json` |
+| Manage process lots | `processlot` | `sapdme_processlot.json` |
+| Process lots v2 | `processlot_v2` | `sapdme_processlot_v2.json` |
 | Define recipes | `recipe` | `sapdme_recipe.json` |
 | Recipe execution order | `reo` | `sapdme_reo.json` |
 | Equipment setpoints | `setpoint_v3` | `sapdme_setpoint_v3.json` |
@@ -103,8 +112,10 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 | Manage plant master data | `plant` | `sapdme_plant.json` |
 | Define resources (machines) | `plant_resource_v2` | `sapdme_plant_resource_v2.json` |
 | Manage work centers | `plant_workcenter_v2` | `sapdme_plant_workcenter_v2.json` |
+| Work centers v3 | `plant_workcenter_v3` | `sapdme_plant_workcenter_v3.json` |
 | Resource types | `resourcetype` | `sapdme_resourcetype.json` |
-| Manage tools | `tool` | `sapdme_tool.json` (v2) |
+| Manage tools | `tool` | `sapdme_tool.json` |
+| Tools v2 | `tool_v2` | `sapdme_tool_v2.json` |
 | Plant certifications | `plant_certification` | `sapdme_plant_certification.json` |
 | Asset models | `asset_model` | `sapdme_asset_model.json` |
 
@@ -125,6 +136,7 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 | Import / export POD configuration | `pod` | `sapdme_pod.json` |
 | Manage Units of Measure | `uom` | `sapdme_uom.json` |
 | Configure number ranges | `numbering` | `sapdme_numbering.json` |
+| Number range identifier config | `numbering_identifier_config` | `sapdme_numbering_identifier_config.json` |
 | Standard rates / values | `standardrate` / `standardvalue` | `sapdme_standardrate.json` |
 | Mark "last" indicator on items | `lastindicator` | `sapdme_lastindicator.json` |
 
@@ -134,6 +146,8 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 |----------|---------|-----------|
 | Attach documents (files) to entities | `document_v2` | `sapfnd_document_v2.json` |
 | Work instructions on operations | `workinstruction` | `sapdme_workinstruction.json` |
+| Work instructions v2 | `workinstruction_v2` | `sapdme_workinstruction_v2.json` |
+| Work instruction file management | `workinstruction_file` | `sapdme_workinstruction_file.json` |
 | Print labels / documents | `print` | `sapfnd_print.json` |
 | Manage printers | `printer` | `sapfnd_printer.json` |
 | Send / receive integration messages | `integrationMessage` | `sapdme_integrationMessage.json` |
@@ -153,7 +167,7 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 | Use Case | Service | Spec File |
 |----------|---------|-----------|
 | OEE metrics & reason codes | `oee` | `sapdme_oee.json` |
-| OEE analytics (KPIs, availability, downtime) | `oee_analytics` (Swagger 2.0) | `sapdmi_vishleshki.json` |
+| OEE analytics (KPIs, availability, downtime) | `sapdmi_vishleshki` (Swagger 2.0) | `sapdmi_vishleshki.json` |
 
 ### Analytics & Reporting (read-only)
 
@@ -168,20 +182,20 @@ Quick lookup: **"I need to do X — which API/service?"**. Use this table to jum
 
 ## Overview
 
-SAP Digital Manufacturing provides 77+ REST APIs covering all aspects of manufacturing execution. These APIs use OAuth 2.0 authentication and follow consistent patterns for requests and responses.
+SAP Digital Manufacturing provides 79 REST APIs covering all aspects of manufacturing execution. These APIs use OAuth 2.0 authentication and follow consistent patterns for requests and responses.
 
 ### API Categories
 
 | Category | Count | Examples |
 |----------|-------|----------|
-| Production Execution | 15 | SFC, Orders, Operations, Assembly, Activity/Quantity Confirmation |
-| Material Management | 12 | Materials, BOMs, Routings, Batches, Inventory, Staging |
-| Quality & Data Collection | 8 | Data Collection, Quality Inspection, Nonconformance, EBR |
-| Process Manufacturing | 6 | Process Orders, Process Lots, Recipes, Setpoints |
-| Configuration | 17 | Resources, Work Centers, Tools, Shifts, Users, POD, Alerts, Labor |
-| Integration | 14 | Documents, Printing, Work Instructions, Notifications, Signatures |
+| Production Execution | 17 | SFC, SFC v2, Orders, Orders v2, Operations, Assembly, Activity/Quantity Confirmation, Production v2 |
+| Material Management | 15 | Materials, BOMs, Routings, Batches v1+v2, Inventory v1+v2, Staging v1+v2, Logistics |
+| Quality & Data Collection | 10 | Data Collection, Quality Inspection v1+v2, Nonconformance v1+v2, EBR, Classification |
+| Process Manufacturing | 8 | Process Orders v1+v2, Process Lots v1+v2, Recipes, Setpoints, REO |
+| Configuration | 20 | Resources, Work Centers v2+v3, Tools v1+v2, Shifts, Users, POD, Alerts, Labor, Numbering |
+| Integration | 17 | Documents v2, Printing, Work Instructions v1+v2+file, Notifications, Signatures, Integration Messages |
 | Issue Resolution | 2 | Issues, Problem-Solving Processes (8D) |
-| OEE Analytics | 1 | OEE Analytics (KPIs, availability, quality, performance) |
+| OEE Analytics | 2 | OEE metrics, OEE analytics (`sapdmi_vishleshki`) |
 
 ---
 
@@ -720,7 +734,7 @@ Response:
 
 ## API Spec Files Reference
 
-All 77 API specification files are available in [sap-dm-api-specs/](sap-dm-api-specs/):
+All 79 API specification files are available in [sap-dm-api-specs/](sap-dm-api-specs/):
 
 | Category | Files |
 |----------|-------|
