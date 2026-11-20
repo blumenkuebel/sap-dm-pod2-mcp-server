@@ -1456,4 +1456,94 @@ Auto-fixable: **NO** — the resolution is either escalate to a larger standard 
 
 ---
 
+## Mistake #77: Hand-built DOM UI (`document.createElement` overlay, inline `style`, custom dialogs) instead of standard SAPUI5 controls ❌ → ✅
+
+### Symptom
+
+The widget builds user interface out of raw DOM instead of UI5 controls: `document.createElement("div")`
+with `el.style.cssText = "position:fixed;..."` to draw a full-page blocking cover, a hand-rolled modal
+panel with `appendChild`, hard-coded colors (`#fff`, `rgba(...)`), and `document.addEventListener` to trap
+keyboard input. This is the §0 Prime Directive violation at the DOM level — not "custom control instead of
+standard control", but "no control at all".
+
+### Why it's wrong
+
+The POD/Fiori runtime owns the DOM. Hand-built elements:
+
+- ignore the Fiori theme (colors, spacing, dark mode, high-contrast) — they are hard-coded and will not
+  re-theme, failing accessibility and visual-consistency requirements;
+- live outside the UI5 control tree, so they are not cleaned up by the framework and leak if the matching
+  `removeChild`/`removeEventListener` is ever missed (and they bypass `onExit` teardown guarantees);
+- break POD Designer preview and CSP (inline styles / injected nodes);
+- reinvent, worse, exactly what standard controls already provide.
+
+Every case in this specimen has a standard control:
+
+| Hand-built DOM | Standard SAPUI5 replacement |
+|---|---|
+| Full-page "please wait" cover (`createElement` + `cssText` + z-index) | `sap.m.BusyDialog`, or `sap.ui.core.BusyIndicator.show(0)` (global), or `oView.setBusy(true)` with `setBusyIndicatorDelay(0)` |
+| Hand-rolled modal panel + buttons | `sap.m.Dialog` / `sap.m.MessageBox` (`confirm`/`warning`/`error`) |
+| `document.addEventListener("keydown", …)` to block input | the busy overlay already blocks interaction — remove the manual key-trap |
+| Inline `style`/`cssText`, hard-coded colors | control properties + Fiori utility classes (`sapUiMediumMargin`, …); semantic state via `ObjectStatus state=` / `IconColor` |
+
+This is the DOM-level sibling of **M60** (custom control where a standard exists) and **M61** (extension CSS
+surface / inline style / hard-coded colors). Treat it with the same severity.
+
+<!-- doc-consistency-off -->
+### ❌ Wrong
+
+```js
+_lock() {
+    const cover = document.createElement("div");                       // ✗ raw DOM UI
+    cover.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000000;" +
+        "background:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;";
+    const panel = document.createElement("div");
+    panel.style.cssText = "background:#fff;border:1px solid #bbb;border-radius:8px;...";  // ✗ hard-coded colors
+    cover.appendChild(panel);
+    document.addEventListener("keydown", this._blockKeys, true);       // ✗ manual key trap
+    document.body.appendChild(cover);
+}
+```
+<!-- doc-consistency-on -->
+
+### ✅ Correct
+
+```js
+import BusyDialog from "sap/m/BusyDialog";
+// ✓ Standard control: themed, accessible, modal, framework-managed
+_lock(sText) {
+    if (!this._oBusy) { this._oBusy = new BusyDialog({ text: sText }); }
+    this._oBusy.setText(sText);
+    this._oBusy.open();                 // blocks interaction for free — no manual key trap
+}
+_unlock() { if (this._oBusy) { this._oBusy.close(); } }
+onExit() { if (this._oBusy) { this._oBusy.destroy(); } super.onExit(); }
+```
+
+For a confirmation or result message, use `sap.m.MessageBox.confirm/warning/error` (already SAP-managed,
+auto-destroyed) rather than a hand-built panel.
+
+### Rule of thumb
+
+- No `document.createElement`, `appendChild`, `innerHTML`, `.style.cssText`, or `document.addEventListener`
+  to build UI in a POD2 widget — walk the §0 ladder to a standard control.
+- Blocking/waiting → `BusyDialog` / `BusyIndicator` / `oView.setBusy`. Dialogs/messages → `Dialog` / `MessageBox`.
+- An intentional, spec-justified exception (e.g. rendering a trusted external HTML snippet no control can
+  show) requires the explicit `// standard-only: exception — <reason>` marker (see M61) — `validate: info-only` does **not** downgrade it.
+
+### Detection pattern (validation)
+
+- `grep -rnE 'document\.createElement|\.appendChild\(|\.innerHTML\s*=|\.style\.cssText|\.style\.[a-zA-Z]+\s*=|document\.addEventListener\(' widget/ action/ context/ util/ plugin/` — raw DOM UI construction.
+- `grep -rnE '#[0-9a-fA-F]{3,6}\b|rgba?\(' widget/*.js plugin/*.js` — hard-coded colors in JS (M61 overlap).
+- Hard finding (Error), same class as M60/M61. Only the `standard-only: exception — <reason>` marker downgrades it.
+
+### Related
+
+- **M60** — custom control class where a standard exists (control-level sibling).
+- **M61** — extension CSS surface / inline style / hard-coded colors (styling-level sibling + the exception marker).
+- §0 Prime Directive (`basics.md`) — standard controls before custom.
+- `dialog-patterns.md` — `Dialog`/`MessageBox` patterns; M33 — the two allowed busy-indicator patterns.
+
+---
+
 ---

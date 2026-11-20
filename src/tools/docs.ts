@@ -31,15 +31,15 @@ export function registerDocsTools(server: FastMCP): void {
         "common-mistakes-setup.md":
           "Setup & file generation mistakes: namespace, extension.json structure, flat layout, zip packaging (#0, #1, #1B, #2, #15, #16)",
         "common-mistakes-lifecycle.md":
-          "Lifecycle & memory mistakes: onExit/unsubscribe, dialog destruction, model init order, BusyIndicator, i18nCustomModel, wrong base class, ComponentWidget bootstrap trap (#3-#5, #19, #33, #35, #39, #50)",
+          "Lifecycle & memory mistakes: onExit/unsubscribe, dialog destruction, model init order, BusyIndicator, i18nCustomModel, wrong base class, ComponentWidget bootstrap trap, side effects/timers in _createView, timeout/polling vs awaited signals, discovering/mutating/driving another widget's controls, non-private instance state (#3-#5, #19, #33, #35, #39, #50, #75, #76, #79, #80, #81, #84)",
         "common-mistakes-imports.md":
-          "Imports & dependencies mistakes: PodContext path, PlacementType, ModelPath constants, third-party libs, deprecated SAPUI5 enum imports, non-existent module paths (#6-#9, #11, #36-#38, #41, #57)",
+          "Imports & dependencies mistakes: PodContext path, PlacementType, ModelPath constants, third-party libs, deprecated SAPUI5 enum imports, non-existent module paths, monkey-patching global XHR/fetch/firePress (#6-#9, #11, #36-#38, #41, #57, #78)",
         "common-mistakes-ui.md":
-          "UI & bindings mistakes: binding syntax in WidgetProperty metadata, styleClass, expression binding, view ID, multi-part binding null checks (#10, #12-#13, #17, #20, #28, #31, #42, #43, #52-#56, #58-#63)",
+          "UI & bindings mistakes: binding syntax in WidgetProperty metadata, styleClass, expression binding, view ID, multi-part binding null checks, custom-control/DOM-UI vs standard controls (#10, #12-#13, #17, #20, #28, #31, #42, #43, #52-#56, #58-#63, #77)",
         "common-mistakes-config.md":
           "Configuration & properties mistakes: PropertyEditor defaults, callback parameter order, property exclusion, CustomPanel vs sap.m.Panel, widget metadata i18n keys (#14, #18, #21-#22, #25-#26, #32)",
         "common-mistakes-data.md":
-          "Data, state & TableWidget mistakes: column/cell index mismatch, GrowingJSONModel paging, selection sync with PodContext, SFC status types (#23-#24, #27, #29, #34, #51)",
+          "Data, state & TableWidget mistakes: column/cell index mismatch, GrowingJSONModel paging, selection sync with PodContext, SFC status types, internal-vs-public API, manual fetch/XHR vs API clients, context from model path vs PodContext (#23-#24, #27, #29, #34, #51, #72, #73, #74)",
         "common-mistakes-i18n.md":
           "Internationalization mistakes: German SFC→PSN translation, widget metadata i18n key naming (#30)",
         "migration-suspect-list.md":
