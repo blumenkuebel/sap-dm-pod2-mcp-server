@@ -10,10 +10,12 @@ Quick reference guide to POD extension development pitfalls organized by categor
 >
 > **Scope: EVERY POD 2 UI decision** — greenfield widgets, actions with dialogs, form-based CRUD, table decorations, filter bars, POD Designer property editors, and every migration. Not just dashboards; not just HTML5 refactors.
 >
-> **M60, M61, Cat 29, and M70 are all specialisations of this one rule** — each covers a specific way the ladder gets skipped. Load `basics.md` §0 first when the extension's UI shape is under discussion; treat those mistakes as concrete detections of the same underlying bias.
+> **M60, M61, M70, M77, and Cat 29 are all specialisations of this one rule** — each covers a specific way the ladder gets skipped (custom control, extension CSS, standard-control information loss, hand-built DOM UI, custom composite). Load `basics.md` §0 first when the extension's UI shape is under discussion; treat those mistakes as concrete detections of the same underlying bias.
 
 ---
 
+**Latest Update (2026-11-20 · M73–M81, M84 + Architectural Conformance Gate)**: `validate_project` extended to catch extensions that **function** but violate the POD framework at the architecture level — the "interceptor / rogue-automation" class that surface checks (i18n, class name, `onInit`, imports) miss. Two clusters of new hard-Error mistakes: **self-level abuse** — M73 manual `fetch`/`XMLHttpRequest` vs the API clients, M74 shared context read from a model path vs `PodContext`, M75 control lookup/timers in `_createView()` vs `onInit()`, M76 fixed timeouts/polling vs awaited signals, M77 hand-built DOM UI vs standard controls, M78 monkey-patching global `XMLHttpRequest`/`fetch`/`firePress`; and **foreign-widget abuse** — M79 discovering, M80 mutating, M81 firing synthetic events at *another widget's* controls. A new **Phase 3d Architectural Conformance Gate** fails when ≥3 distinct of M73–M81 fire, forcing a `❌ NOT CONFORMANT` verdict. Plus M84 (mutable instance state on `this._x` vs private `#` fields, ⚠️ Warning, outside the gate) and a strengthened systemic-i18n sweep (hardcoded user-facing strings + unused bundle keys + <4 locale bundles escalate to an Error-grade finding). All detection greps + before→after fixes live in the category files; `validate-project-instructions.md` Phases 3/3c/3d/4d/5 wire them in.
+- **M73/M74** — `common-mistakes-data.md`. **M75/M76/M79/M80/M81/M84** — `common-mistakes-lifecycle.md`. **M77** — `common-mistakes-ui.md`. **M78** — `common-mistakes-imports.md`.
 **Latest Update (2026-07-24 · M72 Public-API-First guardrail)**: Guardrail against blurring the two "internals". Extension source must use the **public** SAP DM REST APIs (`RestClient` + `ApiPaths`, `*PublicApiClient`); **internal / app-router** endpoints (execution host `*.execution.*.web.dmc.cloud.sap`, `~GUID~` paths, `dmi/cdt` / `dim/destinations`) — the surface `sap-dm-api-mcp-server.call_internal_api` queries for agent-side discovery — must NOT be hard-wired into an extension without explicit user confirmation, and only after no public API fits. `ApiClient.internal.processengine.start(...)` is a documented framework API and stays allowed (it is NOT what the rule restricts). Also reflected in `get_pod2_guidelines` §Public-API-First and `usage/CLAUDE.md` Critical Rule #11.
 - **M72** — Hard-wiring an internal/app-router API into extension source instead of the public REST API. Detection grep in Phase 3 (below) and `common-mistakes-data.md`.
 **Previous Update (2026-07-17 · M71 notification-subscribe & Logger API-shape traps)**: Field report from real extension development against the runtime caught two silent API-shape bugs plus doc drift. `PodNotificationWebSocket.subscribe()` takes an options object with `onMessage` (NOT `callback`/`listener`) — a mis-keyed handler compiles but never fires; there is no static `PodNotificationWebSocket.unsubscribe({...})` (keep the returned `SubscriptionContext` and call `.unsubscribe()`). `sap.dm.dme.pod2.Logger` has `warn()`, not `warning()` — `oLog.warning(...)` throws `TypeError` at runtime (distinct from `MessageBox.warning`, which is correct). The `EventType` table in `pod2-public-api-pattern.md` is now marked non-authoritative (runtime enum is the source of truth; suffixes drift, e.g. `SFC_START` → `Sfc.Started.v3`); build pickers from `Object.keys(EventType)`. Custom events use `EventType.CUSTOM` + payload `Filter`, not a hand-invented event type. Also documented `PodRuntime.getDialogIds()` and clarified `getWidgetReferenceProperties()` is Action-only.
@@ -63,6 +65,8 @@ When the validator (`validate_project` tool/prompt) finds such a deviation, it s
 | `// validate: accepted-deviation — <reason>` | Same as `info-only`, plus the reason text appears verbatim as a "Notes" field in the report. |
 
 The reason text after the em-dash is optional but **strongly encouraged** — it documents the *why* for future readers (humans and AI agents).
+
+> These markers are **proprietary to this validator** — the `validate: …` family and `standard-only: exception` are specific to `pod2-mcp-server`, not a recognized ESLint / `@ui5/linter` directive. The comment *shape* borrows from them intentionally, but the verbs and severity semantics are bespoke; ESLint/ui5-linter disable comments are not honored here. See `validate-project-instructions.md` Phase 3c (Rule 1) for the authoritative note.
 
 ### When to use which marker
 
@@ -131,10 +135,21 @@ Some checks are about **broken** code, not preferences. They cannot be silenced 
 - M64 — `MessageStrip.link` aggregation type-check (only accepts `sap.m.Link`)
 - M65 — `_createView(oConfig)` — `oConfig` is undefined at runtime; use `this.getConfig()`
 - M70 — silent information loss via standard-control bias (missing `## Composite:` mapping block or missing `## Field-coverage report` in verification)
+- M73 — manual `fetch`/`XMLHttpRequest` to SAP DM endpoints (bypasses POD auth/version/proxy — fragile across tenants/releases)
+- M74 — shared context read from a model path instead of `PodContext` (reads another widget's internal model structure; empty/stale/wrong off the happy path)
+- M75 — control lookup / timers / event wiring from `_createView()` (lifecycle contract break — runs before `onInit`, no symmetric teardown)
+- M76 — fixed timeouts / polling to coordinate async (flaky-or-slow by construction where an awaitable signal exists)
+- M77 — hand-built DOM UI instead of standard controls (same class as M60/M61 — downgradable ONLY by `standard-only: exception — <reason>`, NOT by `info-only`)
+- M78 — monkey-patching global `XMLHttpRequest`/`fetch`/`firePress` (mutates browser-wide state; corrupts other consumers; couples to standard internals)
+- M79 — discovering another widget's controls (global registry / foreign generated IDs / identity-by-localized-text / private internals)
+- M80 — mutating another widget's controls/state (`setVisible`/`setEnabled`/`setSelected`/`setValue`, force-enable, `data()`-tagging foreign controls)
+- M81 — firing synthetic events / simulated DOM clicks at another widget's controls (`fire*`, `getDomRef().click()`)
 - Cat 29 — custom composite where a standard SAPUI5 control exists (S1-S7)
 - API version Errors when the used version no longer exists in `list_rest_apis`
 
 For everything else, the markers and heuristic apply. See the validator's `Phase 3c — User Customizations & Severity Mapping` section in `docu/validate-project-instructions.md` for the full rules.
+
+> **Marker scope reminder.** For the Rule-3 findings above, only `// validate: ignore — <reason>` (user knowingly accepts the risk) — or, for the control/CSS-family M60/M61/M43/M77/Cat 29, the dedicated `// standard-only: exception — <reason>` marker — removes the finding. `// validate: info-only` and `// validate: accepted-deviation` do **NOT** downgrade them. In particular, for the Architectural Conformance rules **M73–M81**, `accepted-deviation` does not apply; a per-mistake `validate: ignore` is the only honored suppression (and it also drops that mistake from the Phase 3d gate count — see `validate-project-instructions.md` Phase 3d).
 
 ---
 
@@ -163,19 +178,19 @@ The following patterns are sometimes flagged by overly strict comparison against
 > Namespace, extension.json structure, flat file layout, zip packaging (#0, #1, #1B, #2, #15, #16)
 
 **💾 Lifecycle & Memory** ([`common-mistakes-lifecycle.md`](common-mistakes-lifecycle.md))
-> onExit/unsubscribe, dialog destruction, model init order, BusyIndicator, i18nCustomModel, wrong base class, ComponentWidget bootstrap trap, _createView() no-args, _createView() runs before onInit() (#3-#5, #19, #33, #35, #39, #50, #65, #66)
+> onExit/unsubscribe, dialog destruction, model init order, BusyIndicator, i18nCustomModel, wrong base class, ComponentWidget bootstrap trap, _createView() no-args, _createView() runs before onInit(), side effects/timers in _createView, timeout/polling vs awaited signals, discovering/mutating/driving another widget's controls, non-private instance state (#3-#5, #19, #33, #35, #39, #50, #65, #66, #75, #76, #79, #80, #81, #84)
 
 **📦 Imports & Dependencies** ([`common-mistakes-imports.md`](common-mistakes-imports.md))
-> PodContext import path, PlacementType, ModelPath constants, third-party libs, deprecated SAPUI5 enum imports, non-existent module paths, sap.f.Header namespace trap, notification-subscribe `onMessage` key & `Logger.warn()` (#6-#9, #11, #36-#38, #41, #57, #71)
+> PodContext import path, PlacementType, ModelPath constants, third-party libs, deprecated SAPUI5 enum imports, non-existent module paths, sap.f.Header namespace trap, notification-subscribe `onMessage` key & `Logger.warn()`, monkey-patching global XHR/fetch/firePress (#6-#9, #11, #36-#38, #41, #57, #71, #78)
 
 **🎨 UI & Bindings** ([`common-mistakes-ui.md`](common-mistakes-ui.md))
-> styleClass (`class` vs `addStyleClass`), expression binding, view ID, multi-part binding null checks, control IDs, custom control renderer, numeric property type mismatch, XML aggregation phantom 404, microchart color enum nuances, EmphasizedPoint vs Point, list-binding template conflict, FlexAlignItems value naming, viewport-shell root controls, redundant widget-owned shell, custom-control-as-template, Fiori-token CSS reproduction, pre-formatted-string view model, microchart-shape popover, MessageStrip.link aggregates Link, information loss via standard-control bias, M60/M61/M70 umbrellas (#10, #12-#13, #17, #20, #28, #31, #42, #43, #52-#56, #58, #59, #60-#64, #70)
+> styleClass (`class` vs `addStyleClass`), expression binding, view ID, multi-part binding null checks, control IDs, custom control renderer, numeric property type mismatch, XML aggregation phantom 404, microchart color enum nuances, EmphasizedPoint vs Point, list-binding template conflict, FlexAlignItems value naming, viewport-shell root controls, redundant widget-owned shell, custom-control-as-template, Fiori-token CSS reproduction, pre-formatted-string view model, microchart-shape popover, MessageStrip.link aggregates Link, information loss via standard-control bias, hand-built DOM UI vs standard controls, M60/M61/M70 umbrellas (#10, #12-#13, #17, #20, #28, #31, #42, #43, #52-#56, #58, #59, #60-#64, #70, #77)
 
 **⚙️ Configuration & Properties** ([`common-mistakes-config.md`](common-mistakes-config.md))
 > PropertyEditor defaults, callback parameter order, property exclusion, CustomPanel vs sap.m.Panel, widget metadata i18n keys, PodContext onExit unsubscribe deep-dive (#14 — canonical lifecycle rule; #1 is a summary stub), GrowingJSONModel paging (#18) (#14, #18, #21-#22, #25-#26, #32)
 
 **🔄 Data, State & TableWidget** ([`common-mistakes-data.md`](common-mistakes-data.md))
-> Column/cell index mismatch, GrowingJSONModel paging, selection sync with PodContext, SFC status types, locale-aware number parsing, ModelPath.Plant callback receives an object, internal/app-router API hard-wired into extension source (#23-#24, #27, #29, #34, #51, #72)
+> Column/cell index mismatch, GrowingJSONModel paging, selection sync with PodContext, SFC status types, locale-aware number parsing, ModelPath.Plant callback receives an object, internal/app-router API hard-wired into extension source, manual fetch/XHR vs API clients, shared context from model path vs PodContext (#23-#24, #27, #29, #34, #51, #72, #73, #74)
 
 **🌍 Internationalization** ([`common-mistakes-i18n.md`](common-mistakes-i18n.md))
 > German SFC→PSN translation, MessageFormat escaping (braces/quotes) (#30, #40)

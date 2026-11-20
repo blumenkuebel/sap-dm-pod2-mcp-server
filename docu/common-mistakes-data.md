@@ -662,4 +662,144 @@ If — and only if — no public API can satisfy the requirement:
 
 ---
 
+## Mistake #73: Manual `fetch()` / `XMLHttpRequest` to build SAP DM requests instead of the built-in API clients ❌ → ✅
+
+### Symptom
+
+The extension constructs HTTP requests by hand — `window.fetch(sUrl, { headers })`, `new XMLHttpRequest()`, `$.ajax`, `axios` — to reach a SAP DM / OData endpoint, assembling the URL, auth headers, and query string itself. It "works" in the browser the developer tested in, then fails in another tenant, after a release, or when the gateway path or auth scheme changes.
+
+### Why it's wrong
+
+POD ships typed, authenticated clients that own the host, the gateway prefix, the CSRF/bearer handling, and the correct API version:
+
+- **`RestClient` + `ApiPaths`** for SAP DM public REST APIs.
+- **`ApiClient.<ns>.<method>`** (the typed `*PublicApiClient`s) for the documented business operations.
+- **`ODataV4Client`** (and legacy `ODataV2Client`) for MDO / OData reads.
+
+Hand-rolled `fetch`/XHR bypasses every one of those guarantees. The request carries whatever headers the developer happened to copy, points at a URL that is not a stable contract, and has no version pinning — so it is fragile across tenants and releases, and it silently breaks when SAP changes the endpoint. It is also un-mockable in the normal POD test harness.
+
+> **Distinct from HTML5-FETCH (migration residue):** the `§1c HTML5 Residue` **HTML5-FETCH** check flags `fetch`/XHR specifically as *migration residue* left by a `sourceFormat: "html5"` conversion. **M73 is the general rule** — it applies to any extension, migrated or hand-written. When both apply, report M73 as the Error and cross-reference HTML5-FETCH; do not write the fix twice (single source of truth).
+
+> **Distinct from M78:** M73 is about *issuing* your own request. **M78** is about *monkey-patching global `XMLHttpRequest.prototype` / `window.fetch`* to observe or infer the status of **someone else's** request. A widget can trip both.
+
+<!-- doc-consistency-off -->
+### ❌ Wrong
+
+```js
+// ✗ Hand-built request: URL, headers, auth all guessed; no version, no POD proxy
+const sUrl = sObservedBase + "?$filter=" + encodeURIComponent("ncCode eq '" + sCode + "'");
+const oResponse = await window.fetch(sUrl, { method: "GET", credentials: "same-origin", headers });
+if (!oResponse.ok) { throw new Error("HTTP " + oResponse.status); }
+const oJson = await oResponse.json();
+```
+<!-- doc-consistency-on -->
+
+### ✅ Correct
+
+```js
+import ODataV4Client from "sap/dm/dme/pod2/api/odata/ODataV4Client";
+// ✓ Typed client owns host + auth + version; you pass only the query intent
+const oClient = new ODataV4Client(/* service path from ApiPaths, not a copied URL */);
+const aRows = await oClient.read("/NonConformanceCodes", {
+    $filter: "ncCode eq '" + sCode + "'",
+    $expand: "ncCodeDef($expand=ncDispositionRoutings($select=ref,routing))"
+});
+```
+
+For SAP DM public REST, use `RestClient` + `ApiPaths` (see M72 ✅ block and `pod2-public-api-pattern.md`). For documented business calls, use the typed `ApiClient.<ns>.<method>`.
+
+### Rule of thumb
+
+- Never type `fetch(`, `new XMLHttpRequest`, `$.ajax`, or `axios` in extension source to reach a SAP DM / OData endpoint.
+- Pick the client by target: OData/MDO → `ODataV4Client`; public REST → `RestClient` + `ApiPaths`; documented operation → `ApiClient.<ns>`.
+- A URL you copied from the browser Network tab or observed at runtime is **not** an API contract — resolve it through `ApiPaths`, or you have M72 as well.
+
+### Detection pattern (validation)
+
+- `grep -rnE '\bfetch\s*\(|new\s+XMLHttpRequest|XMLHttpRequest\s*\(|\$\.ajax|axios\.(get|post|put|delete|request)' widget/ action/ context/ util/ plugin/` (or scan all `*.js` — some extensions use a non-standard folder such as `plugin/`). Exclude the legitimate client layer (`ODataV4Client`, `ODataV2Client`, `RestClient`, `ApiClient`).
+- Hard finding (Error). A `fetch`/XHR whose URL is derived from an observed request also trips **M72** (internal/undocumented surface) — report both.
+
+### Related
+
+- M72 — hard-wiring an internal / app-router URL (the URL-source half of the same problem).
+- M78 — patching global XHR/fetch to infer status (the observation half).
+- `pod2-public-api-pattern.md` — `RestClient` + `ApiPaths`; `mdo-extractor-reference.md` — `ODataV4Client`.
+- `§1c HTML5 Residue` **HTML5-FETCH** — the migration-residue sibling check.
+
+---
+
+## Mistake #74: Reading shared context (plant / SFC / order / work center) from a model path instead of `PodContext` ❌ → ✅
+
+### Symptom
+
+To learn the current SFC, plant, order, work center, or selection, the widget reaches into a UI5 model with `oModel.getProperty("/workList/lastSelected/sfc")` — often through a private helper like `_podContext()` that wraps a handful of `getProperty("/...")` reads — instead of calling the `PodContext` getters. Frequently the model it reads is **another widget's** model (grabbed via `someControl.getModel()`), so the data is only present when that other widget happens to be on the page and loaded.
+
+### Why it's wrong
+
+`PodContext` (`sap/dm/dme/pod2/context/PodContext`) is the **authoritative, documented** shared-state API. Its getters (`getPlant()`, `getLastSelectedWorkListItem()`, `getSelectedWorkListItems()`, `getUserId()`, `get(ModelPath.X)`, …) return a stable contract and are backed by `subscribe` / `getWhenAvailable` for change notification and first-value timing.
+
+The raw model paths under `/workList/...`, `/plant/...`, `/filter/...` are **internal model structure**, not an API: the path layout can change between releases, and the model only exists while the owning widget is alive. A widget that scrapes those paths:
+
+- reads `"-"`/empty when the owning widget is not (yet) on the page,
+- silently returns stale or wrong data when the path moves,
+- cannot react to changes except by polling (see M76), because it never subscribed.
+
+This is the trap that makes a §5 "ModelPath / PodContext" audit read "✅ No findings" for a widget that is in fact **avoiding PodContext entirely** — absence of `ModelPath.X` is not conformance.
+
+<!-- doc-consistency-off -->
+### ❌ Wrong
+
+```js
+// ✗ Scraping another widget's model by internal path — no contract, no notifications
+_podContext() {
+    const oModel = someStandardControl.getModel();          // present only if that widget is loaded
+    const get = (p) => { try { return oModel.getProperty(p); } catch (e) { return ""; } };
+    return {
+        sfc:        get("/workList/lastSelected/sfc")        || "-",
+        workCenter: get("/workList/lastSelected/workCenter") || "-",
+        plant:      get("/plant/plant")                      || "-"
+    };
+}
+```
+<!-- doc-consistency-on -->
+
+### ✅ Correct
+
+```js
+import PodContext from "sap/dm/dme/pod2/context/PodContext";
+import ModelPath from "sap/dm/dme/pod2/context/ModelPath";
+
+const sPlant = PodContext.getPlant();
+const oItem  = PodContext.getLastSelectedWorkListItem();     // typed BaseWorkListItem | null
+const sSfc   = oItem && oItem.sfc;
+const aSel   = PodContext.getSelectedWorkListItems();
+
+// React to changes instead of re-reading / polling (callback is (newValue, path)):
+PodContext.subscribe(ModelPath.SelectedWorkListItems, this._onSelectionChanged, this);
+// ...and PodContext.unsubscribe(...) / unsubscribeAll(this) in onExit().
+```
+
+### Rule of thumb
+
+- Shared context comes from **`PodContext` getters**, never from `getProperty("/workList/...")`, `"/plant/..."`, `"/filter/..."`.
+- Need to know *when* it changes? `PodContext.subscribe` / `getWhenAvailable` — do not poll a model (M76).
+- `someControl.getModel().getProperty(...)` to borrow another widget's state is a coupling bug, not a data source.
+
+### Detection pattern (validation)
+
+- `grep -rnE '["'"'"']/(workList|plant|filter|execution|selected)[/A-Za-z]' widget/ action/ context/ util/ plugin/` — a core-context model path as a **string literal**, regardless of which function consumes it (`getProperty("/workList/…")` directly, or a `get("/workList/…")` / `resolveBinding("/plant/…")` wrapper). Pair with `grep -rnE 'getProperty\(|\.getModel\(\)' <scan-set>` to confirm it is a model read.
+- A private helper (e.g. `_podContext()`, `_getContext()`) that returns `{ sfc, plant, order, workCenter, … }` assembled from those path reads — hard finding even if each read is wrapped in try/catch, and even if the paths are passed through a local `get`/`read` alias.
+- `someControl.getModel().getProperty(...)` to borrow another widget's state is a coupling bug, not a data source.
+- Pair with the §5 audit: if the extension uses shared context (SFC/plant/order) at all but has **zero** `PodContext.*` calls, that is M74 by itself — not a vacuous pass.
+- Hard finding (Error).
+
+### Related
+
+- `get_api_doc({ name: "PodContext" })` — the full getter/setter/subscribe surface.
+- M51 — `ModelPath.Plant` (not `SelectedPlant`); callback receives a Plant **object**.
+- M76 — once you have `subscribe` you no longer need the polling timers.
+- `subscribe-patterns.md` — subscribe/unsubscribe lifecycle and callback `(newValue, path)` order.
+
+---
+
 ---

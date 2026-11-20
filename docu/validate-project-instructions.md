@@ -35,11 +35,11 @@ Call these MCP tools in order:
 1. `get_pod2_guidelines` — load the canonical rules
 2. Load common mistakes by category (load all 7 — each is 100-1400 lines, much cheaper than the old monolith). **Load the full file for each category — the range hints below are a rough guide, not an exhaustive inventory; new mistakes are added continuously up to #70 (with intentional gaps).**
    - `get_pattern_doc({ name: "common-mistakes-setup" })` — Setup / extension.json / namespace (#0, #1, #1B, #2, #15, #16, …)
-   - `get_pattern_doc({ name: "common-mistakes-lifecycle" })` — Lifecycle / subscribe / dialogs / base classes / `_createView` (#3–#5, #14, #19, #33, #35, #39, #50, #65, #66, …)
-   - `get_pattern_doc({ name: "common-mistakes-imports" })` — Imports / module paths / defensive coding (#6–#9, #11, #36–#38, #41, #57, …)
-   - `get_pattern_doc({ name: "common-mistakes-ui" })` — UI / bindings / control choice / M60/M61/M70 umbrellas (#10, #12–#13, #17, #20, #28, #31, #42–#43, #52–#64, #70, …)
+   - `get_pattern_doc({ name: "common-mistakes-lifecycle" })` — Lifecycle / subscribe / dialogs / base classes / `_createView` (#3–#5, #14, #19, #33, #35, #39, #50, #65, #66, #75, #76, …)
+   - `get_pattern_doc({ name: "common-mistakes-imports" })` — Imports / module paths / defensive coding / global-patching (#6–#9, #11, #36–#38, #41, #57, #71, #78, …)
+   - `get_pattern_doc({ name: "common-mistakes-ui" })` — UI / bindings / control choice / M60/M61/M70 umbrellas / DOM-UI (#10, #12–#13, #17, #20, #28, #31, #42–#43, #52–#64, #70, #77, …)
    - `get_pattern_doc({ name: "common-mistakes-config" })` — Configuration / properties / i18n metadata (#18, #21–#22, #25–#26, #32, …)
-   - `get_pattern_doc({ name: "common-mistakes-data" })` — Data / OData / models (#23–#24, #27, #29, #34, #51, …)
+   - `get_pattern_doc({ name: "common-mistakes-data" })` — Data / OData / models / PodContext-vs-model / manual-fetch (#23–#24, #27, #29, #34, #51, #72, #73, #74, …)
    - `get_pattern_doc({ name: "common-mistakes-i18n" })` — i18n (#30, #40, …)
 3. `get_pattern_doc({ name: "basics" })` — architecture & best practices
 4. `get_pattern_doc({ name: "extension-json-schema" })` — extension.json contract
@@ -173,6 +173,49 @@ For each rule in the common-mistakes category files, run a concrete detection. G
   - Reference: `common-mistakes-data.md` #M72, `get_pod2_guidelines` §Public-API-First, `pod2-public-api-pattern.md`.
 
 
+- **M73–M81 — Architectural conformance (interceptor / rogue-automation anti-patterns)** → ❌ Errors
+  - These catch extensions that **function** but violate the POD framework at the architecture level — a class the earlier surface checks (i18n, class name, `onInit`, imports) miss entirely. They split into two clusters that almost always co-occur: **self-level abuse** (M73 manual requests, M74 model-scraping, M75 `_createView` side effects, M76 timeout/polling, M77 DOM-painted UI, M78 global monkey-patching) and **foreign-widget abuse** (M79 discovering, M80 mutating, M81 firing synthetic events at *another widget's* controls). All are Rule-3 hard findings — `validate: info-only` does NOT downgrade them (see Phase 3c). When **three or more distinct** of M73–M81 fire, Phase 3d raises the Architectural Conformance Gate.
+  - Load the full canonical entries before reporting — detection greps and before→after fixes live there, this list is the audit trigger only. **Scan set**: `widget/ action/ context/ util/` **plus any non-standard source folder** (some extensions ship under `plugin/` or similar) — when in doubt, scan all `*.js`.
+
+  - **M73 — Manual `fetch()` / `XMLHttpRequest` to SAP DM endpoints instead of the built-in clients** (`common-mistakes-data.md` #M73)
+    - Detection: `grep -rnE '\bfetch\s*\(|new\s+XMLHttpRequest|XMLHttpRequest\s*\(|\$\.ajax|axios\.(get|post|put|delete|request)' <scan-set>` — exclude the legitimate `ODataV4Client`/`ODataV2Client`/`RestClient`/`ApiClient` layer.
+    - Fix: `ODataV4Client` (OData/MDO), `RestClient` + `ApiPaths` (public REST), `ApiClient.<ns>.<method>` (documented ops). A request whose URL is observed/copied also trips **M72** — report both.
+    - Note: this is the general rule; the §1c **HTML5-FETCH** check is the migration-residue sibling — cross-reference, don't double-report the fix.
+
+  - **M74 — Shared context (plant/SFC/order/workCenter) read from a model path instead of `PodContext`** (`common-mistakes-data.md` #M74)
+    - Detection: `grep -rnE '["'"'"']/(workList|plant|filter|execution|selected)[/A-Za-z]' <scan-set>` — a core-context path as a string literal, whoever consumes it (`getProperty("/…")`, a `get("/…")`/`resolveBinding("/…")` wrapper); confirm it is a model read with `getProperty(`/`.getModel()`. Also flag any private helper (`_podContext()`, `_getContext()`) assembling `{ sfc, plant, order, … }` from such reads, and any `someControl.getModel().getProperty(...)` borrowing another widget's state.
+    - Fix: `PodContext.getPlant()`, `getLastSelectedWorkListItem()`, `getSelectedWorkListItems()`, `get(ModelPath.X)`; react via `subscribe`/`getWhenAvailable`.
+    - **Feeds the §5 audit** (Phase 4d): a widget that uses shared context but has zero `PodContext.*` calls is M74 — not a vacuous "✅ No findings".
+
+  - **M75 — Control lookup / event wiring / timers started from `_createView()` instead of `onInit()`** (`common-mistakes-lifecycle.md` #M75)
+    - Detection: `grep -nE 'setTimeout\s*\(' <scan-set>` where the body/called method is reached from `_createView()` (a `setTimeout(fn, 0)` at the end of `_createView()` is the tell); plus `grep -nE 'ElementRegistry|\battachEvent\s*\(|\.attachPress\s*\(|setInterval\s*\(' <scan-set>` reached from `_createView()` rather than `onInit()`.
+    - Fix: `_createView()` returns a view only; side effects + subscriptions + timers go in `onInit()` after `await super.onInit()`, torn down in `onExit()`.
+
+  - **M76 — Fixed timeouts / polling loops to coordinate async instead of awaiting a signal** (`common-mistakes-lifecycle.md` #M76)
+    - Detection: `grep -nE 'const\s+sleep\s*=|=>\s*new Promise\([^)]*setTimeout|new Promise\([^)]*setTimeout' <scan-set>` (delay-promise helper); `grep -nE 'while\s*\([^)]*Date\.now\(\)' <scan-set>` (busy-wait); `grep -nE '_(MS|TIMEOUT|DELAY)\b|WAIT_[A-Z_]*_MS|IDLE_MS' <scan-set>` (the tuning-constant wall); `setInterval` used to re-check state.
+    - Fix: `await` the operation's promise (M73 client), `PodContext.getWhenAvailable`, or a one-shot control event (`updateFinished`, `dataReceived`).
+
+  - **M77 — Hand-built DOM UI (overlay, inline `style`, custom dialog) instead of standard SAPUI5 controls** (`common-mistakes-ui.md` #M77)
+    - Detection: `grep -rnE 'document\.createElement|\.appendChild\(|\.innerHTML\s*=|\.style\.cssText|\.style\.[a-zA-Z]+\s*=|document\.addEventListener\(' <scan-set>`; `grep -rnE '#[0-9a-fA-F]{3,6}\b|rgba?\(' <scan-set>` (hard-coded colors, M61 overlap).
+    - Fix: `BusyDialog` / `BusyIndicator` / `oView.setBusy` for blocking; `Dialog` / `MessageBox` for dialogs. Same class as M60/M61 — **only** the `// standard-only: exception — <reason>` marker downgrades it, never `validate: info-only`.
+
+  - **M78 — Monkey-patching global `XMLHttpRequest`/`fetch` (and standard controls' `firePress`) to infer request status** (`common-mistakes-imports.md` #M78)
+    - Detection: `grep -rnE 'XMLHttpRequest\.prototype|window\.fetch\s*=|\.prototype\.(open|send|setRequestHeader)\s*=' <scan-set>` (global request patching); `grep -rnE '\.firePress\s*=|__.*OriginalFirePress' <scan-set>` (overriding standard handlers); `grep -rnE 'inflight|loadend' <scan-set>` used to infer completion (pairs with M76).
+    - Fix: drive your own operations through the typed clients and read their resolved/rejected promise; react to shared state via `PodContext`/control events. Never observe another component's traffic.
+
+  - **M79 — Discovering another widget's controls (global registry, generated IDs, identity-by-text, private internals)** (`common-mistakes-lifecycle.md` #M79)
+    - Detection: `grep -rnE 'ElementRegistry|Core\.byId\(|sap\.ui\.getCore\(\)\.byId' <scan-set>` (global discovery); a `_find(...)`/`_byId(...)` helper called with anything other than this widget's own `getConfig().id`; `grep -rnE 'getText\(\)\s*===|getTitle\(\)\s*===' <scan-set>` near `.isA(`/`getCells()` (identity by rendered, **localized** text); `grep -rnE '\.bIsDestroyed|\.mBindingContexts|\.getDomRef\(\)|getCore\(\)\.applyChanges\(' <scan-set>` (private internals).
+    - Fix: a widget addresses only controls **it created**; coordinate with other components through `PodContext` publish/subscribe (or an Action/Production Process), never by scavenging their control handles.
+
+  - **M80 — Mutating another widget's controls/state (`setVisible`/`setEnabled`/`setSelected`/`setValue`, force-enable, `data()`-tagging)** (`common-mistakes-lifecycle.md` #M80)
+    - Detection: `grep -rnE '\.(setVisible|setEnabled|setSelected|setValue|setText|setBusy|setMode|removeSelections|setIncludeItemInSelection|setRememberSelections)\(' <scan-set>` — hard finding when the receiver is a control obtained via M79 discovery (not one the widget created in `_createView`). Classic case: finding the standard row button by `getText()==="Log NC"` then `setVisible(false)` to "remove" it. Also `grep -rnE 'FORCE[_A-Z]*ENABLE|setEnabled\(\s*true\s*\)' <scan-set>` (defeating a disabled-by-validation control) and `.data("…")` on a foreign control.
+    - Fix: write only your own controls + `PodContext` setters; to achieve a standard button's effect call the public API/Action behind it.
+
+  - **M81 — Firing synthetic events / simulating DOM interaction on another widget's controls** (`common-mistakes-lifecycle.md` #M81)
+    - Detection: `grep -rnE '\.(firePress|fireSelectionChange|fireChange|fireLiveChange|fireSelect|fireItemPress)\(' <scan-set>` — hard finding when fired on a discovered/foreign control; `grep -rnE '\.getDomRef\(\)\s*\.click\(|\b(dom|domRef|oDom|el)\.click\(|dispatchEvent\(|new (MouseEvent|KeyboardEvent|PointerEvent)\(' <scan-set>` (simulated DOM interaction — chained or split `getDomRef()` + `.click()`).
+    - Fix: trigger business logic through the public API/Action; reflect selection via `PodContext` setters; fire events only on controls you created.
+
+
 - **M70 — Silent information loss via standard-control bias** → ⚠️ Warning (semantic — no runtime error, invisible until visual review)
   - The migrator picked a standard control (typically `sap.m.GenericTile`) for a source composite that carries more fields than the target has slots, and dropped the delta silently. `MIGRATION_VERIFICATION.md` shows ✅ across the coverage matrix. Runtime works. Deploy renders less than the source.
   - **Detection (Warning — applies only when `sourceFormat === "html5"`)**: three mechanical checks (a **plus** a manual visual walk-through in Phase 5c).
@@ -286,6 +329,12 @@ For each rule in the common-mistakes category files, run a concrete detection. G
   - For `sap/ui/core/` enums: `import coreLibrary from "sap/ui/core/library"; const { ValueState } = coreLibrary;`
   - Auto-fixable: Yes (mechanical replacement of import + destructure from library).
 
+- **M84 — Mutable instance state on public `this._x` fields instead of true-private `#` fields** → ⚠️ Warning (encapsulation; NOT in the Phase 3d gate)
+  - Detection: `grep -coE 'this\._[a-zA-Z]+\s*=' <scan-set>` vs `grep -cE 'this\.#|#[a-zA-Z_]+\s*=' <scan-set>`. Fires on the **pattern at scale**: many `this._x =` assignments (rule of thumb 15+ distinct) with **zero/near-zero** instance `#` fields.
+  - Report **once, at the class level**, as a refactoring recommendation — do NOT emit one finding per property, and do NOT flag a widget that already uses `#` fields or has only a few `this._x`.
+  - Fix: declare engine-enforced `#` fields at the top of the class; route all mutations through them.
+  - Reference: `common-mistakes-lifecycle.md` #M84; `html5-migration-guide.md` Cat 23 / B4 (module-level analogue).
+
 ### Info (consider — modernization)
 
 - **M25 — `MessageHistory.toast()` for important persistent messages** → suggest `showSuccess` / `showError`.
@@ -392,6 +441,17 @@ For each component type present in the extension, verify it follows the Best-Pra
 | Action metadata uses action prefix | `validationAction.displayName=...`, `executionAction.displayName=...` | ⚠️ Warning if unprefixed |
 | German bundle: no user-facing "SFC" | Should use "PSN" | ⚠️ Warning (M30) |
 | Key consistency across locales | Same key set in all 4 bundles (no keys missing in one locale) | ⚠️ Warning |
+| **Hardcoded user-facing strings vs i18n** | Every operator-visible string comes from `getI18nText(...)` — NOT a literal in `text:`/`setText(...)`/`setTooltip(...)`/`MessageBox.*`/`MessageToast.show(...)`. See the systemic-i18n sweep below. | ⚠️ Warning (systemic → escalate — see below) |
+
+**Systemic i18n sweep (promote from note to finding).** The common "it works, it's just English" case hides a real defect: the German operator sees English, and the fix is not one line. Run a concrete sweep, not a vibe check:
+
+1. **Hardcoded user-facing string inventory**:
+   ```
+   grep -rnE 'text:\s*"[^"]|setText\(\s*"[^"]|setTooltip\(\s*"[^"]|placeholder:\s*"[^"]|MessageToast\.show\(\s*"|MessageBox\.(warning|error|confirm|information|success)\(\s*"' widget/ action/ context/ util/ plugin/
+   ```
+   Exclude obvious non-UI literals (CSS, icon URIs `sap-icon://…`, model paths). Each remaining hit is a user-facing string that is not translatable.
+2. **Unused-bundle-key cross-check**: for every key in `i18n.properties`, `grep` the JS for `getI18nText("<key>"`. Keys defined in the bundle but never read (while the JS hardcodes the same text as a literal) are the tell-tale of "someone added keys, then bypassed them".
+3. **Severity escalation**: a handful of stray literals → ⚠️ Warning, listed. But when the sweep shows the **widget is systemically English-hardcoded** — most user-facing strings are literals AND/OR bundle keys exist but are unused AND/OR fewer than the 4 required locale bundles are present — report it as a **single consolidated ❌ Error-grade i18n finding** ("i18n is not wired: N user-facing literals, M unused bundle keys, K/4 locale bundles"), because the widget cannot be operated in a non-English plant. Cross-reference M30/M32/M35; do not quote a count in any doc text (report counts live in `VALIDATION-REPORT.md`, which is generated per-run, not in the instructions).
 
 #### extension.json
 
@@ -439,6 +499,8 @@ If the line that triggers a finding (or a comment block immediately above it, wi
 
 The reason text after the em-dash is optional but strongly encouraged. Match the markers case-insensitively. They may also appear in `/* ... */` block comments.
 
+> **These markers are proprietary to this validator — by design, not an oversight.** The `validate: …` family (and the `standard-only: exception — <reason>` marker for M60/M61/M43/M77/Cat 29) is specific to `pod2-mcp-server`. There is no `accepted-deviation` directive in ESLint or `@ui5/linter`. The *shape* is deliberately borrowed from them — a line comment with a trailing `— <reason>` / `-- <reason>` rationale (cf. ESLint `// eslint-disable-next-line <rule> -- <reason>`, `@ui5/linter` `// ui5lint-disable-next-line <rule> -- <reason>`) — but the verbs and the three-way severity model (`ignore` = drop, `info-only` = force Info, `accepted-deviation` = force Info **+ verbatim Notes**) have no external equivalent and are intentionally bespoke. Do not expect ESLint/ui5-linter disable comments to be honored here, and do not emit the `validate:`/`standard-only:` markers expecting any other tool to read them.
+
 #### Rule 2 — Explanatory comment heuristic (auto-downgrade)
 
 If a code-level finding (e.g. inline CSS, `class` instead of `addStyleClass`, an unusual control choice) is **directly preceded by a multi-line comment block** that:
@@ -466,8 +528,17 @@ Some checks are about **broken** code, not preferences. These cannot be downgrad
 - **M61 — extension CSS surface** (physical `widget/css/*.css` without loader / inline `style="..."` / `HTML` with `<style>` / non-Fiori-prefix `addStyleClass` or `class=`). Dead CSS specifically — a `.css` file with no `includeStyleSheet`/`createStyleSheet`/`IconPool.registerStyleSheet`/`css!` call — is treated as broken code because a real migration shipped ~200 LOC of never-loaded CSS.
 - **Cat 29** — custom composite where a standard SAPUI5 control exists (S1-S7)
 - API version Errors when the used version no longer exists in `list_rest_apis`
+- **M73 — manual `fetch`/`XMLHttpRequest` to SAP DM endpoints** (bypasses POD auth/version/proxy — fragile across tenants/releases)
+- **M74 — shared context read from a model path instead of `PodContext`** (reads another widget's internal model structure; empty/stale/wrong off the happy path)
+- **M75 — control lookup / timers / event wiring from `_createView()`** (lifecycle contract break — runs before `onInit`, no symmetric teardown)
+- **M76 — fixed timeouts / polling to coordinate async** (flaky-or-slow by construction where an awaitable signal exists)
+- **M77 — hand-built DOM UI instead of standard controls** (same class as M60/M61 — downgradable ONLY by `standard-only: exception — <reason>`, see below, NOT by `info-only`)
+- **M78 — monkey-patching global `XMLHttpRequest`/`fetch`/`firePress`** (mutates browser-wide state; corrupts other consumers; couples to standard internals)
+- **M79 — discovering another widget's controls** (global registry / foreign generated IDs / identity-by-localized-text / private internals — non-contractual, breaks across releases and languages)
+- **M80 — mutating another widget's controls/state** (`setVisible`/`setEnabled`/`setSelected`/`setValue`, force-enabling a disabled-by-validation control, `data()`-tagging foreign controls — desyncs the owner, bypasses its guards)
+- **M81 — firing synthetic events / simulated DOM clicks at another widget's controls** (`fire*`, `getDomRef().click()` — counterfeit input that bypasses the real operation entry point)
 
-For these, the marker `validate: ignore` is still respected (user takes the risk explicitly), but `info-only` does NOT downgrade — the underlying code is genuinely broken in production.
+For these, the marker `validate: ignore` is still respected (user takes the risk explicitly), but `info-only` does NOT downgrade — the underlying code is genuinely broken/non-conformant in production. (M77, like M60/M61, is not downgraded by `info-only` at all — use the `standard-only: exception — <reason>` marker below.)
 
 **M61 exception marker** — an intentional deviation from the CSS ban is expressed as:
 
@@ -523,14 +594,88 @@ Be transparent: still surface the finding so the user has visibility, but make i
 
 ---
 
+## Phase 3d — Architectural Conformance Gate
+
+The M73–M81 findings (Phase 3) describe the same underlying failure from different angles: an extension
+built **against** the POD framework rather than **with** it. Two clusters: **self-level abuse** — hand-rolled
+requests (M73), model scraping (M74), lifecycle bypass (M75), timeout-driven coordination (M76), DOM-painted
+UI (M77), global monkey-patching (M78); and **foreign-widget abuse** — discovering (M79), mutating (M80), and
+firing synthetic events at (M81) *another widget's* controls. Individually each is an Error. **Together they
+define a widget class** the report must name explicitly, so a functioning-but-rogue extension can never read
+as a pass.
+
+### Gate rule
+
+Count how many **distinct** mistakes among `{ M73, M74, M75, M76, M77, M78, M79, M80, M81 }` produced at least one finding.
+
+- **≥ 3 distinct** → the **Architectural Conformance Gate FAILS**. The extension is an
+  **interceptor / rogue-automation** pattern, not a conformant POD2 widget.
+- **1–2** → no gate line; the individual Errors stand on their own.
+
+A gate failure is not auto-fixable and is **not** downgradable by any marker — it is a verdict about the
+extension's architecture, not about one line. (`validate: ignore` on an individual Mn still removes that
+Mn from the gate count; if that drops the count below 3, the gate no longer fires — the user has explicitly
+accepted those risks.)
+
+### What a gate failure emits
+
+When the gate fails, this exact verdict line MUST appear in **two** places:
+
+1. At the **top of the `VALIDATION-REPORT.md` Summary block** (above the counts table):
+
+   ```
+   ❌ ARCHITECTURAL CONFORMANCE: interceptor / rogue-automation pattern — not a conformant POD2 widget
+      (M73–M81: <list the IDs that fired>). This extension drives/observes the standard POD UI, other
+      widgets' controls, and browser globals instead of using PodContext, the API clients, the widget
+      lifecycle, and standard controls. A green surface-level result does NOT make it ready.
+      Re-architect per the cited mistakes before upload.
+   ```
+
+2. As the **first line of the Phase 6 chat summary**, before the verdict/counts.
+
+When the gate fails, the Summary verdict is **❌ NOT CONFORMANT** (stronger than "NOT READY — N errors")
+and the overall result can never be "READY", regardless of how many surface checks pass.
+
+### Report placement
+
+Add a short section **"§1d. Architectural Conformance Gate"** immediately after §1c, listing which of
+M73–M81 fired (with file:line pointers back to the §1 entries) and the gate verdict (PASS / FAIL). Always
+emit the section — if fewer than 3 fired, write `— gate PASSED (N of M73–M81 fired; threshold 3) —` so the
+check is visibly present.
+
+---
+
 ## Phase 4 — API Versions Audit (CRITICAL — explicit requirement)
+
+### 4·0) Outbound data-access inventory (DO THIS FIRST — "None" is a claim you must earn)
+
+Before the version/client checks below, build a **complete inventory of every outbound data access**, by ANY
+mechanism — not just the `ApiClient`/`RestClient` ones. A raw `fetch`, a patched `XMLHttpRequest`, an OData
+read, or a scraped resource-timing URL **is an API call**; the fact that it does not go through a typed client
+does not make it "no API usage". Scan `widget/ action/ context/ util/` **plus any non-standard folder** (e.g.
+`plugin/`):
+
+```
+grep -rnE '\bfetch\s*\(|XMLHttpRequest|\.responseText|\$\.ajax|axios\.|ODataV[24]Client|RestClient|ApiClient\.|performance\.getEntriesByType|\.open\s*\(\s*["'"'"'](GET|POST|PUT|PATCH|DELETE)' <scan-set>
+```
+
+For each hit record: **mechanism** (typed client / raw `fetch` / XHR / patched-global / OData / perf-timing),
+**target** (service + entity/endpoint, even if only observed at runtime — e.g. the `NonConformanceCodes` OData
+entity set, or a `.../log` POST), and **direction** (issued by this widget vs. observed/intercepted from another
+component).
+
+**Consistency gate — the §2/§3/§4 sections and the Phase 6 summary MUST NOT report "None / no API calls / PodContext not used" if this inventory is non-empty.** If outbound access exists but none of it goes through a typed client, that is NOT "None" — it is the **M73 / M74 / M78 finding itself**, and §2/§3 must say so explicitly, e.g.:
+
+> "REST/POD2 API findings: the widget performs outbound data access via raw `fetch`/patched `XMLHttpRequest` (see §1 M73/M78) instead of `ApiClient`/`RestClient` — there is no versioned-client call to audit **because the extension bypasses the client layer**. This is a finding, not a clean bill."
+
+Only when the inventory is genuinely empty (no outbound access of any kind) may a section read "None".
 
 ### 4a) SAP DM REST APIs (v1 / v2 / v3)
 
 1. Scan extension code for any of these patterns:
    - URL strings: `/dm/<service>/v1/...`, `/dm/<service>/v2/...`, `/dm/<service>/v3/...`
    - `ApiClient.rest.<service>.<method>` (or any `RestClient` usage)
-   - Plain `fetch("...")` / `XMLHttpRequest` to SAP DM URLs
+   - Plain `fetch("...")` / `XMLHttpRequest` to SAP DM URLs (including URLs assembled at runtime or observed via interception — carry these over from the 4·0 inventory; a call whose version cannot be extracted is still reported as "un-versioned raw call → M73", never dropped)
 2. Build a set of (service, version-used) tuples.
 3. Cross-check against `list_rest_apis`. For each service:
    - **Highest version available in specs > version used by extension** → ⚠️ **Warning** "Upgrade recommended: vX → vY"
@@ -558,21 +703,32 @@ Reference table (always re-confirm via `list_rest_apis`):
 
 1. Find `ODataV2Client`/`ODataV4Client`, `/odata/v2/`/`/odata/v4/` URLs, MDO entity names.
 2. OData V2 → ⚠️ Warning (legacy). MDO entities → cross-check `mdo-extractor-reference`.
+3. **Raw OData access counts too.** An OData entity set queried via raw `fetch`/`XMLHttpRequest` with `$filter`/`$expand`/`$select` query options (e.g. a `.../NonConformanceCodes?$filter=…` GET assembled by hand) is OData usage — report the entity + that it bypasses `ODataV4Client` (M73), do not record it as "no OData usage". Carry these from the 4·0 inventory.
 
 ### 4d) ModelPath / PodContext consistency
 
 1. Extract all `ModelPath.<X>` and `PodContext.<method>(...)`.
 2. Cross-check `get_api_doc` for PodContext. Flag non-existent → ❌ Error. Deprecated → ⚠️ Warning.
+3. **PodContext-avoidance check (M74) — absence is not conformance.** If the extension consumes shared
+   context (any reference to SFC, plant, order, work center, or the current selection) but has **zero**
+   `PodContext.*` calls — typically because it scrapes `getProperty("/workList/...")`, `"/plant/..."`,
+   `"/filter/..."`, or borrows another widget's model via `someControl.getModel()` — do **not** report
+   "✅ No findings". Report **M74** (❌ Error) and note that this §5 section is passing only because the
+   widget bypasses PodContext entirely. Cross-link the §1 M74 entry.
 
 ---
 
 ## Phase 5 — Write `VALIDATION-REPORT.md`
 
-Create at working-directory root. Structure: Summary table → §1 Common Mistakes (Errors/Warnings/Info with File:Line, Found, Expected, Doc-ref, Auto-fixable flag) → §2 REST API Versions table → §3 POD2 API Usage table → §4 MDO/OData → §5 ModelPath/PodContext → §6 Auto-fixable items checklist → §7 Notes.
+Create at working-directory root. Structure: **Architectural Conformance verdict line (only when the Phase 3d gate FAILS — placed above the Summary table)** → Summary table → §1 Common Mistakes (Errors/Warnings/Info with File:Line, Found, Expected, Doc-ref, Auto-fixable flag — M73–M81 belong here as Errors) → §1b Best-Practice → §1c HTML5 Residue → **§1d Architectural Conformance Gate (always emit — PASS or FAIL per Phase 3d)** → §2 REST API Versions table → §3 POD2 API Usage table → §4 MDO/OData → §5 ModelPath/PodContext (incl. the M74 avoidance check from Phase 4d) → §6 Auto-fixable items checklist → §7 Notes.
+
+When the gate fails, the Summary verdict is **❌ NOT CONFORMANT** and MUST NOT read "READY" no matter how many other checks pass. M73–M81 are never listed as auto-fixable (they are re-architecture, not mechanical edits), and §7 Notes must not re-frame them as "accepted deviations" — they are hard findings unless an explicit per-mistake `validate: ignore`/`standard-only: exception` marker is present in the source.
+
+**Cross-section consistency (MUST hold).** The report cannot contradict itself. If §1 carries an M73/M74/M78 finding (raw fetch/XHR, model-scraping, or patched globals), then §2 (REST), §3 (POD2 API), §4 (MDO/OData), and §5 (PodContext) MUST NOT say "None / no API calls / PodContext not used" — they must instead state that outbound data access exists but bypasses the client/context layer, and point back to the §1 finding (per the Phase 4·0 consistency gate). A reviewer must never read "None (no REST API calls)" in the summary while §1 documents a `fetch`/XHR to a SAP DM endpoint.
 
 ## Phase 6 — Chat Summary
 
-Post short summary: verdict + counts + top-3 must-fix + auto-fixable count + pointer to report file.
+Post short summary: verdict + counts + top-3 must-fix + auto-fixable count + pointer to report file. **When the Phase 3d gate FAILS, the FIRST line of the summary is the Architectural Conformance verdict** (`❌ interceptor / rogue-automation pattern — not a conformant POD2 widget (M73–M81: …)`), before the counts.
 
 ---
 

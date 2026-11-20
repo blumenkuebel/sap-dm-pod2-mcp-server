@@ -644,3 +644,90 @@ this.#oLog.warn("…");     // ✅
 - `subscribe-patterns.md` §WebSocket — `PodContext.subscribe(path, callback, context)` is a *different* API where positional `callback` IS correct; don't confuse the two.
 
 ---
+
+## Mistake #78: Monkey-patching global `XMLHttpRequest`/`fetch` (and standard controls' `firePress`) to infer request status ❌ → ✅
+
+### Symptom
+
+The extension overwrites browser or framework internals to spy on traffic it does not own:
+`window.XMLHttpRequest.prototype.open/send/setRequestHeader = …`, `window.fetch = function(){…}`, and/or
+overriding another control's `button.firePress = …`. It then infers whether a standard operation
+succeeded by watching the intercepted request (status code, an "inflight" counter, the response body) or by
+re-firing the standard button from code. Often wrapped in a globally-installed observer (an IIFE that keeps
+the original references and "restores" them on uninstall).
+
+### Why it's wrong
+
+Monkey-patching globals is invasive, order-dependent, and brittle:
+
+- It mutates **browser-wide** state (`XMLHttpRequest.prototype`, `window.fetch`) from inside one widget.
+  Every other consumer on the page now routes through your wrapper; two instances, or another extension
+  doing the same, corrupt each other. Restoration is fragile — if any patch installed *after* yours,
+  resetting `prototype.open` to "the original" silently drops the later patch.
+- Inferring success from an observed status/body re-implements, unreliably, what the proper client already
+  returns. You are parsing someone else's response instead of reading your own call's result.
+- Overriding a standard control's `firePress` couples you to that control's private behavior and generated
+  IDs; a SAP change to the standard widget breaks you with no compile-time signal.
+
+The POD-conformant stance is: **drive your own operations through the typed clients and read their result;
+react to state through `PodContext`/control events.** You should never need to observe another component's
+HTTP traffic — if you think you do, the data belongs in `PodContext` (M74) or behind a public API (M73).
+
+> **Distinct from M73:** M73 is issuing your *own* hand-built request. **M78** is intercepting the
+> *framework's / another widget's* requests. The fix for both is the same client-first, signal-first
+> architecture, but they are separate findings and a widget can have both.
+
+<!-- doc-consistency-off -->
+### ❌ Wrong
+
+```js
+// ✗ Overwrite browser globals to watch the standard widget's requests
+const origSend = window.XMLHttpRequest.prototype.send;
+window.XMLHttpRequest.prototype.send = function (body) {
+    this.addEventListener("loadend", () => emit({ status: this.status, ok: this.status < 300 }));
+    return origSend.apply(this, arguments);        // "restored" later — drops any patch added after us
+};
+window.fetch = function (input, init) { /* ...observe... */ };
+// ✗ Override a standard control to inject behavior
+oStandardAddButton.firePress = function () { /* intercept */ };
+```
+<!-- doc-consistency-on -->
+
+### ✅ Correct
+
+```js
+// ✓ Call your own operation and read its result — no global patching
+try {
+    const oResult = await ApiClient.nonConformance.logNc({ /* ... */ });   // status is the resolved value
+    this._onLogged(oResult);
+} catch (oError) {
+    this._onLogFailed(oError);                                             // failure is the rejection
+}
+// ✓ React to shared state via PodContext, to control state via its own events (attachPress), never by patching globals.
+```
+
+If a requirement truly seems to need observing standard traffic, stop and re-model it: the needed state is
+almost always available from `PodContext` (M74) or a public API (M73). Raising it with the user beats
+patching `XMLHttpRequest.prototype`.
+
+### Rule of thumb
+
+- Never assign to `XMLHttpRequest.prototype.*`, `window.fetch`, or a standard control's `firePress`/handlers.
+- Success/failure comes from **your** client's resolved/rejected promise, not from a sniffed status code or an `inflight` counter.
+- "I need to know when the standard widget finished" → `PodContext.subscribe`/`getWhenAvailable` or a public API, not an interceptor.
+
+### Detection pattern (validation)
+
+- `grep -rnE 'XMLHttpRequest\.prototype|window\.fetch\s*=|\.prototype\.(open|send|setRequestHeader)\s*=|\bself\.fetch\s*=' widget/ action/ context/ util/ plugin/` — global request patching.
+- `grep -rnE '\.firePress\s*=|\.(attachPress|firePress)\b.*=\s*function|__.*OriginalFirePress' widget/ action/ context/ util/ plugin/` — overriding standard control handlers.
+- `grep -rnE 'inflight|loadend' widget/*.js plugin/*.js` used to infer completion status (pairs with M76).
+- Hard finding (Error).
+
+### Related
+
+- M73 — issuing your own hand-built request (the sibling half).
+- M74 — the state you are sniffing usually belongs in `PodContext`.
+- M76 — polling an `inflight()` counter is the timing anti-pattern against intercepted traffic.
+- M71 — correct `PodNotificationWebSocket` / event subscription instead of ad-hoc interception.
+
+---
