@@ -251,6 +251,25 @@ test("Phase 3 slice does not bleed into Phase 3b", async () => {
   await client.close();
 });
 
+// The Phase 5 report templates embed `## Summary` / `## §8 References` inside a
+// fenced code block. The slice must carry the full phase — disclaimer, the §1–§8
+// section order, and the §8 template — and still stop at Phase 6. (Regression:
+// a non-fence-aware slicer cut Phase 5 short, so agents dropped the disclaimer
+// and invented their own report structure.)
+test("Phase 5 slice carries the full report contract and stops before Phase 6", async () => {
+  const { client } = await connect();
+  const res = await client.callTool({
+    name: "get_pattern_doc",
+    arguments: { name: "validate-project-instructions", section: "Phase 5" },
+  });
+  const text = textOf(res);
+  assert.match(text, /Community Disclaimer/);
+  assert.match(text, /5e\) Section order/);
+  assert.match(text, /§8\s+References/);
+  assert.ok(!text.includes("Phase 6 — Chat Summary"), "Phase 5 must stop before Phase 6");
+  await client.close();
+});
+
 // Intentional tool/prompt divergence: the PROMPT still emits the whole workflow
 // (prompt content expands into the conversation and is not truncated).
 test("validate_project PROMPT still loads the full workflow, not just the index", async () => {

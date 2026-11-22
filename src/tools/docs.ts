@@ -187,22 +187,48 @@ export function registerDocsTools(server: FastMCP): void {
   });
 }
 
+// A Markdown heading only counts when it is NOT inside a fenced code block.
+// Report/template docs embed lines like `## Summary` or `# VALIDATION REPORT`
+// inside ```markdown fences; those must not be treated as document headings
+// (otherwise extractSection stops early and summaries list phantom headings).
+// Returns the set of line indices that are real headings, with their level.
+function headingLineInfo(lines: string[]): Map<number, { level: number; text: string }> {
+  const result = new Map<number, { level: number; text: string }>();
+  let fence: string | null = null; // the fence marker that opened the current block
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const fenceMatch = line.match(/^\s*(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      const marker = fenceMatch[1][0].repeat(3); // normalize ``` / ~~~
+      if (fence === null) {
+        fence = marker;
+      } else if (marker === fence) {
+        fence = null; // closing fence of the same type
+      }
+      continue;
+    }
+    if (fence !== null) continue; // inside a code block — not a heading
+    const match = line.match(/^(#{1,6})\s+(.+)/);
+    if (match) {
+      result.set(i, { level: match[1].length, text: match[2].trim() });
+    }
+  }
+  return result;
+}
+
 export function extractSection(content: string, sectionQuery: string): string | null {
   const lines = content.split("\n");
+  const headings = headingLineInfo(lines);
   const lowerQuery = sectionQuery.toLowerCase();
   let startIdx = -1;
   let startLevel = 0;
 
   for (let i = 0; i < lines.length; i++) {
-    const match = lines[i].match(/^(#{1,6})\s+(.+)/);
-    if (match) {
-      const level = match[1].length;
-      const heading = match[2].trim();
-      if (heading.toLowerCase().includes(lowerQuery)) {
-        startIdx = i;
-        startLevel = level;
-        break;
-      }
+    const h = headings.get(i);
+    if (h && h.text.toLowerCase().includes(lowerQuery)) {
+      startIdx = i;
+      startLevel = h.level;
+      break;
     }
   }
 
@@ -210,8 +236,8 @@ export function extractSection(content: string, sectionQuery: string): string | 
 
   let endIdx = lines.length;
   for (let i = startIdx + 1; i < lines.length; i++) {
-    const match = lines[i].match(/^(#{1,6})\s+/);
-    if (match && match[1].length <= startLevel) {
+    const h = headings.get(i);
+    if (h && h.level <= startLevel) {
       endIdx = i;
       break;
     }
@@ -222,14 +248,13 @@ export function extractSection(content: string, sectionQuery: string): string | 
 
 export function extractSectionHeadings(content: string): string[] {
   const lines = content.split("\n");
-  const headings: string[] = [];
-  for (const line of lines) {
-    const match = line.match(/^(#{1,6})\s+(.+)/);
-    if (match) {
-      const level = match[1].length;
-      const heading = match[2].trim();
-      headings.push(`${"  ".repeat(level - 1)}${heading}`);
+  const headings = headingLineInfo(lines);
+  const result: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const h = headings.get(i);
+    if (h) {
+      result.push(`${"  ".repeat(h.level - 1)}${h.text}`);
     }
   }
-  return headings;
+  return result;
 }

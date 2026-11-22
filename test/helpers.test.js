@@ -250,6 +250,47 @@ test("extractSectionHeadings lists all headings with indentation by level", () =
   assert.ok(headings.some((h) => h.startsWith("    ") && h.trim() === "Sub of 33"));
 });
 
+// A doc whose section embeds Markdown headings INSIDE a fenced code block
+// (e.g. a report template `## Summary`). Those fenced lines must NOT be treated
+// as real headings — otherwise the section is cut short and TOCs list phantoms.
+const FENCED_DOC = [
+  "## Phase 5",
+  "intro text",
+  "```markdown",
+  "# VALIDATION REPORT — {Name}",
+  "## Summary",
+  "some template body",
+  "## §8 References",
+  "```",
+  "### 5e) Section order",
+  "the real ordered list",
+  "## Phase 6",
+  "next phase",
+].join("\n");
+
+test("extractSection ignores headings inside fenced code blocks", () => {
+  const section = extractSection(FENCED_DOC, "Phase 5");
+  // Must span the whole phase, through the post-fence subsection…
+  assert.match(section, /5e\) Section order/);
+  assert.match(section, /the real ordered list/);
+  // …including the fenced template lines verbatim…
+  assert.match(section, /## Summary/);
+  assert.match(section, /## §8 References/);
+  // …but stop at the next REAL same-level heading.
+  assert.ok(!section.includes("Phase 6"), "must not bleed into the next real heading");
+});
+
+test("extractSectionHeadings omits headings inside fenced code blocks", () => {
+  const headings = extractSectionHeadings(FENCED_DOC);
+  assert.ok(headings.some((h) => h.trim() === "Phase 5"));
+  assert.ok(headings.some((h) => h.trim() === "5e) Section order"));
+  assert.ok(headings.some((h) => h.trim() === "Phase 6"));
+  // The fenced template lines are NOT headings.
+  assert.ok(!headings.some((h) => h.trim() === "Summary"));
+  assert.ok(!headings.some((h) => h.trim() === "§8 References"));
+  assert.ok(!headings.some((h) => h.includes("VALIDATION REPORT")));
+});
+
 // ── readFileContent / tryReadFileContent (TTL cache) ─────────────────────
 
 test("readFileContent reads a file and serves the cached copy within the TTL", () => {
