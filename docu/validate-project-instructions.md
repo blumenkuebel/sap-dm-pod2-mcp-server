@@ -660,6 +660,7 @@ recompute or estimate it. Also fill `{PluginDisplayName}`, `{namespace}`, `{modu
 > **No claim is made as to completeness or correctness.**
 > Findings may be false positives; genuine issues may go undetected.
 > Always validate against the official SAP documentation and test in your environment.
+> This report does not constitute a certification, audit, or official SAP review.
 
 ---
 ```
