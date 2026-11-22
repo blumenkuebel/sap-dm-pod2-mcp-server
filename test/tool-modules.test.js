@@ -331,3 +331,16 @@ test("get_example returns a manifest for a large extension and concatenates with
   }
   await client.close();
 });
+
+test("get_pod2_guidelines summary/section slice the ~24 KB guidelines", async () => {
+  const { client } = await connect();
+  const full = textOf(await client.callTool({ name: "get_pod2_guidelines", arguments: {} }));
+  const summary = textOf(await client.callTool({ name: "get_pod2_guidelines", arguments: { summary: true } }));
+  const section = textOf(await client.callTool({ name: "get_pod2_guidelines", arguments: { section: "Architecture Rules" } }));
+  assert.match(summary, /section list/);
+  assert.ok(summary.length < full.length, "summary must be smaller than full");
+  assert.ok(section.length < full.length && section.length > 0, "section must be a non-empty slice");
+  const bad = textOf(await client.callTool({ name: "get_pod2_guidelines", arguments: { section: "zzz-nope" } }));
+  assert.match(bad, /not found|Available sections/i);
+  await client.close();
+});

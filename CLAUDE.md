@@ -191,7 +191,7 @@ When editing anything under `docu/`, follow these rules (each prevents a defect 
 
 ### Large results & host truncation
 An oversized tool result is truncated by the host to a small preview, so a tool that returns a whole large file silently loses most of its content. Tools that can return big payloads therefore ship compact modes and must keep them:
-- `get_pattern_doc`, `get_api_doc` — `summary: true` (headings TOC) and `section` (one fence-aware slice).
+- `get_pattern_doc`, `get_api_doc`, `get_pod2_guidelines` — `summary: true` (headings TOC) and `section` (one fence-aware slice).
 - `get_rest_api` — `endpoint` (one operation + refs) and `summary` (paths only); full spec only on request.
 - `get_ui5_api` — `section` slice; the raw library JSON is never returned whole.
 - `get_api_index` — compact namespace overview by default; `filter` or `full: true` for more.
