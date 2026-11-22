@@ -724,7 +724,13 @@ Reference table (always re-confirm via `list_rest_apis`):
 
 ## Phase 5 — Write `VALIDATION-REPORT.md`
 
-Create `VALIDATION-REPORT.md` at working-directory root using the **exact structure and templates** below.
+**Filename:** `VALIDATION-REPORT_{ProjectName}_{YYYYMMDD-HHMM}.md`
+
+- `{ProjectName}` — PascalCase short name of the extension: the widget class name (e.g. `CoatingWidget` → `Coating`), or if no widget is present, the first action class name. If neither is determinable, use the working directory name.
+- `{YYYYMMDD-HHMM}` — timestamp at the moment the report is written, UTC (e.g. `20261122-1430`).
+- Example: `VALIDATION-REPORT_MultiLogNcCustomPlugin_20261122-1430.md`
+
+Create the file at working-directory root using the **exact structure and templates** below.
 Every section must appear in order, even when empty (write `— no findings —`).
 
 ---
