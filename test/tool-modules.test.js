@@ -283,3 +283,51 @@ test("validate_project PROMPT still loads the full workflow, not just the index"
   assert.ok(text.length > 20000, `prompt should carry the full file, got ${text.length} chars`);
   await client.close();
 });
+
+// ── cut-off guards on large unbounded results ─────────────────────────────
+
+test("get_api_doc summary:true returns a TOC instead of the full class doc", async () => {
+  const { client } = await connect();
+  const name = "sap.dm.dme.pod2.widget.core.TableWidget";
+  const full = textOf(await client.callTool({ name: "get_api_doc", arguments: { name } }));
+  const summary = textOf(await client.callTool({ name: "get_api_doc", arguments: { name, summary: true } }));
+  // Specs may be absent on CI; only assert the slicing relationship when present.
+  if (!/not available on this deployment|No API documentation/i.test(full)) {
+    assert.match(summary, /Table of contents/);
+    assert.ok(summary.length < full.length, "summary must be smaller than the full doc");
+  }
+  await client.close();
+});
+
+test("get_api_doc section returns one section or lists available sections", async () => {
+  const { client } = await connect();
+  const name = "sap.dm.dme.pod2.widget.core.TableWidget";
+  const res = textOf(await client.callTool({ name: "get_api_doc", arguments: { name, section: "zzz-nope" } }));
+  if (!/not available on this deployment|No API documentation/i.test(res)) {
+    assert.match(res, /not found|Available sections/i);
+  }
+  await client.close();
+});
+
+test("get_api_index default returns a compact namespace overview, not the full table", async () => {
+  const { client } = await connect();
+  const def = textOf(await client.callTool({ name: "get_api_index", arguments: {} }));
+  if (!/not available on this deployment/i.test(def)) {
+    assert.match(def, /Namespaces \(class count/);
+    const full = textOf(await client.callTool({ name: "get_api_index", arguments: { full: true } }));
+    assert.ok(def.length < full.length, "overview must be smaller than the full index");
+  }
+  await client.close();
+});
+
+test("get_example returns a manifest for a large extension and concatenates with all:true", async () => {
+  const { client } = await connect();
+  const def = textOf(await client.callTool({ name: "get_example", arguments: { plugin: "Customer.Coating" } }));
+  const all = textOf(await client.callTool({ name: "get_example", arguments: { plugin: "Customer.Coating", all: true } }));
+  assert.match(def, /too large to dump|Complete Source/); // manifest if big, concat if small
+  if (def.includes("too large to dump")) {
+    assert.ok(all.length > def.length, "all:true must return more than the manifest");
+    assert.match(all, /Complete Source/);
+  }
+  await client.close();
+});

@@ -12,6 +12,7 @@ import {
   missingSpecsMessage,
   READONLY_ANNOTATIONS,
 } from "../helpers.js";
+import { extractSection, extractSectionHeadings } from "./docs.js";
 
 const POD2_SPECS_LABEL = "POD2 API documentation";
 const POD2_SPECS_DIR_REL = "docu/pod2-api-specs/";
@@ -70,15 +71,27 @@ export function registerApiDocsTools(server: FastMCP): void {
     name: "get_api_doc",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Returns the full API documentation (Markdown) for a specific POD2 class or namespace. Accepts either dot notation (e.g. 'sap.dm.dme.pod2.action.Action') or convenient short aliases (e.g. 'Widget', 'PodContext', 'SfcClient', 'OrderClient').",
+      "Returns the API documentation (Markdown) for a specific POD2 class or namespace. Accepts either dot notation (e.g. 'sap.dm.dme.pod2.action.Action') or convenient short aliases (e.g. 'Widget', 'PodContext', 'SfcClient', 'OrderClient'). Large class docs can exceed 30 KB — use `summary: true` for a headings-only table of contents, or `section` to load one section (e.g. 'Methods', 'Properties', a specific method name), then fetch more as needed.",
     parameters: z.object({
       name: z
         .string()
         .describe(
           "Class name or short alias. Examples: 'Widget', 'Action', 'PodContext', 'SfcClient' OR full path 'sap.dm.dme.pod2.widget.Widget'",
         ),
+      section: z
+        .string()
+        .optional()
+        .describe(
+          "Optional: return only the section whose heading matches this (case-insensitive substring on any ## / ### heading). E.g. 'Methods', 'Properties', or a specific member name.",
+        ),
+      summary: z
+        .boolean()
+        .optional()
+        .describe(
+          "Optional: if true, return only the table of contents (all headings) instead of the full doc. Use to orient before loading a large class doc.",
+        ),
     }),
-    execute: async ({ name }) => {
+    execute: async ({ name, section, summary }) => {
       if (getPod2ApiDocFiles().length === 0) {
         throw new UserError(missingSpecsMessage(POD2_SPECS_LABEL, POD2_SPECS_DIR_REL));
       }
@@ -93,7 +106,18 @@ export function registerApiDocsTools(server: FastMCP): void {
 
       for (const filePath of candidates) {
         if (fs.existsSync(filePath)) {
-          return readFileContent(filePath);
+          const content = readFileContent(filePath);
+          if (summary && content) {
+            const headings = extractSectionHeadings(content);
+            return `Table of contents for "${name}" (${content.split("\n").length} lines total):\n\n${headings.join("\n")}\n\n→ Use get_api_doc({ name: "${name}", section: "<heading>" }) to load a specific section.`;
+          }
+          if (section && content) {
+            const extracted = extractSection(content, section);
+            if (extracted) return extracted;
+            const headings = extractSectionHeadings(content);
+            return `Section "${section}" not found in "${name}".\n\nAvailable sections:\n${headings.map((s) => `  • ${s}`).join("\n")}`;
+          }
+          return content;
         }
       }
 
@@ -204,7 +228,7 @@ export function registerApiDocsTools(server: FastMCP): void {
     name: "get_api_index",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Returns the POD2 API documentation index – a comprehensive overview of all classes, namespaces, and type definitions. Use the optional filter to narrow to a namespace (e.g. 'widget', 'api', 'context').",
+      "Returns the POD2 API documentation index. Without a filter it returns a compact namespace overview (class counts per namespace) to stay small; pass `filter` to list the actual classes in a namespace (e.g. 'widget', 'api', 'context'), or `full: true` to get the entire index table.",
     parameters: z.object({
       filter: z
         .string()
@@ -212,8 +236,14 @@ export function registerApiDocsTools(server: FastMCP): void {
         .describe(
           "Optional: return only lines containing this string (case-insensitive). E.g. 'widget' to see all widget classes, 'api' for API clients.",
         ),
+      full: z
+        .boolean()
+        .optional()
+        .describe(
+          "Optional: if true, return the entire index table (~45 KB). Prefer a filter or the default overview — the full table may be truncated by the host.",
+        ),
     }),
-    execute: async ({ filter }) => {
+    execute: async ({ filter, full }) => {
       const indexPath = path.join(POD2_API_SPECS_DIR, "index.md");
       if (!fs.existsSync(indexPath)) {
         throw new UserError(missingSpecsMessage(POD2_SPECS_LABEL, POD2_SPECS_DIR_REL));
@@ -231,7 +261,22 @@ export function registerApiDocsTools(server: FastMCP): void {
         return `API index (filter: "${filter}") – ${filtered.filter((l) => !l.startsWith("#")).length} matching entries:\n\n${result}`;
       }
 
-      return text;
+      if (full) {
+        return text;
+      }
+
+      // Default: compact namespace overview instead of the full 505-row table,
+      // which the host may truncate. Group classes by their namespace prefix.
+      const counts = new Map<string, number>();
+      for (const m of text.matchAll(/\]\((sap\.dm\.dme\.pod2\.[a-zA-Z]+)/g)) {
+        counts.set(m[1], (counts.get(m[1]) ?? 0) + 1);
+      }
+      const header = text.split("\n").slice(0, 6).join("\n");
+      const overview = [...counts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([ns, n]) => `  ${ns.replace("sap.dm.dme.pod2.", "")} — ${n}`)
+        .join("\n");
+      return `${header}\n\nNamespaces (class count — load one with get_api_index({ filter: "<namespace>" })):\n\n${overview}\n\n→ get_api_index({ filter: "widget" }) lists classes; get_api_index({ full: true }) returns the entire table; get_api_doc({ name: "<Class>" }) opens one class.`;
     },
   });
 }

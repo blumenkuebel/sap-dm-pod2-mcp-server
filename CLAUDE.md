@@ -189,6 +189,17 @@ When editing anything under `docu/`, follow these rules (each prevents a defect 
 4. **Keep `src/tools/docs.ts` in sync with `docu/`.** When you add, delete, or repurpose a `docu/*.md`, update its entry in the `list_pattern_docs` description map so the description matches the file's actual content (a deleted file must have no entry; a repurposed file must not keep its old description).
 5. **Preserve the `validate-project-instructions.md` phase contract.** The tool slices `## Orchestration Index`, and the index points agents at each phase by its exact `## Phase N` heading string. If you rename, add, or remove a phase heading, update the index's phase map to match — `test/tool-modules.test.js` asserts every indexed phase resolves to a non-empty slice, so a drift fails `npm test`. Keep per-rule detection greps + fixes in the `common-mistakes-*` category docs (single source of truth); Phase 3 is only an audit-trigger list that points at them.
 
+### Large results & host truncation
+An oversized tool result is truncated by the host to a small preview, so a tool that returns a whole large file silently loses most of its content. Tools that can return big payloads therefore ship compact modes and must keep them:
+- `get_pattern_doc`, `get_api_doc` — `summary: true` (headings TOC) and `section` (one fence-aware slice).
+- `get_rest_api` — `endpoint` (one operation + refs) and `summary` (paths only); full spec only on request.
+- `get_ui5_api` — `section` slice; the raw library JSON is never returned whole.
+- `get_api_index` — compact namespace overview by default; `filter` or `full: true` for more.
+- `get_example` — concatenates only small extensions; returns a file manifest otherwise (`all: true` forces full).
+- `validate_project` — returns the Orchestration Index only (see above).
+
+When adding a tool that can return more than ~20 KB, give it an equivalent slice/summary mode rather than dumping the whole payload.
+
 ### Authentication (HTTP)
 Optional via `MCP_AUTH_TOKEN`. Without a token set: no auth (for localhost dev). The `/health` endpoint is always public.
 

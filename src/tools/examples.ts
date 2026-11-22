@@ -53,7 +53,7 @@ export function registerExamplesTools(server: FastMCP): void {
     name: "get_example",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Returns the source code of a specific file from a POD2 reference example extension. Use to see production-grade Ground Truth code patterns. If no file specified, returns all files concatenated.",
+      "Returns the source code of a specific file from a POD2 reference example extension. Use to see production-grade Ground Truth code patterns. With no `file`, returns all files concatenated when the extension is small, otherwise a file manifest (with sizes) so you can fetch files individually — pass `all: true` to force the full concatenation.",
     parameters: z.object({
       plugin: z
         .string()
@@ -64,8 +64,14 @@ export function registerExamplesTools(server: FastMCP): void {
         .describe(
           "Optional: specific file path within the extension (e.g. 'widget/CoatingWidget.js', 'action/CoatingValidationAction.js', 'extension.json')",
         ),
+      all: z
+        .boolean()
+        .optional()
+        .describe(
+          "Optional: if true, force the full concatenation of every file even when large (may be truncated by the host). Default concatenates only small extensions and otherwise returns a manifest.",
+        ),
     }),
-    execute: async ({ plugin, file }) => {
+    execute: async ({ plugin, file, all }) => {
       const pluginPath = safePath(EXAMPLES_DIR, plugin);
       if (!pluginPath) {
         throw new UserError(`[Error: Invalid extension name "${plugin}" – path traversal not allowed.]`);
@@ -92,9 +98,28 @@ export function registerExamplesTools(server: FastMCP): void {
       }
       const allFiles = listPluginFiles(pluginPath, "");
       const textFiles = allFiles.filter((f) => isTextFile(f) || f.endsWith(".json") || f.endsWith(".properties"));
-      const sections: string[] = [];
-      for (const relFile of textFiles) {
+
+      // Guard against dumping a large extension whole (the host may truncate an
+      // oversized result). Below the threshold, or when all:true is passed,
+      // concatenate everything; otherwise return a manifest to fetch piecemeal.
+      const CONCAT_LIMIT = 24_000;
+      const sized = textFiles.map((relFile) => {
         const absPath = path.join(pluginPath, relFile);
+        const bytes = fs.existsSync(absPath) ? fs.statSync(absPath).size : 0;
+        return { relFile, absPath, bytes };
+      });
+      const total = sized.reduce((s, f) => s + f.bytes, 0);
+
+      if (!all && total > CONCAT_LIMIT) {
+        const manifest = sized
+          .sort((a, b) => a.relFile.localeCompare(b.relFile))
+          .map((f) => `  ${f.relFile} — ${f.bytes} bytes`)
+          .join("\n");
+        return `# ${plugin} — ${textFiles.length} files, ~${Math.round(total / 1000)} KB total (too large to dump whole)\n\n${manifest}\n\n→ Fetch one file: get_example({ plugin: "${plugin}", file: "<path>" })\n→ Force the full concatenation anyway: get_example({ plugin: "${plugin}", all: true })`;
+      }
+
+      const sections: string[] = [];
+      for (const { relFile, absPath } of sized) {
         if (fs.existsSync(absPath)) {
           const content = readFileContent(absPath);
           sections.push(`// ═══ ${relFile} ═══\n\n${content}`);
