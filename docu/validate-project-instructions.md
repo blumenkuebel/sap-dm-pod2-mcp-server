@@ -6,6 +6,12 @@
 >
 > Both surfaces load this file at runtime via `helpers.readFileContent()`.
 > Edit this file to update the validation logic — no rebuild needed for content changes.
+>
+> **Tool vs. prompt (intentional divergence — do NOT "fix" the tool to return the whole file):**
+> the **tool** returns only the `## Orchestration Index` section (sliced via `extractSection`) because
+> an oversized tool result is truncated by the host to a small preview — the agent then loads each
+> phase on demand. The **prompt** returns this whole file (prompt content expands into the
+> conversation and is not truncated).
 
 ---
 
@@ -16,6 +22,64 @@ Scope is **always full** — every applicable rule must be checked.
 > **Prerequisites — load before Phase 0:**
 > The meta-rules from `get_pod2_guidelines` (**Source-or-Silence** and **Reasoning-First**) apply to
 > this entire workflow. Call `get_pod2_guidelines` first if you haven't already done so this session.
+
+---
+
+## Orchestration Index
+
+> **READ THIS ENTIRE INDEX FIRST — then execute the phases in order.**
+> This is all you get from the `validate_project` **tool**. The per-phase detail is NOT in this
+> result; load each phase on demand with `get_pattern_doc` (see the table). Do not improvise a phase
+> you have not loaded — if a phase's detail is not in your context yet, load it before acting on it.
+
+**How to load a phase.** Call:
+
+```
+get_pattern_doc({ name: "validate-project-instructions", section: "<Phase string>" })
+```
+
+Use the **exact** `section` strings from the table below. `section` matching returns one heading
+block only, so `Phase 3b`, `Phase 3c`, `Phase 3d` are **separate** loads from `Phase 3` — load each
+one you need; do not assume `Phase 3` includes them.
+
+**Report filename (surfaced here so it is never missed).**
+Write findings to a **new** file at working-directory root named:
+
+```
+VALIDATION-REPORT_{ProjectName}_{YYYYMMDD-HHMM}.md
+```
+
+- `{ProjectName}` — PascalCase short name: the widget class name with the `Widget` suffix dropped
+  (e.g. `CoatingWidget` → `Coating`); if no widget, the first action class name; else the working
+  directory name.
+- `{YYYYMMDD-HHMM}` — UTC timestamp at write time (e.g. `20261122-1430`).
+- Example: `VALIDATION-REPORT_Coating_20261122-1430.md`. (Full header/section templates: Phase 5.)
+
+**Prior-report guardrail (do this in Phase 0, before any analysis).**
+If one or more `VALIDATION-REPORT_*.md` already exist in the working directory, **read the most
+recent one first** and decide whether a fresh run is warranted (e.g. source changed since it was
+written). **Always write a NEW timestamped file — never overwrite** an existing report, and never
+write a bare `VALIDATION-REPORT.md`.
+
+**Phase map.**
+
+| `section` to load | Scope |
+|---|---|
+| `Phase 0` | Discovery — confirm it is a POD 2.0 extension; prior-report check; identify structure. |
+| `Phase 1` | Load the MCP knowledge base (guidelines, all `common-mistakes-*`, basics, REST/API lists, reference example). |
+| `Phase 2` | Read the extension source (full text of every relevant file). |
+| `Phase 3` | Common-mistakes audit — the audit-trigger list by severity; greps + fixes come from the `common-mistakes-*` docs loaded in Phase 1. |
+| `Phase 3b` | Best-practice pattern audit (structural comparison against reference examples). |
+| `Phase 3c` | User customizations & severity mapping (respect intentional deviations / markers). |
+| `Phase 3d` | Architectural conformance gate (interceptor / rogue-automation). |
+| `Phase 4` | API-versions audit (REST v1/v2/v3, POD2 Public/Internal, MDO/OData, ModelPath↔PodContext). |
+| `Phase 5` | Write `VALIDATION-REPORT.md` — verbatim header, disclaimer, summary, finding format, section order. |
+| `Phase 6` | Chat summary. |
+
+> **Prerequisite for every phase:** the meta-rules from `get_pod2_guidelines`
+> (**Source-or-Silence**, **Reasoning-First**) apply throughout. Call `get_pod2_guidelines` first if
+> you have not already this session. Scope is **always full** — every applicable rule is checked.
+> Abort conditions: no `extension.json` → abort; invalid JSON → single-error report.
 
 ---
 
@@ -64,328 +128,149 @@ Read every relevant file (full text):
 
 ## Phase 3 — Common Mistakes Audit (every applicable rule)
 
-For each rule in the common-mistakes category files, run a concrete detection. Group findings by severity:
+**Every applicable rule must be checked** — scope is always full. This phase is the **audit trigger
+list**: which mistake codes to check, grouped by severity. The **detection grep + before→after fix
+for each code lives in the `common-mistakes-*` category docs you already loaded in Phase 1** (and, for
+the `HTML5-*` residue codes, in `html5-migration-guide.md`). Do not duplicate or re-derive the greps
+here — open the cited doc for the code you are checking. The category routing is:
+
+- **setup / extension.json / namespace** → `common-mistakes-setup.md`
+- **lifecycle / subscribe / dialogs / base classes / `_createView`** → `common-mistakes-lifecycle.md`
+- **imports / module paths / defensive coding / global-patching** → `common-mistakes-imports.md`
+- **UI / bindings / control choice / DOM-UI** → `common-mistakes-ui.md`
+- **configuration / properties / i18n metadata** → `common-mistakes-config.md`
+- **data / OData / models / PodContext-vs-model / manual-fetch** → `common-mistakes-data.md`
+- **i18n** → `common-mistakes-i18n.md`
+
+For each finding, cite the doc reference + the source line. Group findings by severity exactly as
+below.
 
 ### Errors (must-fix — these are broken in current SAP DM)
 
-- **M0 / M15 — extension.json placement & layout**
-  - extension.json MUST sit at project root (= ZIP root)
-  - NO `webapp/` folder, NO namespace-folder wrapper
-  - Folders `widget/`, `action/`, `context/`, `i18n/` directly at root
-- **M2 — extension.json schema**
-  - ONLY `widgets` and `actions` arrays. No `name`, `description`, `version`, `provider`, `license` fields.
-  - Each entry has `modulePath` (slashes) and `type` (dots), consistent.
-- **M3 — PodContext / ModelPath import path**
-  - MUST be `sap/dm/dme/pod2/context/PodContext` and `sap/dm/dme/pod2/context/ModelPath`
-  - NOT `sap/dm/dme/pod2/model/...` (legacy, broken)
-- **M5 — Subscribe callback parameter order**
-  - Callback signature MUST be `(newValue, path)` — NOT `(path, newValue)`. Detect via `PodContext.subscribe(...)` lambda inspection.
-- **M6 — `_createView()` returns view with ID**
-  - The returned root control MUST receive `oConfig.id` as **positional** first constructor argument.
-- **M14 — Model initialization order**
-  - If `_createView()` creates controls with bindings (`{/...}`), the JSONModel MUST be initialized **inside `_createView()`** before those controls are constructed (or guarded with `if (!this.#oModel) this._initializeModel()`).
-- **M21 — `sap.m.Panel` vs `CustomPanel`**
-  - For top-level layout containers, `sap.dm.dme.pod2.control.CustomPanel` is required (POD-Designer-compatible). Plain `sap.m.Panel` will not be draggable.
-- **M29 — SFC status as string**
-  - Comparisons like `sfcStatusCode === 401` (number) MUST be `=== "401"` (string). Same for filters, switch cases.
-- **M31 — Control ID must be FIRST positional arg**
-  - Detect anti-patterns: `oControl.setId(oConfig.id)`, `{ id: oConfig.id, ... }` in mSettings, build-then-setId in two statements.
-- **M41 — Non-existent AMD module path (runtime 404 during extension load)**
-  - Certain UI5 class names live in `sap.ui.core`, NOT in `sap.m`. Guessing the AMD path from the fully-qualified class name (`sap.m.Item` → `sap/m/Item`) hits a hard 404 at extension-load time — the entire widget never registers.
-  - **Detection (Error, auto-fixable)**: `grep -rnE '"sap/m/(Item|Icon|ListItem|Element|Control|Fragment|HTML)"' widget/ action/ context/ util/`
-  - **Fix (mechanical)**: replace the module string with `sap/ui/core/<Name>` — the destructured variable name in the factory callback stays the same.
+Check each of these codes (load the cited category doc for the grep + fix). Severity notes that
+differ from the default are called out inline:
 
-    | Wrong | Correct |
-    |---|---|
-    | `"sap/m/Item"` | `"sap/ui/core/Item"` |
-    | `"sap/m/Icon"` | `"sap/ui/core/Icon"` |
-    | `"sap/m/ListItem"` | `"sap/ui/core/ListItem"` |
-    | `"sap/m/Element"` | `"sap/ui/core/Element"` |
-    | `"sap/m/Control"` | `"sap/ui/core/Control"` |
-    | `"sap/m/Fragment"` | `"sap/ui/core/Fragment"` |
-    | `"sap/m/HTML"` | `"sap/ui/core/HTML"` |
+- **M0 / M15** — extension.json placement & layout (root = ZIP root; no `webapp/` or namespace wrapper).
+- **M2** — extension.json schema (only `widgets` + `actions` arrays; each entry `modulePath` + `type`).
+- **M3** — `PodContext` / `ModelPath` import path (`sap/dm/dme/pod2/context/*`, not legacy `…/model/*`).
+- **M5** — subscribe callback parameter order must be `(newValue, path)`.
+- **M6** — `_createView()` returns the root control with `oConfig.id` as **positional first** arg.
+- **M14** — JSONModel initialised inside `_createView()` before bound controls are built.
+- **M21** — top-level container must be `CustomPanel`, not plain `sap.m.Panel`.
+- **M29** — SFC status compared as **string** (`=== "401"`), never a number.
+- **M31** — control ID must be the **first positional** constructor arg (no `setId`, no `{id:…}`).
+- **M32** — widget metadata i18n trio uses the **named `<widgetName>.` prefix** (NOT the legacy
+  `widget.` prefix, NOT unprefixed). A correct camelCase `<widgetName>.` prefix is **not a finding**;
+  flag only legacy/unprefixed keys or a widget/bundle key mismatch. (`common-mistakes-config.md`)
+- **M41** — base/abstract UI5 classes (`Item`, `Icon`, `ListItem`, `Element`, `Control`, `Fragment`,
+  `HTML`) import from `sap/ui/core/*`, not `sap/m/*` (else runtime 404 at extension load).
+- **M42** — custom `.extend()` control without a `renderer` key → runtime 404; add the renderer.
+- **M43** — native numeric value passed to a UI5 `float`/`int` property (not a string).
+- **M64** — `sap.m.MessageStrip.link` aggregates `sap.m.Link`, not `sap.m.Button`.
+- **M65** — `_createView()` takes **no** args; read config via `this.getConfig()`.
+- **M71** — correct notification-subscribe keys (`onMessage`, `EventType.*`) and `Logger.warn` (no
+  `.warning()`). (`common-mistakes-imports.md`)
+- **M33** — BusyIndicator: exactly two allowed patterns (Widget `oView.setBusy`, Action
+  `BusyIndicator.show/hide`); anything else is an Error. (`common-mistakes-lifecycle.md`)
+- **M70** — silent information loss via standard-control bias (applies only when
+  `sourceFormat === "html5"`; checks `MIGRATION_MAPPING.md` / `MIGRATION_VERIFICATION.md` coverage).
+  ⚠️ Warning-grade; NOT auto-fixable. (`common-mistakes-ui.md`)
 
-  - **Rule of thumb**: base/abstract UI5 classes (`Item`, `Icon`, `Element`, `Control`, `Fragment`, `HTML`) live in `sap.ui.core`. Only `sap.m` derivatives (`SelectItem`, `ObjectStatus`, `Text`, `Table`, `Button`, …) use `sap/m/*` paths.
-  - **Verification during authoring**: for any UI5 module, call `get_ui5_api({ symbol: "<sap.class.name>" })` — the `module` field in the response is the canonical AMD path.
-- **M42 — Custom control (`.extend()`) without `renderer` in metadata** → ❌ Error (runtime 404, hard fail)
-  - Any `<BaseControl>.extend("customer.custom.extensions.<name>.<...>.<Name>", {...})` call that does NOT provide a `renderer` key inside the second argument triggers UI5's fallback `<Name>Renderer.js` module load → 404 → plugin fails to register.
-  - **Detection**: `grep -rn "\.extend(" widget/ context/ util/` — for each hit, verify the settings object has either `renderer: <Parent>.getMetadata().getRenderer()`, `renderer: {...}`, `renderer: null`, or an accompanying `<Name>Renderer.js` file on disk.
-  - **Fix**: for composite controls that inherit visuals (`CustomVBox`/`CustomHBox`/`CustomPanel` subclasses), add `renderer: <Parent>.getMetadata().getRenderer()`. For headless helpers, `renderer: {}` or `renderer: null`.
-  - Auto-fixable: yes (mechanical) for composite/layout subclasses; NO for controls that genuinely need custom DOM output.
-- **M43 — String passed to UI5 numeric property (`float` / `int`)** → ❌ Error (runtime `validateProperty` throw)
-  - Numeric UI5 properties reject strings even when the string parses cleanly to a number. Common victims: `LineMicroChartPoint.x` / `.y`, `BulletMicroChartData.value`, `ProgressIndicator.percentValue`, `sap.viz.ui5.controls.*` feed values.
-  - **Detection**:
-    - `grep -rnE 'new (LineMicroChartPoint|BulletMicroChartData|RadialMicroChart)\(\{[^)]*(x|y|value):\s*String\(' widget/ action/ context/`
-    - `grep -rnE 'new (LineMicroChartPoint|BulletMicroChartData)\(\{[^)]*(x|y|value):\s*"' widget/`
-    - Template literals feeding numeric props: `grep -rnE '(x|y|value|percentValue):\s*\`' widget/`
-  - **Fix**: pass native numeric values. Convert with `Number(...)` if the source is a string. Never use `.toFixed()` results as numeric-property inputs — `.toFixed` returns a string, appropriate only for display.
-  - Auto-fixable: yes (mechanical `String(x)` → `Number(x)` / `"" + x` → `x`).
-
-- **M64 — `sap.m.MessageStrip.link` aggregates `sap.m.Link`, not `sap.m.Button`** → ❌ Error (runtime aggregation type-check)
-  - `MessageStrip.link` is a 0..1 aggregation of type `sap.m.Link`. Passing a `sap.m.Button` throws `"Element sap.m.Button#…" is not valid for aggregation "link" of Element sap.m.MessageStrip#…` at first render.
-  - **Detection (Error, auto-fixable)**:
-    - `grep -rnE 'link:\s*new Button' widget/ action/`
-    - Broader (multi-line, catches split-arg style): `grep -rn -B1 -A6 'new MessageStrip' widget/ action/ | grep -E 'link:\s*new Button'`
-  - **Fix (mechanical)**: replace the import `"sap/m/Button"` bound to that call site with `"sap/m/Link"`, and `new Button(` → `new Link(` inside the `MessageStrip` constructor. Do NOT globally rename Button → Link — only the reference inside the MessageStrip.link value.
-  - Reference: `common-mistakes-ui.md` #M64, `dashboard-patterns.md` §Pattern 6.
-
-- **M65 — `_createView()` receives NO arguments — read config via `this.getConfig()`** → ❌ Error (runtime `TypeError: Cannot read properties of undefined`)
-  - The POD 2.0 framework calls `_createView()` with an empty argument list. Declaring `_createView(oConfig) { … }` binds `oConfig` to `undefined` at runtime — the widget crashes on the first render pass.
-  - **Detection (Error, auto-fixable)**:
-    - `grep -rnE '_createView\s*\(\s*[a-zA-Z_]' widget/` — any hit inside a `widget/*.js` file (i.e. an argument-carrying `_createView` signature) is a hard finding.
-  - **Fix (mechanical, two-step)**:
-    1. Rewrite `_createView(oConfig)` → `_createView()`.
-    2. Insert `const oConfig = this.getConfig();` as the first statement in the method body.
-  - Verify the body still references `oConfig.id` for M6 conformance. If the body never used the parameter, delete the argument only.
-  - Reference: `common-mistakes-lifecycle.md` #M65, `sap.dm.dme.pod2.widget.Widget.md` §`_createView`, `Customer.Coating/widget/CoatingWidget.js` (Ground Truth).
-
-- **M66 — Binding-referenced instance initialised in `onInit()` — `_createView()` runs first** → ⚠️ Warning (runtime `TypeError: Cannot read properties of undefined (reading 'format' | 'get' | …)`)
-  - `_createView()` runs BEFORE `onInit()`. UI5 evaluates `formatter:` closures **during control construction** — a `formatter: v => this.#oPctFmt.format(v)` closure fires against `this.#oPctFmt === undefined` at the first render pass if `#oPctFmt` was initialised in `onInit()`.
-  - **Detection (Warning — a widget with zero formatter closures is unaffected)**:
-    1. Fields assigned in `onInit()` to formatter-producing factories:
-       ```
-       awk '/onInit\s*\(/,/^\s{4}}/ { print }' widget/*.js \
-         | grep -nE 'this\.#o[A-Z]\w*\s*=\s*(NumberFormat|DateFormat|ODataV4Client|new JSONModel)'
-       ```
-    2. Same field referenced from a binding formatter:
-       ```
-       grep -nE 'formatter:\s*[^,)]*this\.#o[A-Z]' widget/*.js
-       ```
-    - A file that produces hits in **both** greps is a candidate defect. Confirm at runtime — a `Cannot read properties of undefined (reading 'format'|'get'|'getProperty')` at first render confirms M66.
-  - **Fix (semi-mechanical)**:
-    1. Extract field-initialisations from `onInit()` into a new `_ensureRuntime()` method with `if (!this.#oX) { … }` guards for idempotency.
-    2. Insert `this._ensureRuntime();` as the first statement of both `_createView()` and `onInit()`.
-    3. Leave any non-idempotent side-effects (`PodContext.subscribe`, `Timer.start`, `setModel` on the widget view) in `onInit()` — those genuinely belong after view construction.
-  - Auto-fixable: **NO** (multi-step refactor with idempotency guards — flag for human review). The finding text in the report MUST cite the exact `formatter:` closure(s) that read the un-initialised field.
-  - Reference: `common-mistakes-lifecycle.md` #M66, `dashboard-patterns.md` §Pattern 1 (lifecycle box + `_ensureRuntime` helper), `html5-migration-guide.md` §5, §6 (comment now reads "Once, in `_createView()` before building the view").
-
-- **M71 — Wrong notification-subscribe keys & non-existent `Logger.warning()`** → ❌ Error (handler silently never fires / runtime `TypeError`)
-  - Two independent API-shape traps, both silent until runtime. See `common-mistakes-imports.md` #M71.
-  - **Detection**:
-    - `grep -rn -A6 'PodNotificationWebSocket\.subscribe' widget/ action/ context/ util/ | grep -E 'callback:|listener:'` — any hit is wrong; the handler key is `onMessage` and there is no `listener` key. Auto-fix: rename `callback:` → `onMessage:`, delete `listener:`.
-    - `grep -rnE '\.subscribe\(\s*\{' widget/ action/ context/ util/ | ...` then confirm `eventType:` uses an `EventType.*` constant, not a hardcoded string.
-    - `grep -rnE '(Log|oLog|logger|#oLog)\.warning\(' widget/ action/ context/ util/` — `Logger` has no `warning()`; replace with `.warn(`. **Do NOT** flag `MessageBox.warning(` — that is a different (correct) class.
-  - Auto-fixable: **YES** (mechanical rename for both `onMessage` and `warn`).
-  - Reference: `common-mistakes-imports.md` #M71, `pod2-public-api-pattern.md` §Subscribe Example, `get_api_doc({ name: "PodNotificationWebSocket" })` / `get_api_doc({ name: "Logger" })`.
-
-
-- **M72 — Internal / app-router API hard-wired into extension source (public-API-first)** → ⚠️ Warning (works in one tenant, breaks across tenants/releases)
-  - Extension source calls an unversioned internal surface (execution host, `~GUID~`, `dmi/cdt` / `dim/destinations`) instead of a public REST API. Such surfaces are for agent-side discovery (`sap-dm-api-mcp-server.call_internal_api`), not extension code. See `common-mistakes-data.md` #M72.
-  - **Detection**:
-    - `grep -rnE '\.execution\.[a-z0-9-]+\.web\.dmc\.cloud\.sap|~[A-Za-z0-9-]+~|dmi/cdt|dim/destinations' widget/ action/ context/ util/` — any hit is a finding. **Do NOT** flag `ApiClient.internal.processengine` — that is a documented framework API, not an app-router call.
-  - Auto-fixable: **NO** — requires finding the equivalent public REST API (`search_rest_apis`) or explicit user confirmation to keep the internal call.
-  - Reference: `common-mistakes-data.md` #M72, `get_pod2_guidelines` §Public-API-First, `pod2-public-api-pattern.md`.
-
-
-- **M73–M81 — Architectural conformance (interceptor / rogue-automation anti-patterns)** → ❌ Errors
-  - These catch extensions that **function** but violate the POD framework at the architecture level — a class the earlier surface checks (i18n, class name, `onInit`, imports) miss entirely. They split into two clusters that almost always co-occur: **self-level abuse** (M73 manual requests, M74 model-scraping, M75 `_createView` side effects, M76 timeout/polling, M77 DOM-painted UI, M78 global monkey-patching) and **foreign-widget abuse** (M79 discovering, M80 mutating, M81 firing synthetic events at *another widget's* controls). All are Rule-3 hard findings — `validate: info-only` does NOT downgrade them (see Phase 3c). When **three or more distinct** of M73–M81 fire, Phase 3d raises the Architectural Conformance Gate.
-  - Load the full canonical entries before reporting — detection greps and before→after fixes live there, this list is the audit trigger only. **Scan set**: `widget/ action/ context/ util/` **plus any non-standard source folder** (some extensions ship under `plugin/` or similar) — when in doubt, scan all `*.js`.
-
-  - **M73 — Manual `fetch()` / `XMLHttpRequest` to SAP DM endpoints instead of the built-in clients** (`common-mistakes-data.md` #M73)
-    - Detection: `grep -rnE '\bfetch\s*\(|new\s+XMLHttpRequest|XMLHttpRequest\s*\(|\$\.ajax|axios\.(get|post|put|delete|request)' <scan-set>` — exclude the legitimate `ODataV4Client`/`ODataV2Client`/`RestClient`/`ApiClient` layer.
-    - Fix: `ODataV4Client` (OData/MDO), `RestClient` + `ApiPaths` (public REST), `ApiClient.<ns>.<method>` (documented ops). A request whose URL is observed/copied also trips **M72** — report both.
-    - Note: this is the general rule; the §1c **HTML5-FETCH** check is the migration-residue sibling — cross-reference, don't double-report the fix.
-
-  - **M74 — Shared context (plant/SFC/order/workCenter) read from a model path instead of `PodContext`** (`common-mistakes-data.md` #M74)
-    - Detection: `grep -rnE '["'"'"']/(workList|plant|filter|execution|selected)[/A-Za-z]' <scan-set>` — a core-context path as a string literal, whoever consumes it (`getProperty("/…")`, a `get("/…")`/`resolveBinding("/…")` wrapper); confirm it is a model read with `getProperty(`/`.getModel()`. Also flag any private helper (`_podContext()`, `_getContext()`) assembling `{ sfc, plant, order, … }` from such reads, and any `someControl.getModel().getProperty(...)` borrowing another widget's state.
-    - Fix: `PodContext.getPlant()`, `getLastSelectedWorkListItem()`, `getSelectedWorkListItems()`, `get(ModelPath.X)`; react via `subscribe`/`getWhenAvailable`.
-    - **Feeds the §5 audit** (Phase 4d): a widget that uses shared context but has zero `PodContext.*` calls is M74 — not a vacuous "✅ No findings".
-
-  - **M75 — Control lookup / event wiring / timers started from `_createView()` instead of `onInit()`** (`common-mistakes-lifecycle.md` #M75)
-    - Detection: `grep -nE 'setTimeout\s*\(' <scan-set>` where the body/called method is reached from `_createView()` (a `setTimeout(fn, 0)` at the end of `_createView()` is the tell); plus `grep -nE 'ElementRegistry|\battachEvent\s*\(|\.attachPress\s*\(|setInterval\s*\(' <scan-set>` reached from `_createView()` rather than `onInit()`.
-    - Fix: `_createView()` returns a view only; side effects + subscriptions + timers go in `onInit()` after `await super.onInit()`, torn down in `onExit()`.
-
-  - **M76 — Fixed timeouts / polling loops to coordinate async instead of awaiting a signal** (`common-mistakes-lifecycle.md` #M76)
-    - Detection: `grep -nE 'const\s+sleep\s*=|=>\s*new Promise\([^)]*setTimeout|new Promise\([^)]*setTimeout' <scan-set>` (delay-promise helper); `grep -nE 'while\s*\([^)]*Date\.now\(\)' <scan-set>` (busy-wait); `grep -nE '_(MS|TIMEOUT|DELAY)\b|WAIT_[A-Z_]*_MS|IDLE_MS' <scan-set>` (the tuning-constant wall); `setInterval` used to re-check state.
-    - Fix: `await` the operation's promise (M73 client), `PodContext.getWhenAvailable`, or a one-shot control event (`updateFinished`, `dataReceived`).
-
-  - **M77 — Hand-built DOM UI (overlay, inline `style`, custom dialog) instead of standard SAPUI5 controls** (`common-mistakes-ui.md` #M77)
-    - Detection: `grep -rnE 'document\.createElement|\.appendChild\(|\.innerHTML\s*=|\.style\.cssText|\.style\.[a-zA-Z]+\s*=|document\.addEventListener\(' <scan-set>`; `grep -rnE '#[0-9a-fA-F]{3,6}\b|rgba?\(' <scan-set>` (hard-coded colors, M61 overlap).
-    - Fix: `BusyDialog` / `BusyIndicator` / `oView.setBusy` for blocking; `Dialog` / `MessageBox` for dialogs. Same class as M60/M61 — **only** the `// standard-only: exception — <reason>` marker downgrades it, never `validate: info-only`.
-
-  - **M78 — Monkey-patching global `XMLHttpRequest`/`fetch` (and standard controls' `firePress`) to infer request status** (`common-mistakes-imports.md` #M78)
-    - Detection: `grep -rnE 'XMLHttpRequest\.prototype|window\.fetch\s*=|\.prototype\.(open|send|setRequestHeader)\s*=' <scan-set>` (global request patching); `grep -rnE '\.firePress\s*=|__.*OriginalFirePress' <scan-set>` (overriding standard handlers); `grep -rnE 'inflight|loadend' <scan-set>` used to infer completion (pairs with M76).
-    - Fix: drive your own operations through the typed clients and read their resolved/rejected promise; react to shared state via `PodContext`/control events. Never observe another component's traffic.
-
-  - **M79 — Discovering another widget's controls (global registry, generated IDs, identity-by-text, private internals)** (`common-mistakes-lifecycle.md` #M79)
-    - Detection: `grep -rnE 'ElementRegistry|Core\.byId\(|sap\.ui\.getCore\(\)\.byId' <scan-set>` (global discovery); a `_find(...)`/`_byId(...)` helper called with anything other than this widget's own `getConfig().id`; `grep -rnE 'getText\(\)\s*===|getTitle\(\)\s*===' <scan-set>` near `.isA(`/`getCells()` (identity by rendered, **localized** text); `grep -rnE '\.bIsDestroyed|\.mBindingContexts|\.getDomRef\(\)|getCore\(\)\.applyChanges\(' <scan-set>` (private internals).
-    - Fix: a widget addresses only controls **it created**; coordinate with other components through `PodContext` publish/subscribe (or an Action/Production Process), never by scavenging their control handles.
-
-  - **M80 — Mutating another widget's controls/state (`setVisible`/`setEnabled`/`setSelected`/`setValue`, force-enable, `data()`-tagging)** (`common-mistakes-lifecycle.md` #M80)
-    - Detection: `grep -rnE '\.(setVisible|setEnabled|setSelected|setValue|setText|setBusy|setMode|removeSelections|setIncludeItemInSelection|setRememberSelections)\(' <scan-set>` — hard finding when the receiver is a control obtained via M79 discovery (not one the widget created in `_createView`). Classic case: finding the standard row button by `getText()==="Log NC"` then `setVisible(false)` to "remove" it. Also `grep -rnE 'FORCE[_A-Z]*ENABLE|setEnabled\(\s*true\s*\)' <scan-set>` (defeating a disabled-by-validation control) and `.data("…")` on a foreign control.
-    - Fix: write only your own controls + `PodContext` setters; to achieve a standard button's effect call the public API/Action behind it.
-
-  - **M81 — Firing synthetic events / simulating DOM interaction on another widget's controls** (`common-mistakes-lifecycle.md` #M81)
-    - Detection: `grep -rnE '\.(firePress|fireSelectionChange|fireChange|fireLiveChange|fireSelect|fireItemPress)\(' <scan-set>` — hard finding when fired on a discovered/foreign control; `grep -rnE '\.getDomRef\(\)\s*\.click\(|\b(dom|domRef|oDom|el)\.click\(|dispatchEvent\(|new (MouseEvent|KeyboardEvent|PointerEvent)\(' <scan-set>` (simulated DOM interaction — chained or split `getDomRef()` + `.click()`).
-    - Fix: trigger business logic through the public API/Action; reflect selection via `PodContext` setters; fire events only on controls you created.
-
-
-- **M70 — Silent information loss via standard-control bias** → ⚠️ Warning (semantic — no runtime error, invisible until visual review)
-  - The migrator picked a standard control (typically `sap.m.GenericTile`) for a source composite that carries more fields than the target has slots, and dropped the delta silently. `MIGRATION_VERIFICATION.md` shows ✅ across the coverage matrix. Runtime works. Deploy renders less than the source.
-  - **Detection (Warning — applies only when `sourceFormat === "html5"`)**: three mechanical checks (a **plus** a manual visual walk-through in Phase 5c).
-    1. **`MIGRATION_MAPPING.md` presence of source-field inventory per composite**:
-       ```
-       grep -c '^## Composite:' MIGRATION_MAPPING.md
-       grep -c '^Source fields:' MIGRATION_MAPPING.md
-       grep -c '^Slots covered:' MIGRATION_MAPPING.md
-       ```
-       If `## Composite:` count > 0 AND (`Source fields:` count < `## Composite:` count OR `Slots covered:` count < `## Composite:` count) → **M70 gate failure**: some composite mapping is silent about its field inventory.
-    2. **`MIGRATION_VERIFICATION.md` presence of the Field-coverage report**:
-       ```
-       grep -c '^## Field-coverage report' MIGRATION_VERIFICATION.md
-       ```
-       `0` → **M70 gate failure**: verification is silent about slot coverage.
-    3. **Cross-check**: for every migrated composite, verify the `## Field-coverage report` row has an empty **Dropped fields** column OR a `User-approved?` value of `✅`. Any row with non-empty Dropped fields AND non-`✅` approval → gate failure.
-  - **Fix**: three legal outcomes for each finding — NEVER silent drop:
-    1. **Escalate** the target control (e.g. `GenericTile` → `sap.f.Card` + `NumericHeader`, following the "Escalate to" column in `dashboard-patterns.md` §"Chart→control decision table").
-    2. **List the field explicitly** in `MIGRATION_MAPPING.md` under `### Intentionally dropped` with a business justification, and record user approval in the Field-coverage report.
-    3. **Add a `f:content` fragment** in the Card body (e.g. `sap.m.ProgressIndicator` for the progress bar) — NOT a custom control emission (that would be M60).
-  - Auto-fixable: **NO** — the resolution is either a structural change (escalate target control) or an out-of-band user decision (approved drop).
-  - Reference: `common-mistakes-ui.md` #M70, `dashboard-patterns.md` §"Chart→control decision table" (Slots + Escalate-to columns), §"Slot map — when to escalate `GenericTile` → `sap.f.Card` + `NumericHeader`" (10-slot map for the escalation target).
-- **M32 — Widget metadata i18n trio with `<widgetName>.` prefix (named prefix)**
-  - `<widgetName>` = the widget's camelCase short name (e.g. `coating`, `helloWorld`, `stepStatus`, `tableView`). Example: for a `CoatingWidget`, the required keys are `coating.displayName`, `coating.description`, `coating.category`.
-  - **NOT a finding** — do **NOT** flag: any camelCase `<widgetName>.` prefix that matches the widget's short name. This IS the required form. Multi-widget plugins have one trio **per widget** in the same bundle (e.g. `coating.*` AND `helloWorld.*` side-by-side) — this is uniform, correct, and MUST NOT be flagged. Never expect the literal string `widget.` — that is the DEPRECATED form.
-  - **Flag as Error** only when: (a) bundles use legacy unprefixed keys (`displayName=`, `description=`, `category=` with no prefix at all), **OR** (b) bundles use the deprecated generic `widget.` prefix, **OR** (c) the widget code reads keys that don't exist in the bundles (widget/bundle mismatch).
-  - The widget code MUST read these via `getI18nText("<widgetName>.displayName" / "<widgetName>.description" / "<widgetName>.category")`. All four locale bundles (`i18n.properties`, `i18n_de.properties`, `i18n_en.properties`, `i18n_en_US.properties`) MUST contain the trio.
-  - The values MUST come from `POD2_PLUGIN_EXAMPLE.md` (or `POD2_PLUGIN_TEMPLATE.md`) verbatim — flag suspicious copy-paste like `<widgetName>.category=CUSTOMER` if the spec says something else.
+> **M66** (binding-referenced instance initialised in `onInit()` — ⚠️ Warning) and **M72** (internal /
+> app-router API hard-wired into extension source — ⚠️ Warning) are lower-severity but checked here;
+> see `common-mistakes-lifecycle.md` / `common-mistakes-data.md`.
+>
+> **M73–M81 (Architectural conformance — interceptor / rogue-automation)** are hard Errors and feed the
+> **Phase 3d gate** (≥3 distinct fire → `❌ NOT CONFORMANT`). These are **nine distinct checks** in two
+> clusters — load their canonical entries for the greps + fixes and scan `widget/ action/ context/ util/`
+> **plus any non-standard source folder**:
+> - *self-level abuse* — **M73** manual `fetch`/`XMLHttpRequest`, **M74** shared context (plant/SFC/order)
+>   read from a model path vs `PodContext`, **M75** control lookup/timers in `_createView()` vs `onInit()`,
+>   **M76** fixed timeouts/polling vs an awaited signal, **M77** hand-built DOM UI vs standard controls,
+>   **M78** monkey-patching global `XMLHttpRequest`/`fetch`/`firePress`.
+> - *foreign-widget abuse* — **M79** discovering, **M80** mutating, **M81** firing synthetic events at
+>   another widget's controls.
+>
+> (`common-mistakes-{data,lifecycle,imports,ui}.md`.) **M74 also feeds the Phase 4d audit** — a widget
+> that uses shared context but makes zero `PodContext.*` calls is an M74 finding, not "✅ no findings".
+> None of M73–M81 downgrade under `validate: info-only` (see Phase 3c).
 
 ### Warnings (should-fix — works but legacy / risky)
 
-- **M1 — `onExit()` unsubscribe**
-  - Every `PodContext.subscribe(...)` MUST have a matching `PodContext.unsubscribe(...)` in `onExit()` with the SAME callback reference. Count subscribe vs unsubscribe occurrences.
-- **M4 — StringPropertyEditor default value**
-  - Don't pass a 3rd default argument; defaults belong in `getDefaultConfig()` / `getPropertyValue()`.
-- **M7 — PlacementType import**
-  - `PlacementType` from `sap/m/PlacementType`, NOT from `sap/ui/core/library`.
-- **M8 — Wrong ModelPath constants**
-  - Cross-check every `ModelPath.X` against `get_api_doc({ className: "sap.dm.dme.pod2.context.PodContext" })` and `sap.dm.dme.pod2.context`. Specifically flag non-existent ones like `SelectedWorkListItem` (singular), `SelectedSfc`, etc.
-- **M9 — getResourceBundle()**
-  - `this.getResourceBundle()` doesn't exist on Widget. Either use `getI18nText()` via I18nResourceModel, or load `sap/base/i18n/ResourceBundle` manually in `onInit`.
-- **M10 — `class:` vs `addStyleClass()`**
-  - In control settings, `class: "..."` is invalid; use `.addStyleClass("...")`.
-- **M11 — Third-party library AMD bypass**
-  - Direct `jQuery.sap.includeScript` or `<script>` tag injection without AMD shadowing → flag.
-- **M13 — Expression vs Formatter for trivial conditions**
-  - `formatter: () => x === 'X'` for simple equality → suggest expression binding `{= ${x} === 'X' }`.
-- **M16 — No-data text**
-  - Hard-coded `"No data"` without state-aware text → suggest dynamic explanation.
-- **M18 — GrowingJSONModel page increment**
-  - If GrowingJSONModel used: ensure page counter `#iPage` is incremented per fetch (not always 0).
-- **M19 — Dialogs without `afterClose: () => destroy()`**
-  - Detect `new Dialog(` / `new PodDialog(` without destroy in afterClose.
-- **M20 — Column / cell index mismatch in TableWidget**
-  - For dynamic columns: same index splice for columns and cells.
-- **M22 — Multiple subscribe calls vs array form**
-  - 3+ separate `PodContext.subscribe(...)` calls with the same callback → suggest array form `PodContext.subscribe([...], cb, this)`.
-- **M23 — Forgetting `finally` to clear busy state**
-  - `oView.setBusy(true)` must always have a matching `setBusy(false)` in a `finally` block.
-- **M24 — Generic error display for expected error codes**
-  - `catch` blocks that show error message for `sfc.notInCompletePending` etc. → suggest specific handling.
-- **M26 — EXCLUDE_PROPERTIES vs IGNORE_TABLE_PROPERTIES misuse**
-  - Cross-check whether widget-specific (non-Table) properties are in EXCLUDE_PROPERTIES instead of IGNORE_TABLE_PROPERTIES.
-- **M27 — Missing `_syncSelectionsWithPodContext` for TableWidget**
-  - If subscribing to `SelectedWorkListItems`, the table must sync (initial + on change) and `_onSelectionChange` must preserve existing selections.
-- **M28 — Multi-part bindings without null checks**
-  - Formatters using multiple parts MUST defensively check each parameter (`if (!a || !b) return ""`).
-- **M30 — German i18n: SFC vs PSN**
-  - In `i18n_de.properties`: ANY user-facing `SFC` literal in the value (right-hand side of `=`) MUST be `PSN`. Code identifiers stay `sfc`.
-  - The reverse: `i18n.properties` / `i18n_en.properties` / `i18n_en_US.properties` should NOT contain `PSN`.
-- **M33 — BusyIndicator: two strict patterns (Widget vs. Action)** → ❌ Error
-  - There are **exactly two** allowed busy-indicator patterns. Anything else is a finding:
-    1. **Widget code** (`widget/*.js`): the verbatim three-line preamble
-       ```javascript
-       const oView = this.getView();
-       oView.setBusyIndicatorDelay(0);
-       oView.setBusy(true);
-       // ... try / finally with oView.setBusy(false);
-       ```
-    2. **Action code** (`action/*.js`): `BusyIndicator.show(0)` / `BusyIndicator.hide()` imported from `"sap/ui/core/BusyIndicator"`.
-  - **Action-side findings** (Error, auto-fixable):
-    - `grep -rnE '\.setBusy\(' action/` — any hit
-    - `grep -rnE 'getPodRuntime\(\)\.getView\(\)' action/` — any hit
-    - Replace with `BusyIndicator.show(0)` / `BusyIndicator.hide()`. Add `"sap/ui/core/BusyIndicator"` to the dependency array.
-  - **Widget-side findings** (Error, auto-fixable):
-    - `grep -rnE 'this\.setBusy\(' widget/` — Widget has no `setBusy()` method; this is a runtime error. Replace with `this.getView().setBusy(...)`.
-    - `grep -rnE 'new BusyIndicator\(' widget/` — inline `new BusyIndicator(...)` from `sap/m/BusyIndicator` as a sub-control is an anti-pattern; use `oView.setBusy()` on the widget view instead.
-    - `grep -rnE 'sap/m/BusyIndicator' widget/` — import of `sap/m/BusyIndicator` in widget code is forbidden (use `getView().setBusy()`).
-    - `grep -rnE '\.setBusy\(\s*true\s*\)' widget/` followed by a check that the preceding line is `setBusyIndicatorDelay(0)` — if missing, this is a **Warning** (perceived "no feedback" UX due to 1000ms default delay). Auto-fix: insert `oView.setBusyIndicatorDelay(0);` before `oView.setBusy(true);`.
-    - Single-control busy on tables/lists in widget code (e.g. `oTable.setBusy(`, `oList.setBusy(`) when there is no clear reason — **Warning**, replace with `oView.setBusy()`. NOTE: single-control busy on a separate dialog/popover controller is legitimate and must NOT be flagged.
-  - Reference: [`docu/common-mistakes.md` #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator).
-  - Auto-fixable: yes (all variants are mechanical).
-- **M34 — `parseFloat()` on user input breaks localized number formats** → ⚠️ Warning (silent data loss in non-`en-*` locales)
-  - In any `widget/*.js`: `parseFloat(oInput.getValue())`, `Number(oInput.getValue())`, or `parseFloat(o<X>Input.getValue())` is locale-blind and silently truncates German `"1,5"` to `1`.
-  - Same for **display**: `(num).toString()` followed by `setValue()` / `setText()` shows English-format dots in a German UI.
-  - Required pattern: a `_getNumberFormat()` / `_parseNumber()` / `_formatNumber()` helper trio using `sap/ui/core/format/NumberFormat` (see Coating widget reference).
-  - Detection:
-    - `grep -nE 'parseFloat\(\s*[^)]*\.getValue\(\)' widget/`
-    - `grep -nE 'Number\(\s*[^)]*\.getValue\(\)' widget/`
-    - `grep -nE '\.setValue\(\s*[^)]*\.toString\(\)' widget/`
-    - `grep -nE '\.setText\(\s*[^)]*\.toString\(\)' widget/`
-  - **NOT a finding**: `parseFloat()` on JSON strings from the backend (`entry.Min`, `oResponse.Quantity`, …). JSON values are always dot-formatted by spec — locale-aware parse would actually break them. Only flag values that come from `Input.getValue()` / dialog text fields / user-typed sources.
-  - Auto-fixable: yes for the trivial case (`parseFloat(x.getValue())` → `this._parseNumber(x.getValue())`), but only if a `_parseNumber` helper already exists in the widget. If the helper is missing, mark `Auto-fixable: NO` and let the user introduce the helpers manually (multi-step refactor).
+Check each code (grep + fix in the cited category doc):
 
-- **M36 — Deprecated SAPUI5 pseudo-module enum imports** → ⚠️ Warning (deprecation console noise, will break in future UI5)
-  - **MUST load:** `get_pattern_doc({ name: "deprecated-imports" })` — this is the **exhaustive reference** with exact lists and grep commands.
-  - **Detection:** Run the EXACT grep commands from `deprecated-imports.md` against the extension source. Do NOT use heuristics or guessing. The doc contains complete lists for both `sap/m/` and `sap/ui/core/` deprecated enums.
-  - **Common findings:** `ButtonType`, `InputType`, `ListSeparators`, `ListMode`, `PlacementType`, `ValueState`, `MessageType`, `TextAlign`, `FlexAlignItems`, etc.
-  - **Important:** Do NOT confuse enum pseudo-modules with Control classes! `sap/m/Button` is a Control (valid). `sap/m/ButtonType` is an enum (deprecated). The `deprecated-imports.md` doc lists BOTH deprecated enums AND valid controls explicitly.
-  - Fix: Replace `import X from "sap/m/X"` with `import mLibrary from "sap/m/library"; const { X } = mLibrary;`
-  - For `sap/ui/core/` enums: `import coreLibrary from "sap/ui/core/library"; const { ValueState } = coreLibrary;`
-  - Auto-fixable: Yes (mechanical replacement of import + destructure from library).
-
-- **M84 — Mutable instance state on public `this._x` fields instead of true-private `#` fields** → ⚠️ Warning (encapsulation; NOT in the Phase 3d gate)
-  - Detection: `grep -coE 'this\._[a-zA-Z]+\s*=' <scan-set>` vs `grep -cE 'this\.#|#[a-zA-Z_]+\s*=' <scan-set>`. Fires on the **pattern at scale**: many `this._x =` assignments (rule of thumb 15+ distinct) with **zero/near-zero** instance `#` fields.
-  - Report **once, at the class level**, as a refactoring recommendation — do NOT emit one finding per property, and do NOT flag a widget that already uses `#` fields or has only a few `this._x`.
-  - Fix: declare engine-enforced `#` fields at the top of the class; route all mutations through them.
-  - Reference: `common-mistakes-lifecycle.md` #M84; `html5-migration-guide.md` Cat 23 / B4 (module-level analogue).
+- **M1** — every `PodContext.subscribe` has a matching `unsubscribe` in `onExit()` (same callback ref).
+- **M4** — no 3rd default arg on `StringPropertyEditor` (defaults belong in `getDefaultConfig()`).
+- **M7** — `PlacementType` from `sap/m/PlacementType`, not `sap/ui/core/library`.
+- **M8** — every `ModelPath.X` exists (flag non-existent like `SelectedWorkListItem` singular, `SelectedSfc`).
+- **M9** — no `this.getResourceBundle()` on Widget (use `getI18nText()` / manual `ResourceBundle`).
+- **M10** — control settings use `.addStyleClass(...)`, not `class: "…"`.
+- **M11** — no `jQuery.sap.includeScript` / `<script>` AMD bypass.
+- **M13** — trivial equality in a `formatter:` → prefer expression binding `{= … }`.
+- **M16** — no hard-coded `"No data"`; use state-aware text.
+- **M18** — GrowingJSONModel increments its page counter per fetch.
+- **M19** — `new Dialog(`/`new PodDialog(` destroyed in `afterClose`.
+- **M20** — TableWidget dynamic columns/cells spliced at the same index.
+- **M22** — 3+ `subscribe` calls with one callback → array form.
+- **M23** — `setBusy(true)` always paired with `setBusy(false)` in a `finally`.
+- **M24** — expected error codes handled specifically, not via a generic error display.
+- **M26** — non-Table properties not placed in `EXCLUDE_PROPERTIES` vs `IGNORE_TABLE_PROPERTIES`.
+- **M27** — TableWidget subscribing to `SelectedWorkListItems` syncs selections (initial + on change).
+- **M28** — multi-part binding formatters null-check each part.
+- **M30** — German i18n values use `PSN` for user-facing `SFC`; `PSN` absent from en bundles. Code ids stay `sfc`.
+- **M34** — locale-aware number parse/format for **user input** (`Input.getValue()`), not `parseFloat`/`toString`.
+  NOT a finding on dot-formatted backend JSON values. (`common-mistakes-data.md` / Coating reference)
+- **M36** — deprecated SAPUI5 pseudo-module enum imports → **MUST load**
+  `get_pattern_doc({ name: "deprecated-imports" })` (the exhaustive list + exact greps) and run those
+  greps verbatim; do not guess. Fix = destructure the enum from `sap/m/library` / `sap/ui/core/library`.
+- **M84** — mutable instance state on public `this._x` fields vs true-private `#` fields. Report **once,
+  at class level** (fires on the pattern at scale, ~15+ `this._x` with near-zero `#`); NOT in the Phase 3d
+  gate. (`common-mistakes-lifecycle.md` #M84)
 
 ### Info (consider — modernization)
 
-- **M25 — `MessageHistory.toast()` for important persistent messages** → suggest `showSuccess` / `showError`.
-- **Spreading parent properties in `getDefaultConfig()` for Widget/ControlWidget** → never; for TableWidget/LayoutWidget → required.
+- **M25** — `MessageHistory.toast()` for important persistent messages → suggest `showSuccess`/`showError`.
+- Spreading parent properties in `getDefaultConfig()`: never for Widget/ControlWidget; required for
+  TableWidget/LayoutWidget.
 
 ### HTML5 Residue (Errors + Warnings — critical for plugins produced by `sourceFormat: "html5"` migrations)
 
-These findings indicate the migration agent left source-code idioms from the HTML5 origin in the produced extension. They correspond 1:1 to the `migrate_widget` Phase 5b Residue Gate — a validator run on a shipped extension should produce zero of these.
+These indicate the migration agent left HTML5-origin idioms in the produced extension. They correspond
+**1:1 to the `migrate_widget` Phase 5b Residue Gate** — a validator run on a shipped extension should
+produce zero of these. Detection greps + fixes live in `html5-migration-guide.md` (section numbers below)
+and the `common-mistakes-*` docs; the `(Cat NN)` tag is the migration-guide category.
 
 **Errors** (block sign-off):
 
-- **HTML5-CHART — Chart.js / d3 / plotly / echarts / apexcharts in shipped widget code** (Cat 21)
-  - Detection: `grep -rnE 'new Chart\(|Chart\.register|Chart\.defaults|d3\.|Plotly\.|echarts\.init|ApexCharts' widget/ action/ context/ util/`
-  - Fix: re-implement per `chart-migration-map.md` (VizFrame / microcharts / GanttChart).
-- **HTML5-FETCH — Native `fetch(...)` / `XMLHttpRequest` / `$.ajax` / `axios` in shipped widget code** (Cat 22)
-  - Detection: `grep -rnE 'fetch\s*\(|XMLHttpRequest|\$\.ajax|axios\.' widget/ action/ context/ util/`
-  - Fix: `ODataV4Client` for MDO, `ApiClient.<ns>.<method>` for SAP DM REST. See `html5-migration-guide.md` §1.
-- **HTML5-INLINE-HANDLER — Inline `onclick=` / `onchange=` / `document.addEventListener` in shipped widget code** (Cat 25)
-  - Detection: `grep -rnE 'onclick=|onchange=|oninput=|document\.addEventListener\(' widget/ action/ context/ util/`
-  - Fix: `attachPress` / `attachChange` on UI5 controls. See `html5-migration-guide.md` §4.
-- **HTML5-CHART-SCRIPT-TAG — Chart-lib `<script>` tag or `import chart.js`** — blocks POD Designer preview & CSP; hard fail.
+- **HTML5-CHART** — Chart.js / d3 / plotly / echarts / apexcharts in shipped code (Cat 21) →
+  re-implement per `chart-migration-map.md` (VizFrame / microcharts / GanttChart).
+- **HTML5-FETCH** — native `fetch` / `XMLHttpRequest` / `$.ajax` / `axios` in shipped code (Cat 22) →
+  `ODataV4Client` / `ApiClient.<ns>.<method>` (`html5-migration-guide.md` §1). Migration-residue sibling
+  of **M73** — cross-reference, don't double-report the fix.
+- **HTML5-INLINE-HANDLER** — inline `onclick=`/`onchange=` / `document.addEventListener` (Cat 25) →
+  `attachPress`/`attachChange` (`html5-migration-guide.md` §4).
+- **HTML5-CHART-SCRIPT-TAG** — chart-lib `<script>` tag or `import chart.js` → blocks POD Designer
+  preview & CSP; hard fail.
 
 **Warnings** (should-fix — likely correctness or UX bug):
 
-- **HTML5-TOFIXED — `.toFixed(N)` for numeric display** (Cat 3 / M34)
-  - Detection: `grep -rnE '\.toFixed\(' widget/ action/ context/ util/`
-  - Fix: `NumberFormat.getFloatInstance({minFractionDigits:N, maxFractionDigits:N})`.
-- **HTML5-MODULE-STATE — Module-level `let` / `var` mutable state outside class body** (Cat 23 / B4)
-  - Detection: `grep -rnE '^\s*(let|var)\s+\w+\s*=' widget/ action/ context/ util/`
-  - Fix: private class fields (`#name`) or Context singleton properties.
-- **HTML5-EMOJI-ICON — Emoji glyphs used as icons in JS strings** (Cat 26)
-  - Detection: `grep -rnE '[🔴🟢🟡🟠🔔🔍🎧🏭📍👤❓📊📋]' widget/ action/ context/ util/`
-  - Fix: `sap-icon://<name>` + `sap.ui.core.IconColor` + `tooltip`. Mapping table in `html5-migration-guide.md` §7.
-- **HTML5-LOCALE-LITERAL — Hard-coded locale literal (`'de-DE'` / `'en-GB'` / `'en-US'`) in JS** (Cat 27)
-  - Detection: `grep -rnE "'de-DE'|'en-GB'|'en-US'|'fr-FR'" widget/ action/ context/ util/`
-  - Fix: `sap.ui.core.format.DateFormat` — locale comes from `Configuration.getLanguage()`.
-- **HTML5-TIMER-HANDLE — `setInterval` without a stored handle** (Cat 20 / B9)
-  - Detection: `grep -rnE 'setInterval\s*\(' widget/ action/ context/ util/` — flag lines that do NOT match `#\w+\s*=\s*setInterval`.
-  - Fix: `this.#nIntervalId = setInterval(...)` + matching `clearInterval` in `onExit()`.
-- **HTML5-TIMER-CLEANUP — `setInterval` without `clearInterval` anywhere in same file** (Cat 20)
-  - Detection: files containing `setInterval` but NOT `clearInterval`.
-  - Fix: clear in `onExit()`.
-- **HTML5-MAGIC-THRESHOLD — Ternary threshold chains with 3+ literal numbers** (Cat 28)
-  - Detection: `grep -rnE '>=?\s*\d+\s*\?[^:]+:\s*[^?]+>=?\s*\d+\s*\?' widget/`
-  - Fix: widget properties via `getConfigProperties()`. See `property-editors.md`.
+- **HTML5-TOFIXED** — `.toFixed(N)` for numeric display (Cat 3 / M34) → `NumberFormat.getFloatInstance`.
+- **HTML5-MODULE-STATE** — module-level `let`/`var` mutable state outside the class body (Cat 23 / B4) →
+  private `#` fields or Context singleton properties.
+- **HTML5-EMOJI-ICON** — emoji glyphs as icons in JS strings (Cat 26) → `sap-icon://…` + `IconColor` +
+  `tooltip` (`html5-migration-guide.md` §7).
+- **HTML5-LOCALE-LITERAL** — hard-coded locale literal (`'de-DE'`, `'en-US'`, …) in JS (Cat 27) →
+  `DateFormat` with locale from `Configuration.getLanguage()`.
+- **HTML5-TIMER-HANDLE** — `setInterval` without a stored handle (Cat 20 / B9) → store `#nIntervalId` +
+  `clearInterval` in `onExit()`.
+- **HTML5-TIMER-CLEANUP** — `setInterval` without `clearInterval` in the same file (Cat 20) → clear in
+  `onExit()`.
+- **HTML5-MAGIC-THRESHOLD** — ternary threshold chains with 3+ literal numbers (Cat 28) → widget
+  properties via `getConfigProperties()` (`property-editors.md`).
 
-Report structure: in `VALIDATION-REPORT.md`, add a new section **"§1c. HTML5 Residue"** (between "§1b. Best-Practice Pattern Compliance" and "§2. REST API Versions"). Always emit the section — if empty, write `— no findings —` so downstream reviewers get a stable signal that the check ran.
+Report structure: in the report, add a new section **"§1c. HTML5 Residue"** (between "§1b. Best-Practice
+Pattern Compliance" and "§2. REST API Versions"). Always emit the section — if empty, write
+`— no findings —` so downstream reviewers get a stable signal that the check ran.
 
 ---
 

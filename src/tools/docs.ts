@@ -81,6 +81,8 @@ export function registerDocsTools(server: FastMCP): void {
           "Worklist item data structure – all 45+ fields returned per SFC with types, descriptions, anonymized example JSON",
         "ui5-guidelines.md":
           "Curated SAPUI5 coding guidelines — dependency loading rules, data-binding-first, i18n locale-sync, TypeScript event-handler types, Fiori Form pattern",
+        "validate-project-instructions.md":
+          "The validate_project workflow. The tool returns only its Orchestration Index; load each phase on demand with get_pattern_doc({ name: \"validate-project-instructions\", section: \"Phase N\" }).",
       };
       const listing = files.map((f) => {
         const desc = descriptions[f] || "";

@@ -170,6 +170,13 @@ When developing POD2 extensions, use tools in this priority order:
 **Standard SAPUI5 controls before custom controls.** Always walk the escalation ladder:
 1. Search for a standard control → 2. Escalate within the standard family → 3. Compose standard controls → 4. Custom control (ONLY after team alignment + machine-readable marker)
 
+### `validate_project` workflow loading (tool vs. prompt)
+The validation workflow is a single file, `docu/validate-project-instructions.md`, loaded by two surfaces:
+- The **prompt** `validate_project` returns the **whole file** (prompt content expands into the conversation and is not truncated).
+- The **tool** `validate_project` returns **only the `## Orchestration Index` section** (sliced via `extractSection` from `src/tools/docs.ts`), with a fallback to the whole file if that section is ever missing. An oversized tool result is truncated by the host to a small preview — returning the 50 KB file whole meant agents saw only the first ~2 KB and skipped phases. The agent reads the index, then loads each phase on demand via `get_pattern_doc({ name: "validate-project-instructions", section: "Phase N" })`.
+
+This divergence is **intentional** and guarded by tests in `test/tool-modules.test.js` (index is small; every indexed phase slices to a non-empty block; the prompt still carries the full file). Do not "fix" the tool to return the whole file.
+
 ### Git-ignored Directories
 `docu/sap-dm-api-specs/`, `docu/ui5-api-specs/`, `docu/sap-dm-mdo-specs/` are SAP-proprietary and not committed. The server starts without them — tools that require them return a clear explanatory message.
 
@@ -180,6 +187,7 @@ When editing anything under `docu/`, follow these rules (each prevents a defect 
 2. **No counts in prose.** Never write fixed numbers like "28 mistakes", "23 enums", "39 model paths" into doc text or tool descriptions — they go stale. List categories or say "by category" instead.
 3. **Single source of truth.** Don't copy a code snippet or table into a second file. Keep it in the one canonical doc for that topic and link to it from elsewhere (e.g. cell types → `tablecell-patterns.md`, bindings → `binding-patterns.md`, mistakes → `common-mistakes-<category>.md`, REST calling → `pod2-public-api-pattern.md`).
 4. **Keep `src/tools/docs.ts` in sync with `docu/`.** When you add, delete, or repurpose a `docu/*.md`, update its entry in the `list_pattern_docs` description map so the description matches the file's actual content (a deleted file must have no entry; a repurposed file must not keep its old description).
+5. **Preserve the `validate-project-instructions.md` phase contract.** The tool slices `## Orchestration Index`, and the index points agents at each phase by its exact `## Phase N` heading string. If you rename, add, or remove a phase heading, update the index's phase map to match — `test/tool-modules.test.js` asserts every indexed phase resolves to a non-empty slice, so a drift fails `npm test`. Keep per-rule detection greps + fixes in the `common-mistakes-*` category docs (single source of truth); Phase 3 is only an audit-trigger list that points at them.
 
 ### Authentication (HTTP)
 Optional via `MCP_AUTH_TOKEN`. Without a token set: no auth (for localhost dev). The `/health` endpoint is always public.
