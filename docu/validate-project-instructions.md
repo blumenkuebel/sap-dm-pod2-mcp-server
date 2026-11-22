@@ -52,8 +52,11 @@ VALIDATION-REPORT_{ProjectName}_{YYYYMMDD-HHMM}.md
 - `{ProjectName}` — PascalCase short name: the widget class name with the `Widget` suffix dropped
   (e.g. `CoatingWidget` → `Coating`); if no widget, the first action class name; else the working
   directory name.
-- `{YYYYMMDD-HHMM}` — UTC timestamp at write time (e.g. `20261122-1430`).
-- Example: `VALIDATION-REPORT_Coating_20261122-1430.md`. (Full header/section templates: Phase 5.)
+- `{YYYYMMDD-HHMM}` — the **current** UTC date and time at the moment you write the file. **Compute it
+  now — do NOT copy the digits from this instruction.** E.g. if it is 09:05 UTC on 3 Mar 2027, write
+  `20270303-0905`.
+- Example shape (placeholder digits, not a value to copy): `VALIDATION-REPORT_Coating_YYYYMMDD-HHMM.md`.
+  (Full header/section templates: Phase 5.)
 
 **Prior-report guardrail (do this in Phase 0, before any analysis).**
 If one or more `VALIDATION-REPORT_*.md` already exist in the working directory, **read the most
@@ -612,8 +615,11 @@ Reference table (always re-confirm via `list_rest_apis`):
 **Filename:** `VALIDATION-REPORT_{ProjectName}_{YYYYMMDD-HHMM}.md`
 
 - `{ProjectName}` — PascalCase short name of the extension: the widget class name (e.g. `CoatingWidget` → `Coating`), or if no widget is present, the first action class name. If neither is determinable, use the working directory name.
-- `{YYYYMMDD-HHMM}` — timestamp at the moment the report is written, UTC (e.g. `20261122-1430`).
-- Example: `VALIDATION-REPORT_MultiLogNcCustomPlugin_20261122-1430.md`
+- `{YYYYMMDD-HHMM}` — the **current** UTC date and time at the moment the report is written.
+  **Compute it now (e.g. `date -u +%Y%m%d-%H%M`) — do NOT copy the digits from this instruction.**
+  The `{YYYYMMDD-HHMM}` in the filename and the `{YYYY-MM-DD HH:MM}` in the header (5a) must be the
+  **same instant**.
+- Example shape (placeholder — replace both the name and the digits): `VALIDATION-REPORT_{ProjectName}_YYYYMMDD-HHMM.md`
 
 Create the file at working-directory root using the **exact structure and templates** below.
 Every section must appear in order, even when empty (write `— no findings —`).
@@ -621,6 +627,9 @@ Every section must appear in order, even when empty (write `— no findings —`
 ---
 
 ### 5a) Report header (verbatim structure, fill in the placeholders)
+
+Replace `{YYYY-MM-DD HH:MM}` with the current UTC time (the same instant as the filename) — compute it,
+do not copy a date from these instructions. Also fill `{PluginDisplayName}`, `{namespace}`, `{modulePath}`.
 
 ```markdown
 # VALIDATION REPORT — {PluginDisplayName}
