@@ -52,9 +52,9 @@ VALIDATION-REPORT_{ProjectName}_{YYYYMMDD-HHMM}.md
 - `{ProjectName}` — PascalCase short name: the widget class name with the `Widget` suffix dropped
   (e.g. `CoatingWidget` → `Coating`); if no widget, the first action class name; else the working
   directory name.
-- `{YYYYMMDD-HHMM}` — the **current** UTC date and time at the moment you write the file. **Compute it
-  now — do NOT copy the digits from this instruction.** E.g. if it is 09:05 UTC on 3 Mar 2027, write
-  `20270303-0905`.
+- `{YYYYMMDD-HHMM}` — the UTC date+time you capture in **Phase 0 step 1** by running
+  `date -u +%Y%m%d-%H%M`. **Run the command and use its exact output — never estimate or round the
+  time.** E.g. if the command prints `20270303-0905`, the file is `…_20270303-0905.md`.
 - Example shape (placeholder digits, not a value to copy): `VALIDATION-REPORT_Coating_YYYYMMDD-HHMM.md`.
   (Full header/section templates: Phase 5.)
 
@@ -88,9 +88,18 @@ write a bare `VALIDATION-REPORT.md`.
 
 ## Phase 0 — Discovery
 
-1. **Verify it is a POD 2.0 extension project**: `extension.json` MUST exist in the working directory root. If not, abort with a clear error message.
-2. List the project tree (skip `node_modules/`, `.git/`, `dist/`, `.scaffold-done`, `VALIDATION-REPORT.md`).
-3. Identify the extension structure:
+1. **Capture the report timestamp — run this command now and keep the exact output:**
+   ```
+   date -u +%Y%m%d-%H%M
+   ```
+   This single value (e.g. the command prints `20270303-0905`) is the report's `{YYYYMMDD-HHMM}`. Use it
+   **verbatim** in the filename (Phase 5) and derive the header's `{YYYY-MM-DD HH:MM}` from the **same**
+   output — do NOT estimate, round, or reuse a session start time. If you cannot run a shell command,
+   obtain the current UTC time some other concrete way; never type a guessed time.
+2. **Verify it is a POD 2.0 extension project**: `extension.json` MUST exist in the working directory root. If not, abort with a clear error message.
+3. List the project tree (skip `node_modules/`, `.git/`, `dist/`, `.scaffold-done`, `VALIDATION-REPORT.md`).
+4. **Prior-report check** (see the Orchestration Index guardrail): if any `VALIDATION-REPORT_*.md` already exists, read the most recent one first and decide whether a fresh run is warranted; always write a NEW file with the timestamp from step 1 — never overwrite.
+5. Identify the extension structure:
    - `extension.json`
    - `widget/*.js` (zero or one widget)
    - `action/*.js` (zero or more actions)
@@ -615,10 +624,8 @@ Reference table (always re-confirm via `list_rest_apis`):
 **Filename:** `VALIDATION-REPORT_{ProjectName}_{YYYYMMDD-HHMM}.md`
 
 - `{ProjectName}` — PascalCase short name of the extension: the widget class name (e.g. `CoatingWidget` → `Coating`), or if no widget is present, the first action class name. If neither is determinable, use the working directory name.
-- `{YYYYMMDD-HHMM}` — the **current** UTC date and time at the moment the report is written.
-  **Compute it now (e.g. `date -u +%Y%m%d-%H%M`) — do NOT copy the digits from this instruction.**
-  The `{YYYYMMDD-HHMM}` in the filename and the `{YYYY-MM-DD HH:MM}` in the header (5a) must be the
-  **same instant**.
+- `{YYYYMMDD-HHMM}` — **the exact value you captured in Phase 0 step 1** (`date -u +%Y%m%d-%H%M`). Do
+  NOT recompute or estimate it here; reuse that one value so the filename and the 5a header agree.
 - Example shape (placeholder — replace both the name and the digits): `VALIDATION-REPORT_{ProjectName}_YYYYMMDD-HHMM.md`
 
 Create the file at working-directory root using the **exact structure and templates** below.
@@ -628,8 +635,9 @@ Every section must appear in order, even when empty (write `— no findings —`
 
 ### 5a) Report header (verbatim structure, fill in the placeholders)
 
-Replace `{YYYY-MM-DD HH:MM}` with the current UTC time (the same instant as the filename) — compute it,
-do not copy a date from these instructions. Also fill `{PluginDisplayName}`, `{namespace}`, `{modulePath}`.
+Replace `{YYYY-MM-DD HH:MM}` with the UTC time you captured in Phase 0 step 1 (same instant as the
+filename — just reformatted with dashes and a space, e.g. `20270303-0905` → `2027-03-03 09:05`). Do not
+recompute or estimate it. Also fill `{PluginDisplayName}`, `{namespace}`, `{modulePath}`.
 
 ```markdown
 # VALIDATION REPORT — {PluginDisplayName}
