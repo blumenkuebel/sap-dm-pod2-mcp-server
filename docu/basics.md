@@ -158,8 +158,7 @@ All plugins **must** support multiple languages. The following i18n files are re
 i18n/
 ├── i18n.properties          (Fallback)
 ├── i18n_de.properties       (German)
-├── i18n_en.properties       (English)
-└── i18n_en_US.properties    (English US)
+└── i18n_en.properties       (English)
 ```
 
 Usage in code:
@@ -193,8 +192,7 @@ myExtension/
 └── i18n/
     ├── i18n.properties
     ├── i18n_de.properties
-    ├── i18n_en.properties
-    └── i18n_en_US.properties
+    └── i18n_en.properties
 ```
 
 ### extension.json
@@ -590,7 +588,7 @@ Comprehensive pattern documentation is available for detailed implementation gui
 5. **Implement Widget**: `_createView()`, `onInit()`, `onExit()` with cleanup
 6. **Implement ValidationAction**: precondition checks, `throw new Error(...)` on failure
 7. **Implement ExecutionAction**: API calls, context updates, try/catch
-8. **Create i18n files** (properties, _de, _en, _en_US)
+8. **Create i18n files** (`i18n.properties` + locale files per spec, e.g. `_de`, `_en`)
 9. **Test** in POD Designer: place widget, link events to actions
 10. **Package** as ZIP/TAR/TGZ (< 5 MB, `extension.json` in root!)
 11. **Upload** via Manage PODs 2.0 → Extensions → Create

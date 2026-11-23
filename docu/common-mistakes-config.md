@@ -608,7 +608,7 @@ Symptoms:
 ### ✅ CORRECT — All three keys with named prefix, values from the spec
 
 ```properties
-# i18n.properties (and all 4 locale bundles — same key set!)
+# i18n.properties (and all present locale bundles — same key set!)
 coating.displayName=Coating
 coating.description=Thickness Calculation in Coating Process
 coating.category=Customer
@@ -646,8 +646,8 @@ If the spec says:
 
 - All three values come from `POD2_EXTENSION_EXAMPLE.md` — never hardcoded from the example
 - All three i18n keys use a **named prefix** derived from the widget’s short name (camelCase) — e.g. `coating.displayName`, `coating.description`, `coating.category`
-- The same key set appears in **all 4 locale bundles** (`i18n.properties`, `i18n_de.properties`,
-  `i18n_en.properties`, `i18n_en_US.properties`)
+- The same key set appears in **all 3 locale bundles** (`i18n.properties`, `i18n_de.properties`,
+  `i18n_en.properties`)
 - Translate `displayName` / `description` per locale; **do not translate `category`** unless
   the customer explicitly asked for it (otherwise the same extension shows up under different
   group names per language → looks broken in mixed-locale teams)
@@ -719,7 +719,7 @@ everywhere.
 - ✅ Read `Plugin Name`, `Description`, `Category` from the spec **before** writing the i18n bundles
 - ✅ Derive the camelCase widget name from the extension name (e.g. `Step Status` → `stepStatus`)
 - ✅ Use the `<widgetName>.` prefix consistently — `stepStatus.displayName`, `stepStatus.description`, `stepStatus.category`
-- ✅ Verify all 4 locale bundles carry the same key set
+- ✅ Verify all present locale bundles carry the same key set
 - ✅ When referencing an example, look at the **structure** (`getI18nText("<widgetName>.…")`),
   not the legacy values
 - ❌ Don't keep unprefixed `displayName=` / `description=` from older examples

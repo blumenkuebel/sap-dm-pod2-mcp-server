@@ -260,8 +260,7 @@ MyExtension.zip
 └── i18n/
     ├── i18n.properties
     ├── i18n_de.properties
-    ├── i18n_en.properties
-    └── i18n_en_US.properties
+    └── i18n_en.properties
 ```
 
 **Key points**

@@ -10,6 +10,7 @@
 | **Namespace**   | `customer.custom.extension.coating` |
 | **Description** | Coating thickness calculation and distribution across selected SFCs |
 | **Category**    | `Customer` |
+| **Languages**   | `DE, EN` |
 
 ## Widget
 

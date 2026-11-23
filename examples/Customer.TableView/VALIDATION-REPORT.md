@@ -103,9 +103,9 @@ Compared against **Customer.Coating** (Ground Truth reference).
 
 | Check | Status | Notes |
 |--------|--------|-------|
-| 4 locale files present | ✅ | `i18n.properties`, `i18n_de.properties`, `i18n_en.properties`, `i18n_en_US.properties` |
-| `widget.displayName` in all 4 | ✅ | Present in all bundles |
-| `widget.description` in all 4 | ✅ | Present in all bundles |
+| `i18n.properties` present (fallback) | ✅ | `i18n.properties`, `i18n_de.properties`, `i18n_en.properties` |
+| `widget.displayName` in all bundles | ✅ | Present in all bundles |
+| `widget.description` in all bundles | ✅ | Present in all bundles |
 | `widget.category` in all 4 | ✅ | Present in all bundles |
 | German bundle: no user-facing "SFC" | ✅ | Uses "PSN" correctly (line 8: `msg.noSfcSelected=Es ist keine PSN...`) |
 | Key consistency across locales | ✅ | All 4 bundles have identical key sets (15 keys each) |

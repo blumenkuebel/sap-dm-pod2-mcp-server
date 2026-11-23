@@ -69,7 +69,7 @@ ${withProps ? "- Implement `getProperties()` returning WidgetProperty array with
 - Use Logger instead of console.log
 - Clean up PodContext subscriptions in onExit()
 
-### 2. \`i18n/i18n.properties\` (+ i18n_de, i18n_en, i18n_en_US)
+### 2. \`i18n/i18n.properties\` (+ i18n_de, i18n_en)
 Include the **widget metadata trio with \`widget.\` prefix** (MANDATORY):
 - \`widget.displayName=…\`     (from spec field "Extension Name")
 - \`widget.description=…\`     (from spec field "Description")
@@ -173,7 +173,7 @@ ${
 }
 - Use Logger instead of console.log
 
-### 2. \`i18n/i18n.properties\` (+ i18n_de, i18n_en, i18n_en_US)
+### 2. \`i18n/i18n.properties\` (+ i18n_de, i18n_en)
 Include keys for: displayName, description, error messages
 
 ### 3. \`extension.json\` entry
@@ -273,11 +273,10 @@ Register all widgets and actions with correct modulePaths and types.
 - Update context with results
 - Handle errors with try/catch and Logger
 
-### 6. \`i18n/\` – Four i18n files
+### 6. \`i18n/\` – Three i18n files
 - i18n.properties (fallback/English)
 - i18n_de.properties (German)
 - i18n_en.properties (English)
-- i18n_en_US.properties (English US)
 - **Widget metadata trio (MANDATORY \`widget.\` prefix — see common-mistakes #32):**
   - \`widget.displayName=…\`   (from spec field "Plugin Name")
   - \`widget.description=…\`   (from spec field "Description")
@@ -357,11 +356,10 @@ Register all widgets and actions with correct modulePaths and types. For each wi
 - Update context with results
 - Handle errors with try/catch and Logger
 
-### 6. \`i18n/\` – Four i18n files
+### 6. \`i18n/\` – Three i18n files
 - i18n.properties (fallback/English)
 - i18n_de.properties (German)
 - i18n_en.properties (English)
-- i18n_en_US.properties (English US)
 - **Widget metadata trio (MANDATORY \`widget.\` prefix — see common-mistakes #32):**
   - \`widget.displayName=${pluginName}\`
   - \`widget.description=${desc}\`
@@ -397,8 +395,7 @@ Generate a comprehensive README with these sections:
 └── i18n/
     ├── i18n.properties
     ├── i18n_de.properties
-    ├── i18n_en.properties
-    └── i18n_en_US.properties
+    └── i18n_en.properties
 \`\`\`
 
 ## File Layout (CRITICAL)
@@ -661,7 +658,7 @@ Now and only now: generate the target extension files in the working-directory r
 - \`widget/<Name>Widget.js\`
 - \`action/<Name>*Action.js\` (if applicable)
 - \`context/<Name>Context.js\` (if shared state needed across widget+actions)
-- \`i18n/i18n.properties\` (+ \`_de\`, \`_en\`, \`_en_US\`) — see common-mistakes #32 for \`widget.\` prefix
+- \`i18n/i18n.properties\` (+ \`_de\`, \`_en\`) — see common-mistakes #32 for \`widget.\` prefix
 - \`README.md\` — in the style of \`examples/Customer.Coating/README.md\`
 
 **File layout rule** (CRITICAL): Generate ALL files **directly in the working-directory root** (= ZIP root). Do NOT create a wrapper folder named after the extension or namespace.
@@ -891,7 +888,7 @@ for key in \$(grep -oE "^\${prefix}\\\\.[a-zA-Z0-9._]+" i18n/i18n.properties 2>/
     refs=\$(grep -rn "\\\\b\${key}\\\\b" widget/ --include='*.js' --include='*.xml' --include='*.fragment.xml' 2>/dev/null | wc -l)
     if [ "\$refs" -eq 0 ]; then echo "ORPHAN: \$key"; fi
 done
-# Any ORPHAN — delete from all 4 locale files (i18n.properties, _de, _en, _en_US) in the same commit.
+# Any ORPHAN — delete from all present locale files (i18n.properties, _de, _en) in the same commit.
 
 # ── Information-preservation contract (M70) ──
 
@@ -960,7 +957,7 @@ For every generated view / fragment / control instantiation, walk the checklist 
 | 7 | Messaging — MessageBox (blocking) / MessageStrip (in-view) / MessageToast (transient) | ✅ | — |
 | 8 | Responsive S/M/L — Fiori layout controls (GridContainer, DynamicPage) | ✅ | — |
 | 9 | Accessibility — tooltip on icon-only controls; noDataText on Table/List | ✅ | — |
-| 10 | Localisation — 4 bundles; M30 (SFC → PSN in _de); DateFormat/NumberFormat | ✅ | — |
+| 10 | Localisation — bundles present; M30 (SFC → PSN in _de); DateFormat/NumberFormat | ✅ | — |
 \`\`\`
 
 Zero ⚠️ / ❌ required for sign-off. Any ⚠️ / ❌ row needs an explicit one-sentence justification (or the extension returns to Phase 4). Deviations to preserve the source's original design **require user approval in this phase** — the agent posts the review table to chat and STOPS until the user confirms.

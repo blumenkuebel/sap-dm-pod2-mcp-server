@@ -10,6 +10,7 @@
 | **Namespace**   | `___` _(e.g. customer.custom.extension.processlot)_ |
 | **Description** | `___` |
 | **Category**    | `___` _(POD Designer grouping label – the collective name shared by your extensions, e.g. `Customer`, `Acme Corp`, `Customer Extensions`. Used verbatim as the i18n value `widget.category`.)_ |
+| **Languages**   | `DE, EN` _(locale files to generate beyond the fallback `i18n.properties`, e.g. `DE`, `EN`, `ZH`, `JA`)_ |
 
 ## Widget _(optional – omit this section for an action-only extension)_
 

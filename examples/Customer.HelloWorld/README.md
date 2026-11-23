@@ -24,7 +24,6 @@ configurable properties. **Pure widget anatomy.**
 | i18n (fallback) | `i18n/i18n.properties` | Default English texts |
 | i18n (German) | `i18n/i18n_de.properties` | German translation |
 | i18n (English) | `i18n/i18n_en.properties` | English translation |
-| i18n (en_US) | `i18n/i18n_en_US.properties` | US English variant |
 | Manifest | `extension.json` | Plugin registration |
 
 ---
@@ -40,8 +39,7 @@ Customer.HelloWorld/
 └── i18n/
     ├── i18n.properties
     ├── i18n_de.properties
-    ├── i18n_en.properties
-    └── i18n_en_US.properties
+    └── i18n_en.properties
 ```
 
 ---

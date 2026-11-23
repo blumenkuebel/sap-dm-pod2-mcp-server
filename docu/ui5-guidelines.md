@@ -63,7 +63,7 @@
 ### i18n `.properties` files must stay in sync
 
 - **ALWAYS** apply every key change to **every** locale file. Adding a key to `i18n.properties` also
-  requires adding it to `i18n_en.properties`, `i18n_de.properties`, `i18n_en_US.properties`.
+  requires adding it to all present locale bundles (e.g. `i18n_en.properties`, `i18n_de.properties`).
 - **Cross-reference (POD 2-specific)**: [`common-mistakes-i18n.md`](common-mistakes-i18n.md) —
   the SAP DM DE-plant translation contract (SFC → PSN) is a POD 2-specific extension of this generic rule
   (see M30). i18n keys stay in English; only user-facing values translate.

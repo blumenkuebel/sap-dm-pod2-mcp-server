@@ -142,7 +142,7 @@ Prompts: `create_widget`, `create_action`, `create_extension` (reads `POD2_EXTEN
 3. **Always `unsubscribe`** in `onExit()` (which must exist and call `super.onExit()`) — memory leaks otherwise
 4. **PlacementType** from `"sap/m/PlacementType"` (NOT `sap/ui/core/library`)
 5. **PodContext** from `"sap/dm/dme/pod2/context/PodContext"` (not `model/`)
-6. **i18n**: always 4 locale files — `i18n.properties`, `i18n_de.properties`, `i18n_en.properties`, `i18n_en_US.properties`. In `i18n_de.properties` translate user-facing **SFC → PSN** (German SAP DM standard); code/keys keep `sfc`.
+6. **i18n**: `i18n.properties` (Fallback) ist Pflicht; Locale-Dateien entsprechend dem **Languages**-Feld in `POD2_EXTENSION_TEMPLATE.md` generieren (Standard: `i18n_de.properties`, `i18n_en.properties`). In `i18n_de.properties` user-facing **SFC → PSN** übersetzen (German SAP DM standard); code/keys keep `sfc`.
 7. **Logger** instead of `console.log`
 8. **Form layout**: prefer `sap/ui/layout/form/Form` + `FormContainer` + `FormElement` + `ResponsiveGridLayout`
 9. **i18nCustomModel**: register in `widget.onInit()` via `getPodRuntime().getView().setModel(MyWidget.getI18nModel(), "i18n<WidgetShortName>")` — model name is `i18n` + PascalCase widget short name (e.g. `i18nCoating`). Multi-widget plugins register one model per widget (e.g. `i18nCoating` AND `i18nHelloWorld` side-by-side — no collision, mirrors the M32 per-widget key prefix).
@@ -156,7 +156,7 @@ Prompts: `create_widget`, `create_action`, `create_extension` (reads `POD2_EXTEN
 - [ ] `extension.json` registers every widget/action with correct `modulePath` and `type`
 - [ ] Flat layout verified (no wrapper folder)
 - [ ] Every `subscribe()` has a matching `unsubscribe()` in `onExit()`; JSONModels initialized before controls; dialogs destroyed in `afterClose`
-- [ ] All 4 i18n locale files present; `_de` translates SFC → PSN
+- [ ] `i18n.properties` (Fallback) vorhanden; Locale-Dateien per **Languages**-Feld generiert; `_de` translates SFC → PSN
 - [ ] Self-Audit 6a and 6b performed and shown in chat; no `[unverified]` entries left silent
 - [ ] `README.md` generated in example style
 - [ ] `.scaffold-done` marker created

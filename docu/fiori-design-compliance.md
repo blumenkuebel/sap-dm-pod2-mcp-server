@@ -140,7 +140,7 @@ Cat 29's S1-S7 anti-patterns viewed through the **visual design** lens (not the 
 - **A self-owned shell bar / plant label / notification bell** duplicates what POD already renders. Fix: widget renders body only (M59).
 - **A custom Gantt** with `<div>` bars and hand-positioned icons "looks like the source". Native users expect `sap.gantt.simple.GanttChartWithTable` interactions (drag, zoom, dependency arrows). Fix: `sap.gantt` for real; `BulletMicroChart` for the simplified case (Cat 24 / S2).
 - **Custom "Loading…" placeholder text** where a busy indicator or `IllustratedMessage` should be. Fix: `oView.setBusy(true)` (M33) / `sap.m.IllustratedMessage`.
-- **Untranslated German strings** in JS ("Zuletzt vor 7 Sek.") are a design defect, not just an i18n bug — a Fiori widget always speaks the user's language. Fix: 4 i18n bundles per extension (M30, Cat 27).
+- **Untranslated German strings** in JS ("Zuletzt vor 7 Sek.") are a design defect, not just an i18n bug — a Fiori widget always speaks the user's language. Fix: `i18n.properties` + locale bundles per spec (M30, Cat 27).
 
 ---
 
@@ -157,7 +157,7 @@ Cat 29's S1-S7 anti-patterns viewed through the **visual design** lens (not the 
 - [ ] **Messaging** — `sap.m.MessageBox.{confirm,warning,error,information}` for blocking; `MessageStrip` for in-view persistent; `MessageToast` for transient positive. Never `console.log`, never a bespoke dialog for standard flows.
 - [ ] **Responsive** — the widget renders correctly at S / M / L breakpoints. Fiori layout controls (`GridContainer`, `DynamicPage`, `FlexibleColumnLayout`) do this by default; hand-built `HBox`/`VBox` compositions may not.
 - [ ] **Accessibility** — every icon-only `Icon`/`Button` has a `tooltip=`. Every `Table`/`List` has a semantic `noDataText`. Every user-facing `sap-icon://` conveying state has an aria-label.
-- [ ] **Localisation** — all four locale bundles present (`i18n.properties`, `_de`, `_en`, `_en_US`); German applies M30 (SFC → PSN); no hard-coded German strings in JS (Cat 27); dates/numbers via `DateFormat`/`NumberFormat` (M34, M43).
+- [ ] **Localisation** — `i18n.properties` (fallback) + locale bundles present (e.g. `_de`, `_en`); German applies M30 (SFC → PSN); no hard-coded German strings in JS (Cat 27); dates/numbers via `DateFormat`/`NumberFormat` (M34, M43).
 
 **Report format** in `MIGRATION_VERIFICATION.md`:
 

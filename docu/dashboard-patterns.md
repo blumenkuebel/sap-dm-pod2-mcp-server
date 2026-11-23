@@ -616,7 +616,6 @@ i18n/
   i18n.properties
   i18n_de.properties
   i18n_en.properties
-  i18n_en_US.properties
 extension.json
 README.md
 ```
@@ -654,7 +653,7 @@ Detection heuristic (add to Phase-5 grep): every `*Text` model field must have a
 
 Every time a bespoke composite is replaced with a standard control, 3–6 i18n keys become orphan (`.gantt.tooltip.*`, `.dc.trend.*`, `.perf.targetSfcs.desc`, `.perf.loadingTime`). Orphans grow the German-translation debt without bound.
 
-**Rule**: after each standardisation pass, grep every i18n key against widget + fragments. Orphan keys must be deleted from **all 4 locale files** in the same commit.
+**Rule**: after each standardisation pass, grep every i18n key against widget + fragments. Orphan keys must be deleted from **all present locale files** in the same commit.
 
 ```bash
 # From extension root — run before every commit that changes a fragment/view.
@@ -665,7 +664,7 @@ for key in $(grep -oE "^${prefix}\\.[a-zA-Z0-9._]+" i18n/i18n.properties | sort 
 done
 ```
 
-Zero output required. Any hit → delete the key from all four locale files (`i18n.properties`, `i18n_de.properties`, `i18n_en.properties`, `i18n_en_US.properties`) in the same commit. This is a Phase-5 gate; see `migration-suspect-list.md` Cat 29.
+Zero output required. Any hit → delete the key from all present locale files (`i18n.properties`, `i18n_de.properties`, `i18n_en.properties`) in the same commit. This is a Phase-5 gate; see `migration-suspect-list.md` Cat 29.
 
 ---
 
