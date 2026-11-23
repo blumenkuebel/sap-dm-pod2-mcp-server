@@ -1,8 +1,8 @@
-# POD 2.0 Plugin – Request
+# POD 2.0 Extension – Request
 
 ---
 
-## Plugin
+## Extension
 
 | Field | Value |
 |-------|-------|
@@ -79,4 +79,4 @@
 
 ---
 
-_Template v2.1 · sap-dm-pod2-mcp-server v1.0.0_
+_Template v2.2 · sap-dm-pod2-mcp-server v1.0.0_

@@ -1,17 +1,17 @@
-# POD 2.0 Plugin – Request Template
+# POD 2.0 Extension – Request Template
 
 ---
 
-## Plugin
+## Extension
 
 | Field | Value |
 |-------|-------|
 | **Name**        | `___` _(PascalCase, e.g. ProcessLot, Weighing)_ |
 | **Namespace**   | `___` _(e.g. customer.custom.extension.processlot)_ |
 | **Description** | `___` |
-| **Category**    | `___` _(POD Designer grouping label – the collective name shared by your plugins, e.g. `Customer`, `Acme Corp`, `Customer Extensions`. Used verbatim as the i18n value `widget.category`.)_ |
+| **Category**    | `___` _(POD Designer grouping label – the collective name shared by your extensions, e.g. `Customer`, `Acme Corp`, `Customer Extensions`. Used verbatim as the i18n value `widget.category`.)_ |
 
-## Widget _(optional – omit this section for an action-only plugin)_
+## Widget _(optional – omit this section for an action-only extension)_
 
 <!-- Free-form bullets: layout, controls, user interaction, behavior. One bullet per thought. -->
 
@@ -37,4 +37,4 @@
 
 ---
 
-_Template v2.1 · sap-dm-pod2-mcp-server v1.0.0 · capability-composable, free-form actions_
+_Template v2.2 · sap-dm-pod2-mcp-server v1.0.0 · capability-composable, free-form actions_

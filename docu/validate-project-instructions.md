@@ -106,7 +106,7 @@ write a bare `VALIDATION-REPORT.md`.
    - `context/*.js` (zero or one context singleton)
    - `util/*.js` (helpers)
    - `i18n/i18n*.properties` (4 expected: default, _de, _en, _en_US)
-   - `README.md`, `POD2_PLUGIN_EXAMPLE.md` (optional)
+   - `README.md`, `POD2_EXTENSION_EXAMPLE.md` (optional)
 
 ## Phase 1 — Load MCP Knowledge Base
 

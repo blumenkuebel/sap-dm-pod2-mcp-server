@@ -84,7 +84,7 @@ static #oI18nModel = new I18nResourceModel({
 - ✅ Keep `modulePath` (slashes) and `type` (dots) consistent
 
 ### Prevention:
-1. Decide on namespace FIRST (e.g., from the POD2_PLUGIN_EXAMPLE.md template)
+1. Decide on namespace FIRST (e.g., from the POD2_EXTENSION_EXAMPLE.md template)
 2. Write extension.json with that namespace
 3. Use the same namespace in ALL file imports and bundleName references
 4. The folder/directory name can be anything - it doesn't matter

@@ -3,7 +3,7 @@
 > How to use the `sap-dm-pod2-mcp-server` to develop and iterate on POD 2.0 extensions with AI assistance.
 
 > [!IMPORTANT]
-> **Copy `CLAUDE.md` into your plugin directory and load it at the start of every session** (Scaffold *and* every Iteration). It holds all POD2 rules — without it the agent misses the reasoning-first / source-or-silence meta-rules and produces plausible-looking but non-compliant code.
+> **Copy `CLAUDE.md` into your extension directory and load it at the start of every session** (Scaffold *and* every Iteration). It holds all POD2 rules — without it the agent misses the reasoning-first / source-or-silence meta-rules and produces plausible-looking but non-compliant code.
 > - **Claude Code** — auto-loads `CLAUDE.md` from the project root. Nothing to type.
 > - **Cline / Cursor / other agents** — do **not** auto-load it. Begin your first prompt with **“Read `CLAUDE.md`, then …”**.
 >
@@ -15,7 +15,7 @@
 
 This workflow enables rapid development of SAP Digital Manufacturing POD 2.0 extensions using an AI coding agent backed by the `sap-dm-pod2-mcp-server`.
 
-The server exposes **23 tools · 6 resources · 5 prompts** covering POD2 pattern docs, POD2 API references, SAPUI5 API (bundled offline, pinned to SAP DM's UI5 target), SAP DM REST specs, MDO entities, reference plugins, and full-text search. The UI5 lookup is native — a separate `sapui5-mcp-server` is not needed.
+The server exposes **23 tools · 6 resources · 5 prompts** covering POD2 pattern docs, POD2 API references, SAPUI5 API (bundled offline, pinned to SAP DM's UI5 target), SAP DM REST specs, MDO entities, reference extensions, and full-text search. The UI5 lookup is native — a separate `sapui5-mcp-server` is not needed.
 
 For the full capability catalog, see the [root README](../README.md) and `CLAUDE.md`.
 
@@ -23,7 +23,7 @@ For the full capability catalog, see the [root README](../README.md) and `CLAUDE
 
 ## 🧭 Mental Model: Two Phases, Two Modes
 
-POD 2.0 plugins cannot be UI-tested without deploying them — the framework, layout container, and runtime context only exist after upload. So the workflow has two distinct phases:
+POD 2.0 extensions cannot be UI-tested without deploying them — the framework, layout container, and runtime context only exist after upload. So the workflow has two distinct phases:
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -76,41 +76,41 @@ curl http://localhost:3001/health
 ### A1. Create a new project folder
 
 ```bash
-mkdir Customer.MyNewPlugin
-cd Customer.MyNewPlugin
+mkdir Customer.MyNewExtension
+cd Customer.MyNewExtension
 ```
 
-Naming convention: `Customer.<PluginName>`.
+Naming convention: `Customer.<ExtensionName>`.
 
 ### A2. Copy template files
 
 ```bash
 cp ../usage/CLAUDE.md .
 cp ../usage/.gitignore .
-cp ../usage/POD2_PLUGIN_TEMPLATE.md .
+cp ../usage/POD2_EXTENSION_TEMPLATE.md .
 ```
 
 `CLAUDE.md` holds all POD2 / SAP DM / UI5 rules and is agent-agnostic. Claude Code auto-loads it; other agents load it with *"read CLAUDE.md"*.
 
 ### A3. Fill in the template
 
-Edit `POD2_PLUGIN_TEMPLATE.md` with your plugin requirements:
+Edit `POD2_EXTENSION_TEMPLATE.md` with your extension requirements:
 
-1. **Plugin metadata** – Name, Namespace, Description, Category
+1. **Extension metadata** – Name, Namespace, Description, Category
 2. **Widget** _(optional)_ – free-form bullets describing layout, controls, interaction, behavior; plus an optional inline JSON sample of the data shape it consumes
 3. **Actions** _(zero or more)_ – one `### Action: <Name>` block per action (e.g. Validate, Execute, Cancel, Reset), with free-form bullets and an optional inline JSON sample
 
-> 💡 See `POD2_PLUGIN_EXAMPLE.md` for a fully filled-in example (Coating plugin with `Validate` + `Execute` actions).
+> 💡 See `POD2_EXTENSION_EXAMPLE.md` for a fully filled-in example (Coating extension with `Validate` + `Execute` actions).
 
-### A4. Generate the plugin
+### A4. Generate the extension
 
 Open the folder in your editor, open your AI agent, and make sure the rules are loaded (Claude Code: automatic; other agents: prefix your prompt with `Read CLAUDE.md,`). Because no `.scaffold-done` file exists, the agent enters **Scaffold Mode**.
 
 Generation options:
 
-- **A — Natural language (recommended):** *"…generate the plugin from the template."*
-- **B — MCP prompt, no params:** *"…call the `create_extension` MCP prompt."* — the agent reads `POD2_PLUGIN_TEMPLATE.md` automatically.
-- **C — MCP prompt, explicit params:** provide namespace, pluginName, etc. inline (ad-hoc generation without a template).
+- **A — Natural language (recommended):** *"…generate the extension from the template."*
+- **B — MCP prompt, no params:** *"…call the `create_extension` MCP prompt."* — the agent reads `POD2_EXTENSION_TEMPLATE.md` automatically.
+- **C — MCP prompt, explicit params:** provide namespace, extensionName, etc. inline (ad-hoc generation without a template).
 
 In Scaffold mode the agent keeps upfront discussion brief (1–3 clarifying questions) — no deep UI discussion, since without the rendered POD that is speculative.
 
@@ -125,7 +125,7 @@ After your "go", the agent:
 
 ### A6. Pack & upload (manual, outside the agent)
 
-1. Exclude `CLAUDE.md`, `POD2_PLUGIN_TEMPLATE.md`, `.scaffold-done` from the ZIP (cleaner, though SAP DM ignores unknown root files)
+1. Exclude `CLAUDE.md`, `POD2_EXTENSION_TEMPLATE.md`, `.scaffold-done` from the ZIP (cleaner, though SAP DM ignores unknown root files)
 2. Create a ZIP with `extension.json` at the root
 3. Upload via *"Manage POD 2.0 Extensions"* in SAP DM
 4. In the POD Designer, place the widget on a page and assign a resource
@@ -135,7 +135,7 @@ After your "go", the agent:
 
 # 🔁 Phase B: Iteration (after each deploy)
 
-> Goal: refine the plugin based on what you actually see in POD 2.0. **This is where UI discussion finally makes sense** — you have the real UI in front of you.
+> Goal: refine the extension based on what you actually see in POD 2.0. **This is where UI discussion finally makes sense** — you have the real UI in front of you.
 
 ### B1. Observe in POD
 
@@ -169,10 +169,10 @@ Same process as A6, then → back to B1. The marker file stays — every future 
 |------|----------|---------|
 | `CLAUDE.md` | Always present | POD2 rules. Auto-loaded by Claude Code; others load manually. Remove before ZIP |
 | `.gitignore` | Always present | Standard ignores |
-| `POD2_PLUGIN_TEMPLATE.md` | Phase A | Plugin requirements; can be removed after scaffold |
+| `POD2_EXTENSION_TEMPLATE.md` | Phase A | Extension requirements; can be removed after scaffold |
 | `.scaffold-done` | Created in A5 | Marker that switches the agent to Iteration Mode |
-| `extension.json` | Generated A5 | Plugin manifest (must be at ZIP root) |
-| `context/`, `widget/`, `action/`, `i18n/` | Generated A5 | The actual plugin code |
+| `extension.json` | Generated A5 | Extension manifest (must be at ZIP root) |
+| `context/`, `widget/`, `action/`, `i18n/` | Generated A5 | The actual extension code |
 | `README.md` | Generated A5 | Project documentation |
 
 ---
@@ -185,15 +185,15 @@ Same process as A6, then → back to B1. The marker file stays — every future 
 
 **Agent tries to regenerate everything in iteration** — remind it: *"We are in iteration mode (`.scaffold-done` exists). Patch only the affected files."* Check that `.scaffold-done` exists.
 
-**Force iteration mode on an existing plugin** — `touch .scaffold-done`.
+**Force iteration mode on an existing extension** — `touch .scaffold-done`.
 
 **Force re-scaffold** — `rm .scaffold-done`; the next session treats it as a fresh scaffold.
 
 **Namespace confusion** — the namespace comes from `extension.json` (`modulePath`/`type`), NOT the folder name. Double-check the generated `extension.json`.
 
-### Plugin capabilities (composable)
+### Extension capabilities (composable)
 
-A POD 2.0 plugin combines a **Widget** (optional, max. 1) and zero or more **Actions** (e.g. `Validate`, `Execute`, `Cancel`, `Reset`). There is **no fixed plugin "type"** — combine what your use case needs.
+A POD 2.0 extension combines a **Widget** (optional, max. 1) and zero or more **Actions** (e.g. `Validate`, `Execute`, `Cancel`, `Reset`). There is **no fixed extension "type"** — combine what your use case needs.
 
 ---
 

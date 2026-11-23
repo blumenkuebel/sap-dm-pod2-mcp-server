@@ -59,7 +59,7 @@ Follow the Best Practice pattern:
     - \`getDisplayName()\` → \`this.getI18nText("widget.displayName")\`
     - \`getDescription()\` → \`this.getI18nText("widget.description")\`
     - \`getCategory()\`    → \`this.getI18nText("widget.category")\`
-  - The values come from \`POD2_PLUGIN_TEMPLATE.md\` (Plugin Name → \`widget.displayName\`, Description → \`widget.description\`, Category → \`widget.category\`)
+  - The values come from \`POD2_EXTENSION_TEMPLATE.md\` (Extension Name → \`widget.displayName\`, Description → \`widget.description\`, Category → \`widget.category\`)
   - **Never** keep unprefixed \`displayName=\` / \`description=\` keys — they are legacy and inconsistent with \`widget.category\`
 - Implement \`onInit()\`, \`_createView()\`, \`onExit()\`
 - In onInit(): Register i18nCustomModel on the POD view: \`let i18nCustomModel = ${widgetName}.getI18nModel(); this.getPodRuntime().getView().setModel(i18nCustomModel, "i18n${widgetName}");\`
@@ -71,7 +71,7 @@ ${withProps ? "- Implement `getProperties()` returning WidgetProperty array with
 
 ### 2. \`i18n/i18n.properties\` (+ i18n_de, i18n_en, i18n_en_US)
 Include the **widget metadata trio with \`widget.\` prefix** (MANDATORY):
-- \`widget.displayName=…\`     (from spec field "Plugin Name")
+- \`widget.displayName=…\`     (from spec field "Extension Name")
 - \`widget.description=…\`     (from spec field "Description")
 - \`widget.category=…\`        (from spec field "Category" — verbatim, do NOT hardcode "CUSTOMER")
 
@@ -184,18 +184,18 @@ Module path: \`${nsPath}/action/${actionName}\`
   server.addPrompt({
     name: "create_extension",
     description:
-      "Generates a complete POD2 Extension with Widget, Validation Action, Execution Action, Context singleton, and i18n – the full Best Practice pattern. If no parameters are provided, reads POD2_PLUGIN_TEMPLATE.md from the working directory.",
+      "Generates a complete POD2 Extension with Widget, Validation Action, Execution Action, Context singleton, and i18n – the full Best Practice pattern. If no parameters are provided, reads POD2_EXTENSION_TEMPLATE.md from the working directory.",
     arguments: [
       {
         name: "namespace",
         description:
-          "Company/project namespace (e.g. 'myCompany.myProject'). If omitted, read from POD2_PLUGIN_TEMPLATE.md.",
+          "Company/project namespace (e.g. 'myCompany.myProject'). If omitted, read from POD2_EXTENSION_TEMPLATE.md.",
         required: false,
       },
       {
         name: "pluginName",
         description:
-          "Plugin name in PascalCase (e.g. 'Split', 'OrderConfig'). If omitted, read from POD2_PLUGIN_TEMPLATE.md.",
+          "Extension name in PascalCase (e.g. 'Split', 'OrderConfig'). If omitted, read from POD2_EXTENSION_TEMPLATE.md.",
         required: false,
       },
       { name: "description", description: "Short description of the extension's purpose", required: false },
@@ -207,8 +207,8 @@ Module path: \`${nsPath}/action/${actionName}\`
 
 ## IMPORTANT: Read Template First
 
-No namespace/pluginName was provided as parameters. **Read the \`POD2_PLUGIN_TEMPLATE.md\` file in the current working directory** to extract:
-- Plugin Name, Namespace, Type, Description, Category
+No namespace/pluginName was provided as parameters. **Read the \`POD2_EXTENSION_TEMPLATE.md\` file in the current working directory** to extract:
+- Extension Name, Namespace, Type, Description, Category
 - Functional requirements (What should it do?)
 - Validation Rules
 - Execution Logic
@@ -220,7 +220,7 @@ Then proceed with the full generation workflow below.
 
 ## Workflow
 
-1. **Read \`POD2_PLUGIN_TEMPLATE.md\`** – extract all requirements
+1. **Read \`POD2_EXTENSION_TEMPLATE.md\`** – extract all requirements
 2. Call \`get_pod2_guidelines\` to load the rules
 3. Call \`get_pattern_doc({ name: "extension-json-schema" })\` for extension.json schema
 4. Call \`get_pattern_doc({ name: "widget-patterns" })\` for widget templates
@@ -432,14 +432,14 @@ Generate a comprehensive README with these sections:
       {
         name: "targetNamespace",
         description:
-          "Target namespace for the migrated plugin (e.g. 'customer.custom.extensions.mywidget'). If omitted, read from POD2_PLUGIN_EXAMPLE.md or prompt the user.",
+          "Target namespace for the migrated extension (e.g. 'customer.custom.extensions.mywidget'). If omitted, read from POD2_EXTENSION_EXAMPLE.md or prompt the user.",
         required: false,
       },
     ],
     load: async ({ sourceDir, sourceFormat, targetNamespace }) => {
       const fmt = sourceFormat ?? "auto";
       const src = sourceDir ?? "<sourceDir not provided — ASK USER>";
-      const ns = targetNamespace ?? "<targetNamespace not provided — read from POD2_PLUGIN_EXAMPLE.md or ASK USER>";
+      const ns = targetNamespace ?? "<targetNamespace not provided — read from POD2_EXTENSION_EXAMPLE.md or ASK USER>";
 
       return `Migrate the existing POD 2.0 widget at \`${src}\` into a clean POD 2.0 extension following Best-Practice.
 
@@ -477,7 +477,7 @@ This applies the Reasoning-First meta-rule from \`get_pod2_guidelines\` Section 
 1. Verify \`sourceDir\` exists and contains POD 2.0 sources (\`extension.json\` + \`*.js\` extending \`sap/dm/dme/pod2/widget/Widget\`). If not → abort with a clear error message.
 2. List every file in \`sourceDir\` (skip \`node_modules/\`, \`.git/\`, build artifacts, \`.DS_Store\`).
 3. Identify the source extension structure: widgets, actions, context, i18n bundles, README, extension.json.
-4. Read \`POD2_PLUGIN_EXAMPLE.md\` in the **target** working directory if present — it may already specify the desired namespace, extension name, category, etc.
+4. Read \`POD2_EXTENSION_EXAMPLE.md\` in the **target** working directory if present — it may already specify the desired namespace, extension name, category, etc.
 
 **If \`sourceFormat === "html5"\` (or \`auto\` detects HTML5):**
 
@@ -496,7 +496,7 @@ This applies the Reasoning-First meta-rule from \`get_pod2_guidelines\` Section 
    - Emoji glyphs used as icons — regex \`[🔴🟢🟡🟠🔔🔍🎧🏭📍👤❓📊📋]\` (Cat 26)
    - Ternary threshold chains with 3+ literals — regex \`>=?\\s*\\d+\\s*\\?[^:]+:\\s*[^?]+>=?\\s*\\d+\\s*\\?\` (Cat 28)
    - CSS classes containing \`gantt\` / \`timeline\` / \`now-line\` combined with inline \`style="(left|width):.*%"\` (Cat 24)
-4. Read \`POD2_PLUGIN_EXAMPLE.md\` in the **target** working directory if present — for namespace / display name / category.
+4. Read \`POD2_EXTENSION_EXAMPLE.md\` in the **target** working directory if present — for namespace / display name / category.
 
 ## Phase 1 — Load MCP Knowledge Base
 

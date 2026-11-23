@@ -588,13 +588,13 @@ prefix — purely because old example bundles mixed both styles.
 
 These are the same family of bug: the widget metadata trio (`displayName`, `description`,
 `category`) is the **single source of truth** the POD Designer reads when displaying a
-widget tile in its palette. All three must come from `POD2_PLUGIN_EXAMPLE.md` (Plugin Name,
+widget tile in its palette. All three must come from `POD2_EXTENSION_EXAMPLE.md` (Extension Name,
 Description, Category) and all three must use a **named prefix** (`<widgetName>.`) derived
 from the widget's short name in camelCase.
 
 ### The Convention (one rule for the whole trio)
 
-| Field         | Spec field in `POD2_PLUGIN_EXAMPLE.md` | i18n key (example: widget "Coating")           | Read in widget code via                   |
+| Field         | Spec field in `POD2_EXTENSION_EXAMPLE.md` | i18n key (example: widget "Coating")           | Read in widget code via                   |
 |---------------|----------------------------------------|------------------------------------------------|-------------------------------------------|
 | Display name  | `Plugin Name` / `Name`                 | `coating.displayName` | `static getDisplayName() { return this.getI18nText("coating.displayName"); }` |
 | Description   | `Description`                          | `coating.description` | `static getDescription() { return this.getI18nText("coating.description"); }` |
@@ -688,7 +688,7 @@ If the spec says:
 
 ### The Rule
 
-- All three values come from `POD2_PLUGIN_EXAMPLE.md` — never hardcoded from the example
+- All three values come from `POD2_EXTENSION_EXAMPLE.md` — never hardcoded from the example
 - All three i18n keys use a **named prefix** derived from the widget’s short name (camelCase) — e.g. `coating.displayName`, `coating.description`, `coating.category`
 - The same key set appears in **all 4 locale bundles** (`i18n.properties`, `i18n_de.properties`,
   `i18n_en.properties`, `i18n_en_US.properties`)
@@ -748,7 +748,7 @@ grep -rnE '^(displayName|description|category)=' i18n/
 grep -rn '^widget\.' i18n/
 
 # Compare the spec values with the bundle values
-grep -E '^(Plugin Name|Name|Description|Category):' POD2_PLUGIN_EXAMPLE.md   # spec
+grep -E '^(Extension Name|Name|Description|Category):' POD2_EXTENSION_EXAMPLE.md   # spec
 grep -hE '^[a-z]+\.(displayName|description|category)' i18n/*.properties     # bundle
 
 # Verify the widget code reads named-prefixed keys (anti-pattern: generic "widget.")

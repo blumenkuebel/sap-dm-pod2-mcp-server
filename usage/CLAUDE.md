@@ -1,6 +1,6 @@
-# POD2 Plugin Development Rules
+# POD2 Extension Development Rules
 
-> Agent-facing rules for POD 2.0 plugin development. **Claude Code** auto-loads this file (`CLAUDE.md`) each session; **other agents** (Cline, Cursor, …) must be told *"read CLAUDE.md"* at the start of every conversation. This is the single source of agent-facing rules.
+> Agent-facing rules for POD 2.0 extension development. **Claude Code** auto-loads this file (`CLAUDE.md`) each session; **other agents** (Cline, Cursor, …) must be told *"read CLAUDE.md"* at the start of every conversation. This is the single source of agent-facing rules.
 > Modes: **Scaffold** (no `.scaffold-done`) and **Iterate** (with `.scaffold-done`).
 > Full runtime tool catalog → `get_pod2_guidelines` on `sap-dm-pod2-mcp-server` (call once, first thing).
 
@@ -22,7 +22,7 @@ Applies to:
 - Deleting or renaming an existing file
 - Non-additive change to `extension.json` (removing/renaming a registration, changing `modulePath` / `type`)
 - Ambiguous request (agent has more than one valid interpretation)
-- New architectural piece (new Context, new widget type, new REST client, pattern not yet used in the plugin)
+- New architectural piece (new Context, new widget type, new REST client, pattern not yet used in the extension)
 
 Format: `Proposal: <what and why, 1–2 sentences>. Files: <list>. OK?` → STOP.
 
@@ -61,7 +61,7 @@ Read-only tools (MCP `get_*` / `list_*` / `search_*`, file reads) may be called 
 
 ### 🔧 UI5 API lookup
 
-UI5-Lookup läuft komplett über `sap-dm-pod2-mcp-server`. Kein `ui5.yaml`/`webapp/` im Plugin-Verzeichnis nötig, keine externen MCP-Server, keine Workarounds:
+UI5-Lookup läuft komplett über `sap-dm-pod2-mcp-server`. Kein `ui5.yaml`/`webapp/` im Extension-Verzeichnis nötig, keine externen MCP-Server, keine Workarounds:
 
 ```
 sap-dm-pod2-mcp-server.list_ui5_libraries()                       // welche Bibliotheken sind gebundelt?
@@ -77,7 +77,7 @@ Citation-Form: `[verified via get_ui5_api({symbol: "sap.m.GenericTile"})]`.
 **Never do this**
 
 - ❌ `WebFetch` on `https://ui5.sap.com/#/api/<Class>` — that URL is a SPA shell; `WebFetch` sees only the page title, no API. Use `get_ui5_api` (bundled JSON = same data the SDK loads at runtime).
-- ❌ Add `ui5.yaml` / `webapp/` / `package.json` to the plugin root — those files break the POD upload (M0/M15/M2).
+- ❌ Add `ui5.yaml` / `webapp/` / `package.json` to the extension root — those files break the POD upload (M0/M15/M2).
 - ❌ Invent an import path or method signature from memory — always call `get_ui5_api` first.
 
 ---
@@ -86,15 +86,15 @@ Citation-Form: `[verified via get_ui5_api({symbol: "sap.m.GenericTile"})]`.
 
 Check for `.scaffold-done` in the working directory:
 - **absent** → **SCAFFOLD MODE** (initial generation)
-- **present** → **ITERATION MODE** (patch existing plugin)
+- **present** → **ITERATION MODE** (patch existing extension)
 
 ---
 
-## 🚀 SCAFFOLD MODE (one time per plugin)
+## 🚀 SCAFFOLD MODE (one time per extension)
 
 Goal: complete, deployable first draft. UI fine-tuning happens in Iteration after the user has seen the rendered POD.
 
-**Discussion (category-2 halt).** Read `POD2_PLUGIN_TEMPLATE.md`, ask ≤3 clarifying questions (widget type, API pattern, scope), post `Proposal: … Files: … OK?`, STOP. Do NOT debate UI layout details — unverifiable until deployed.
+**Discussion (category-2 halt).** Read `POD2_EXTENSION_TEMPLATE.md`, ask ≤3 clarifying questions (widget type, API pattern, scope), post `Proposal: … Files: … OK?`, STOP. Do NOT debate UI layout details — unverifiable until deployed.
 
 **Execution (after user "go"):**
 1. `get_pod2_guidelines` — full rules + tool catalog
@@ -113,7 +113,7 @@ Goal: complete, deployable first draft. UI fine-tuning happens in Iteration afte
 
 ## 🔁 ITERATION MODE
 
-The user has deployed the plugin and now describes what to refine (often with a screenshot).
+The user has deployed the extension and now describes what to refine (often with a screenshot).
 
 - Reversible/additive change (category 1) → patch immediately, end with `Changed:` block.
 - Ambiguous, rename/delete, non-additive `extension.json`, new architectural piece → category-2 halt.
@@ -129,7 +129,7 @@ The user has deployed the plugin and now describes what to refine (often with a 
 
 Call `get_pod2_guidelines` once at start — it returns the full tool catalog and workflows. Use `list_capabilities` if you need the overview again. Key tool groups: patterns (`get_pattern_doc`, `search_docs`), POD2 API (`get_api_doc`, `search_api_docs`), UI5 API (`get_ui5_api`, `search_ui5_api`, `list_ui5_libraries`), REST (`get_rest_api`, `search_rest_apis`), examples (`get_example`), MDO (`get_mdo_entity`), cross-search (`search_all`), validation (`validate_project`).
 
-Prompts: `create_widget`, `create_action`, `create_extension` (reads `POD2_PLUGIN_TEMPLATE.md`), `migrate_widget`, `validate_project`. Invocation syntax is agent-specific — see the Agent-Specific Notes in `usage/README.md`.
+Prompts: `create_widget`, `create_action`, `create_extension` (reads `POD2_EXTENSION_TEMPLATE.md`), `migrate_widget`, `validate_project`. Invocation syntax is agent-specific — see the Agent-Specific Notes in `usage/README.md`.
 
 > **`sapui5-mcp-server` is no longer needed** — UI5 API tools (`get_ui5_api`, `search_ui5_api`, `list_ui5_libraries`) are native in `sap-dm-pod2-mcp-server`, backed by a bundled offline JSON at `docu/ui5-api-specs/`. Remove `sapui5-mcp-server` from your MCP config if you had it registered.
 
@@ -148,8 +148,8 @@ Prompts: `create_widget`, `create_action`, `create_extension` (reads `POD2_PLUGI
 7. **Logger** instead of `console.log`
 8. **Form layout**: prefer `sap/ui/layout/form/Form` + `FormContainer` + `FormElement` + `ResponsiveGridLayout`
 9. **i18nCustomModel**: register in `widget.onInit()` via `getPodRuntime().getView().setModel(MyWidget.getI18nModel(), "i18n<WidgetShortName>")` — model name is `i18n` + PascalCase widget short name (e.g. `i18nCoating`). Multi-widget plugins register one model per widget (e.g. `i18nCoating` AND `i18nHelloWorld` side-by-side — no collision, mirrors the M32 per-widget key prefix).
-10. **Flat layout**: `extension.json`, `widget/`, `action/`, `context/`, `i18n/`, `README.md` go **directly in the working directory (= project root = ZIP root)**. NEVER wrap in a `<PluginName>/` or `<namespace>/` folder. `modulePath` is a logical UI5 module name, independent of physical location.
-11. **Public-API-First — internal/app-router APIs need explicit confirmation**: Solve every requirement with the **public** SAP DM REST APIs first (`RestClient` + `ApiPaths`, the `*PublicApiClient`s, or `ApiClient.<domain>`). NEVER hard-wire an **internal / app-router** endpoint into plugin source — an execution host (`*.execution.*.web.dmc.cloud.sap`), a `~GUID~` path, or a `dmi/cdt` / `dim/destinations` prefix (this is the surface `sap-dm-api-mcp-server.call_internal_api` queries — a **discovery tool for the agent, not plugin code**). If no public API fits: say which you checked, then **ask for explicit confirmation** (category-2 halt) before writing an internal call. Exception: `ApiClient.internal.processengine.start(...)` is a documented framework API and is **allowed** — it is not an "internal API" in this sense.
+10. **Flat layout**: `extension.json`, `widget/`, `action/`, `context/`, `i18n/`, `README.md` go **directly in the working directory (= project root = ZIP root)**. NEVER wrap in a `<ExtensionName>/` or `<namespace>/` folder. `modulePath` is a logical UI5 module name, independent of physical location.
+11. **Public-API-First — internal/app-router APIs need explicit confirmation**: Solve every requirement with the **public** SAP DM REST APIs first (`RestClient` + `ApiPaths`, the `*PublicApiClient`s, or `ApiClient.<domain>`). NEVER hard-wire an **internal / app-router** endpoint into extension source — an execution host (`*.execution.*.web.dmc.cloud.sap`), a `~GUID~` path, or a `dmi/cdt` / `dim/destinations` prefix (this is the surface `sap-dm-api-mcp-server.call_internal_api` queries — a **discovery tool for the agent, not extension code**). If no public API fits: say which you checked, then **ask for explicit confirmation** (category-2 halt) before writing an internal call. Exception: `ApiClient.internal.processengine.start(...)` is a documented framework API and is **allowed** — it is not an "internal API" in this sense.
 
 ---
 
@@ -177,14 +177,10 @@ Two source formats are supported:
 **B) HTML5 monitoring / dashboard app** (Chart.js / d3 / plotly / echarts + `fetch` + inline handlers):
 1. Place source `.html` (+ optional `.css`/`.js`) into `./legacy/` (or similar)
 2. Invoke `migrate_widget` with `sourceDir: "./legacy"`, `sourceFormat: "html5"`
-3. The prompt additionally preloads `dashboard-patterns.md`, `chart-migration-map.md`, `fiori-design-compliance.md`, and `html5-migration-guide.md` as the target-shape reference. There is **no dedicated dashboard example plugin** — hand-built KPI-tile controls / composite widgets are the anti-pattern the standard-first bias exists to prevent; see M60 (no custom control for pure display) and M61 (no plugin CSS).
+3. The prompt additionally preloads `dashboard-patterns.md`, `chart-migration-map.md`, `fiori-design-compliance.md`, and `html5-migration-guide.md` as the target-shape reference. There is **no dedicated dashboard example extension** — hand-built KPI-tile controls / composite widgets are the anti-pattern the standard-first bias exists to prevent; see M60 (no custom control for pure display) and M61 (no plugin CSS).
 4. Categories 21-28 of the suspect list are the most important: chart libs → SAPUI5 charts, native `fetch` → `ODataV4Client`, module-level `let` → private fields, custom `<div>`-Gantt → `sap.gantt.GanttChart`, inline handlers → `attachPress`, emoji → `sap-icon://`, hard-coded locale → `DateFormat`, magic thresholds → widget properties
-5. Phase 5 adds a **Residue Gate**: zero `fetch(`, `.toFixed(`, `setInterval` without stored handle, module-level `let`, `document.addEventListener`, `console.log`, emoji-as-icon, hard-coded locale allowed in the produced plugin
+5. Phase 5 adds a **Residue Gate**: zero `fetch(`, `.toFixed(`, `setInterval` without stored handle, module-level `let`, `document.addEventListener`, `console.log`, emoji-as-icon, hard-coded locale allowed in the produced extension
 
 For both formats: after the inventory phase the agent posts the **Output Contract sentence** and STOPS — confirm before Phase 3. These phase gates take precedence over the generic Reasoning-First halt (§ Category 2).
 
 > POD 1.0 migration is not yet supported — file a request if you need it.
-
----
-
-_sap-dm-pod2-mcp-server v1.0.0 · CLAUDE.md v8.0 (single-file; agent-agnostic — Claude Code auto-loads; other agents "read CLAUDE.md")_

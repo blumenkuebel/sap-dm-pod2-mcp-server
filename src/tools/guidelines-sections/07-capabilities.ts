@@ -37,7 +37,7 @@ export function buildCapabilities(c: ContentCounts): string {
 |--------|-----|
 | \`create_widget\` | Generate Widget + i18n + extension.json entry |
 | \`create_action\` | Generate Action (validation/execution/standalone) |
-| \`create_extension\` | Generate full plugin (10 files) — reads POD2_PLUGIN_TEMPLATE.md |
+| \`create_extension\` | Generate full extension (10 files) — reads POD2_EXTENSION_TEMPLATE.md |
 | \`migrate_widget\` | Migrate existing POD 2.0 widget with feature-loss prevention |
 | \`validate_project\` | Validate extension in cwd against all standards |
 
