@@ -708,7 +708,17 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: { status: "verified", source: "machine-checked against bundled specs (ui5-api); see verify-rules" },
+    verification: {
+      method: "ui5-api",
+      authoredAgainst: { dmRelease: "2608", ui5Version: "1.151.0" },
+      note: "Enum values are Start/Center/End — no flex- prefix.",
+      checks: [
+        { kind: "ui5EnumMember", enumSymbol: "sap.m.FlexAlignItems", member: "Start", present: true },
+        { kind: "ui5EnumMember", enumSymbol: "sap.m.FlexAlignItems", member: "flex-start", present: false },
+        { kind: "ui5EnumMember", enumSymbol: "sap.m.FlexJustifyContent", member: "SpaceBetween", present: true },
+      ],
+    },
   },
   {
     id: "M57",

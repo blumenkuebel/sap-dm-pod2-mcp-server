@@ -14,20 +14,20 @@ Each rule's grounding:
   are the audit targets: the same reverse-from-example origin that produced the wrong M6/M21 rules.
 - **❓ unverified** — no cited source yet. Cleanup backlog.
 
-**🔧 machine-checked (Tier A): 7 rules.** Their stated facts are re-verified against the
+**🔧 machine-checked (Tier A): 8 rules.** Their stated facts are re-verified against the
 bundled SAP specs on every `npm test` (`test/verify-rules.test.js`); a spec update that invalidates a
 fact turns the build red (obsolescence signal). Run `node scripts/verify-rules.mjs` for the report.
 
 | Status | Count |
 |---|---:|
-| ✅ verified | 19 |
+| ✅ verified | 20 |
 | 🧩 inferred | 4 |
-| ❓ unverified | 62 |
+| ❓ unverified | 61 |
 | **total** | **85** |
 
 **🧩 inferred (confirm against SAP docs or demote):** M35, M39, M65, M66
 
-**❓ unverified (cite a source or re-test):** M0, M1, M1B, M2, M4, M5, M7, M8, M10, M11, M13, M14, M15, M16, M17, M18, M19, M20, M22, M23, M24, M25, M26, M27, M28, M30, M31, M32, M36, M37, M38, M42, M43, M50, M52, M55, M56, M58, M59, M60, M61, M62, M63, M70, M73, M75, M77, M78, M80, M81, M84, HTML5-CHART, HTML5-CHART-SCRIPT-TAG, HTML5-EMOJI-ICON, HTML5-FETCH, HTML5-INLINE-HANDLER, HTML5-LOCALE-LITERAL, HTML5-MAGIC-THRESHOLD, HTML5-MODULE-STATE, HTML5-TIMER-CLEANUP, HTML5-TIMER-HANDLE, HTML5-TOFIXED
+**❓ unverified (cite a source or re-test):** M0, M1, M1B, M2, M4, M5, M7, M8, M10, M11, M13, M14, M15, M16, M17, M18, M19, M20, M22, M23, M24, M25, M26, M27, M28, M30, M31, M32, M36, M37, M38, M42, M43, M50, M52, M55, M58, M59, M60, M61, M62, M63, M70, M73, M75, M77, M78, M80, M81, M84, HTML5-CHART, HTML5-CHART-SCRIPT-TAG, HTML5-EMOJI-ICON, HTML5-FETCH, HTML5-INLINE-HANDLER, HTML5-LOCALE-LITERAL, HTML5-MAGIC-THRESHOLD, HTML5-MODULE-STATE, HTML5-TIMER-CLEANUP, HTML5-TIMER-HANDLE, HTML5-TOFIXED
 
 > When an agent cites a rule whose status is **inferred** or **unverified**, it must report the finding
 > with a provenance caveat (the rule is not SAP-confirmed) — see `validate-project-instructions.md` Phase 3.
@@ -90,7 +90,7 @@ swept under Errors yet be Warning-grade, e.g. M66/M70/M72).
 | [M53](common-mistakes-ui.md#mistake-53-microchart-color-property--valuecolor-vs-valuecsscolor-vs-iconcolor-are-not-interchangeable----runtime-parser-rejection) | Microchart color property — `ValueColor` vs `ValueCSSColor` vs `IconColor` are NOT interchangeable (RUNTIME parser rejection) | ui | 🔴 Error | **no** | ✅ verified — machine-checked against bundled specs (ui5-api); see verify-rules · 🔧 machine-checked (ui5-api) |
 | [M54](common-mistakes-ui.md#mistake-54-linemicrochartpoint-has-no-color-or-emphasized-property--use-linemicrochartemphasizedpoint----runtime-unknown-setting) | `LineMicroChartPoint` has no `color` or `emphasized` property — use `LineMicroChartEmphasizedPoint` (RUNTIME unknown-setting) | ui | 🔴 Error | **no** | ✅ verified — machine-checked against bundled specs (ui5-api); see verify-rules · 🔧 machine-checked (ui5-api) |
 | [M55](common-mistakes-ui.md#mistake-55-list-binding-template-conflict--attribute-binding-and-aggregation-wrapper-on-the-same-aggregation----runtime-assertion) | List-binding template conflict — attribute binding AND `<aggregation>` wrapper on the same aggregation (RUNTIME assertion) | ui | 🔴 Error | **no** | ❓ unverified |
-| [M56](common-mistakes-ui.md#mistake-56-sapmflexalignitems--flexjustifycontent-values-have-no-flex-prefix----runtime-future-fatal) | `sap.m.FlexAlignItems` / `FlexJustifyContent` values have NO `Flex` prefix (RUNTIME [FUTURE FATAL]) | ui | ⚠️ Warning | yes | ❓ unverified |
+| [M56](common-mistakes-ui.md#mistake-56-sapmflexalignitems--flexjustifycontent-values-have-no-flex-prefix----runtime-future-fatal) | `sap.m.FlexAlignItems` / `FlexJustifyContent` values have NO `Flex` prefix (RUNTIME [FUTURE FATAL]) | ui | ⚠️ Warning | yes | ✅ verified — machine-checked against bundled specs (ui5-api); see verify-rules · 🔧 machine-checked (ui5-api) |
 | [M57](common-mistakes-imports.md#mistake-57-sapfheader-and-other-guessed-namespace-controls-dont-exist----runtime-404) | `sap.f.Header` and other guessed-namespace controls don't exist (RUNTIME 404) | imports | 🔴 Error | yes | ✅ verified — machine-checked against bundled specs (ui5-api); see verify-rules · 🔧 machine-checked (ui5-api) |
 | [M58](common-mistakes-ui.md#mistake-58-sapmapp-as-widget-root--absolute-positioned-to-viewport-breaks-embedded-pod-widget---) | `sap.m.App` as widget root — absolute-positioned to viewport, breaks embedded POD widget | ui | 🔴 Error | yes | ❓ unverified |
 | [M59](common-mistakes-ui.md#mistake-59-widget-owned-shell-bar--header-is-redundant--pod-runtime-already-renders-the-outer-shell----ux--accessibility) | Widget-owned shell bar / header is redundant — POD runtime already renders the outer shell (UX + accessibility) | ui | 🔴 Error | yes | ❓ unverified |
