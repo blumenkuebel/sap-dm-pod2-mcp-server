@@ -76,7 +76,3 @@
   "LogDcThicknessCollected": true
 }
 ```
-
----
-
-_Template v2.2 · sap-dm-pod2-mcp-server v1.0.0_
