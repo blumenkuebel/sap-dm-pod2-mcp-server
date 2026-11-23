@@ -505,7 +505,6 @@ Any hit is a bug — convert it to the positional form.
 ### Related
 
 - [Mistake #6: Missing View ID in `_createView()`](common-mistakes-imports.md#mistake-6-missing-view-id-in-_createview---) — the case when no ID is passed at all
-- [Mistake #21: `sap.m.Panel` vs `CustomPanel`](common-mistakes-config.md#mistake-21-using-sapmpanel-instead-of-custompanel----critical) — also shows the `id: this.getId()` settings-property style; for `CustomPanel` constructor the positional form is preferred wherever supported
 
 ---
 
@@ -917,7 +916,7 @@ _createView() {
 }
 ```
 
-For a single-view widget, return the root layout directly (VBox / CustomPanel / Form) — no NavContainer needed.
+For a single-view widget, return the root layout directly (VBox / Panel / Form) — no NavContainer needed.
 
 ### Related controls to avoid at widget root
 
@@ -955,7 +954,7 @@ A widget renders **only its own body region** inside the POD's layout container.
 
 ### ✅ Correct
 
-Start your `_createView` with a **content-only root** (VBox / Form / CustomPanel). No `sap.f.ShellBar`, no `sap.tnt.ToolHeader`, no self-owned title with plant label.
+Start your `_createView` with a **content-only root** (VBox / Form / Panel). No `sap.f.ShellBar`, no `sap.tnt.ToolHeader`, no self-owned title with plant label.
 
 If you need a section title INSIDE the widget body: use `sap.m.Title` (H4/H5) or `sap.m.Panel` with `headerText` — that's a section header, not an app shell.
 

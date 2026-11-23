@@ -184,7 +184,6 @@ differ from the default are called out inline:
 - **M5** — subscribe callback parameter order must be `(newValue, path)`.
 - **M6** — `_createView()` returns the root control with `oConfig.id` or `this.getId()` as **positional first** arg (both are equivalent).
 - **M14** — JSONModel initialised inside `_createView()` before bound controls are built.
-- **M21** — top-level container must be `CustomPanel`, not plain `sap.m.Panel`.
 - **M29** — SFC status compared as **string** (`=== "401"`), never a number.
 - **M31** — control ID must be the **first positional** constructor arg (no `setId`, no `{id:…}`).
 - **M32** — widget metadata i18n trio uses the **named `<widgetName>.` prefix** (NOT the legacy
