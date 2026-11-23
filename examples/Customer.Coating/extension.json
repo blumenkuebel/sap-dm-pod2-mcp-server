@@ -2,7 +2,10 @@
     "widgets": [
         {
             "modulePath": "customer/custom/extensions/coating/widget/CoatingWidget",
-            "type": "customer.custom.extensions.coating.widget.CoatingWidget"
+            "type": "customer.custom.extensions.coating.widget.CoatingWidget",
+            "name": "Coating",
+            "description": "Thickness Calculation in Coating Process",
+            "supportsProductionProcess": true
         }
     ],
     "actions": [

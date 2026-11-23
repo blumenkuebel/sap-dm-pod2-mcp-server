@@ -179,7 +179,7 @@ Check each of these codes (load the cited category doc for the grep + fix). Seve
 differ from the default are called out inline:
 
 - **M0 / M15** — extension.json placement & layout (root = ZIP root; no `webapp/` or namespace wrapper).
-- **M2** — extension.json schema (only `widgets` + `actions` arrays; each entry `modulePath` + `type`).
+- **M2** — extension.json schema (required per entry: `modulePath` + `type`; optional widget metadata: `name`, `description`, `supportsProductionProcess`).
 - **M3** — `PodContext` / `ModelPath` import path (`sap/dm/dme/pod2/context/*`, not legacy `…/model/*`).
 - **M5** — subscribe callback parameter order must be `(newValue, path)`.
 - **M6** — `_createView()` returns the root control with `oConfig.id` as **positional first** arg.
@@ -394,7 +394,7 @@ For each component type present in the extension, verify it follows the Best-Pra
 
 | Check | Expected | Severity |
 |---|---|---|
-| Only `widgets` + `actions` arrays | No extra metadata fields | ❌ Error (M2) |
+| Widget entries: required `modulePath` + `type`; allowed optional: `name`, `description`, `supportsProductionProcess` | No other extra fields | ❌ Error (M2) |
 | Every `modulePath` has matching physical file | `widget/<X>.js` / `action/<Y>.js` must exist at those relative paths | ❌ Error |
 | `modulePath` uses slashes, `type` uses dots — both consistent | Same base path, just `/` vs `.` | ❌ Error |
 | Namespace convention: `customer.custom.extension.<name>` or `customer/custom/extension/<name>` | NOT starting with `sap.` or `sap/` | ❌ Error |

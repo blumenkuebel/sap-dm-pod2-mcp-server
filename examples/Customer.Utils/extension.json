@@ -1,8 +1,11 @@
-{    
+{
     "widgets": [
         {
             "modulePath": "customer/custom/extensions/utils/widget/FilterableWorkListWidget",
-            "type": "customer.custom.extensions.utils.widget.FilterableWorkListWidget"
+            "type": "customer.custom.extensions.utils.widget.FilterableWorkListWidget",
+            "name": "Filterable Work List",
+            "description": "Extends the standard Work List with a fulltext search field for client-side filtering across all columns.",
+            "supportsProductionProcess": false
         }
     ],
     "actions": [

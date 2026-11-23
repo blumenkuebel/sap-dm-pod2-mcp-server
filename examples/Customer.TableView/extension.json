@@ -2,7 +2,10 @@
     "widgets": [
         {
             "modulePath": "customer/custom/extensions/tableview/widget/TableViewWidget",
-            "type": "customer.custom.extensions.tableview.widget.TableViewWidget"
+            "type": "customer.custom.extensions.tableview.widget.TableViewWidget",
+            "name": "TableView",
+            "description": "Generic Table View — displays dynamic table content from a Production Process.",
+            "supportsProductionProcess": true
         }
     ]
 }

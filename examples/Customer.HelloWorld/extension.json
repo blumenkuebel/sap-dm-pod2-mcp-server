@@ -2,7 +2,10 @@
     "widgets": [
         {
             "modulePath": "customer/custom/extensions/helloworld/widget/HelloWorldWidget",
-            "type": "customer.custom.extensions.helloworld.widget.HelloWorldWidget"
+            "type": "customer.custom.extensions.helloworld.widget.HelloWorldWidget",
+            "name": "Hello World Widget",
+            "description": "The smallest possible POD 2.0 widget. Displays a translated greeting text.",
+            "supportsProductionProcess": false
         }
     ]
 }

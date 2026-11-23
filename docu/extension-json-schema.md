@@ -39,6 +39,18 @@ The `extension.json` file is the **extension manifest** for POD 2.0 extensions. 
             "description": "Fully qualified widget type identifier (dot-separated)",
             "pattern": "^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*$",
             "examples": ["customer.processlot.widget.ProcessLotWidget"]
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name shown in the POD Designer widget palette (optional but recommended)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the widget (optional but recommended)"
+          },
+          "supportsProductionProcess": {
+            "type": "boolean",
+            "description": "If true, also available in Design Production Processes app in addition to Manage PODs 2.0 (optional, default: false)"
           }
         },
         "additionalProperties": false
@@ -93,6 +105,9 @@ The `extension.json` file is the **extension manifest** for POD 2.0 extensions. 
 |-------|------|:--------:|-------------|
 | `modulePath` | string | ✓ | Path to the widget JS module, using `/` separators, **without** `.js` extension |
 | `type` | string | ✓ | Unique type identifier using `.` separators – used to reference the widget |
+| `name` | string | – | Display name shown in the POD Designer widget palette (optional but recommended) |
+| `description` | string | – | Human-readable description of the widget (optional but recommended) |
+| `supportsProductionProcess` | boolean | – | If `true`, also available in the Design Production Processes app (optional, default: `false`) |
 
 ### Action Entry
 
@@ -152,7 +167,10 @@ type:       "customer.processlot.widget.ProcessLotWidget"
     "widgets": [
         {
             "modulePath": "myCompany/myPlugin/widget/MyWidget",
-            "type": "myCompany.myPlugin.widget.MyWidget"
+            "type": "myCompany.myPlugin.widget.MyWidget",
+            "name": "My Widget",
+            "description": "This is my widget.",
+            "supportsProductionProcess": false
         }
     ]
 }

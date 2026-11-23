@@ -80,8 +80,20 @@ Plus${withProps ? " property labels/descriptions, and" : ""} any UI strings — 
 Do **NOT** emit unprefixed legacy keys (\`displayName=\`, \`description=\`, \`category=\`).
 
 ### 3. \`extension.json\` entry
-Widget type: \`${namespace}.widget.${widgetName}\`
-Module path: \`${nsPath}/widget/${widgetName}\`
+\`\`\`json
+{
+    "widgets": [
+        {
+            "modulePath": "${nsPath}/widget/${widgetName}",
+            "type": "${namespace}.widget.${widgetName}",
+            "name": "<short palette display name>",
+            "description": "${desc}",
+            "supportsProductionProcess": false
+        }
+    ]
+}
+\`\`\`
+Set \`supportsProductionProcess: true\` only if the widget is designed for use in the Design Production Processes app (in addition to Manage PODs 2.0). The \`name\` field is the display label shown in the POD Designer widget palette.
 
 ## File Layout (CRITICAL)
 - Generate ALL files **directly in the current working directory** (= project root = ZIP root).
@@ -317,7 +329,7 @@ Generate a comprehensive README in the style of the examples (see Customer.Coati
 ## Files to Generate (Full Extension)
 
 ### 1. \`extension.json\`
-Register all widgets and actions with correct modulePaths and types.
+Register all widgets and actions with correct modulePaths and types. For each widget entry, also include the optional metadata fields: \`name\` (palette display label), \`description\` (human-readable purpose), and \`supportsProductionProcess\` (set \`true\` only if this widget is designed for the Design Production Processes app). Actions entries only need \`modulePath\` and \`type\`.
 
 ### 2. \`context/${pluginName}Context.js\` – Singleton Context Class
 - Static class (no instantiation needed)

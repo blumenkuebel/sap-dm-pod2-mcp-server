@@ -2,7 +2,10 @@
     "widgets": [
         {
             "modulePath": "customer/custom/extension/soundalert/widget/SoundAlertWidget",
-            "type": "customer.custom.extension.soundalert.widget.SoundAlertWidget"
+            "type": "customer.custom.extension.soundalert.widget.SoundAlertWidget",
+            "name": "Sound Alert",
+            "description": "Plays an audio alert when a real-time event is received via WebSocket",
+            "supportsProductionProcess": false
         }
     ],
     "actions": []

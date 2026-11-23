@@ -80,28 +80,31 @@ _onResourceChanged(aResources, sPath) {
 **Error**: `"Failed to create custom extensions: Error encountered when processing the extension components file"`
 
 ```javascript
-// ❌ WRONG - Extra metadata fields cause upload failure
+// ❌ WRONG - Extra fields at the TOP LEVEL cause upload failure
 {
-  "name": "My Plugin",           // ❌ NOT SUPPORTED
-  "description": "...",           // ❌ NOT SUPPORTED
-  "version": "1.0.0",             // ❌ NOT SUPPORTED
-  "provider": "Acme Corp",        // ❌ NOT SUPPORTED
+  "name": "My Plugin",           // ❌ NOT SUPPORTED at top level
+  "description": "...",           // ❌ NOT SUPPORTED at top level
+  "version": "1.0.0",             // ❌ NOT SUPPORTED at top level
+  "provider": "Acme Corp",        // ❌ NOT SUPPORTED at top level
   "widgets": [...]
 }
 
-// ✅ CORRECT - ONLY widgets and actions arrays!
+// ✅ CORRECT - optional metadata belongs INSIDE the widget entry, not at top level
 {
   "widgets": [
     {
       "modulePath": "custom/pod2/example/plugins/mywidget",
-      "type": "custom.pod2.example.plugins.mywidget"
+      "type": "custom.pod2.example.plugins.mywidget",
+      "name": "My Widget",                  // ✅ optional — inside the widget entry
+      "description": "Does something.",     // ✅ optional — inside the widget entry
+      "supportsProductionProcess": false    // ✅ optional — inside the widget entry
     }
   ],
   "actions": []
 }
 ```
 
-**Why this happens**: SAP DM Extension Center only accepts `widgets` and `actions` arrays. All other fields cause parsing errors.
+**Why this happens**: SAP DM Extension Center rejects any top-level fields other than `widgets` and `actions`. The optional metadata fields `name`, `description`, and `supportsProductionProcess` are only valid **inside** each widget entry, not at the manifest root.
 
 ---
 
