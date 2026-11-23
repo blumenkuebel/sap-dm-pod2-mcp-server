@@ -126,14 +126,19 @@ Some checks are about **broken** code, not preferences. They cannot be silenced 
 - M14 — model not initialized before bindings (broken binding)
 - M29 — SFC status as number (silent filter failure)
 - M31 — control ID via `setId()` / property (POD lifecycle assertion fails)
+- M37 — tagged-template literal on `getI18nText()`: dynamic expressions silently become `"[object Object]"` (broken i18n at runtime)
 - M39 — wrong base class LayoutWidget/ControlWidget (immediate crash on load)
 - M41 — non-existent AMD module path (`sap/m/Item`, `sap/m/Icon`, … — 404 at extension-load)
 - M42 — custom control `.extend()` without `renderer` in metadata (404 at extension-load)
 - M43 — String passed to UI5 numeric property (`validateProperty` throws)
+- M51 — `ModelPath.SelectedPlant` does not exist; `PodContext.subscribe(undefined, …)` throws "Model path is required"
 - M60 — custom control class for pure display composition (template masquerading as control)
 - M61 — extension CSS surface (physical `.css` without loader / inline `style=` / `HTML` with `<style>` / non-Fiori-prefix `addStyleClass`)
 - M64 — `MessageStrip.link` aggregation type-check (only accepts `sap.m.Link`)
 - M65 — `_createView(oConfig)` — `oConfig` is undefined at runtime; use `this.getConfig()`
+- M53 — MicroChart color via wrong enum class (e.g. `BulletMicroChartColor.Good` instead of `ValueColor.Good`); runtime parser rejection at render
+- M54 — `LineMicroChartPoint` constructed with unknown property (e.g. `emphasized` / `color` for types that do not support them); runtime "unknown setting" error
+- M55 — list-binding template conflict (named template object + anonymous template used together); runtime assertion "single template object" at render
 - M70 — silent information loss via standard-control bias (missing `## Composite:` mapping block or missing `## Field-coverage report` in verification)
 - M73 — manual `fetch`/`XMLHttpRequest` to SAP DM endpoints (bypasses POD auth/version/proxy — fragile across tenants/releases)
 - M74 — shared context read from a model path instead of `PodContext` (reads another widget's internal model structure; empty/stale/wrong off the happy path)

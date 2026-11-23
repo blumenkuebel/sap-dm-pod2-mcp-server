@@ -157,6 +157,22 @@ here — open the cited doc for the code you are checking. The category routing 
 For each finding, cite the doc reference + the source line. Group findings by severity exactly as
 below.
 
+### Classification Criteria
+
+Use these test-questions to assign or verify every finding's severity:
+
+- **❌ Error** — at least one is true: (1) extension load fails (404 / ModuleError); (2) throws an
+  exception at normal runtime use; (3) core feature is 100 % non-operative (not "only sometimes");
+  (4) breaks the POD framework contract in a way that is never acceptable (wrong lifecycle, wrong ID
+  ownership, wrong aggregation type); (5) structurally broken — no runtime exception but the feature
+  always produces wrong results.
+- **⚠️ Warning** — works in the happy path, but: fails only in certain locales / tenants /
+  environments; causes gradual degradation (memory leak, stale state); is deprecated and will break
+  in a future SAP DM or SAPUI5 version; is fragile in production but passes in dev; raises risk
+  without being directly faulty.
+- **ℹ️ Info** — code is correct and will stay correct; improvement is for maintainability or style
+  only.
+
 ### Errors (must-fix — these are broken in current SAP DM)
 
 Check each of these codes (load the cited category doc for the grep + fix). Severity notes that
@@ -186,7 +202,18 @@ differ from the default are called out inline:
   `BusyIndicator.show/hide`); anything else is an Error. (`common-mistakes-lifecycle.md`)
 - **M70** — silent information loss via standard-control bias (applies only when
   `sourceFormat === "html5"`; checks `MIGRATION_MAPPING.md` / `MIGRATION_VERIFICATION.md` coverage).
-  ⚠️ Warning-grade; NOT auto-fixable. (`common-mistakes-ui.md`)
+  ⚠️ Warning-grade exception — checked here because it only applies to html5-origin code; NOT
+  auto-fixable. (`common-mistakes-ui.md`)
+- **M37** — tagged-template literal used with `getI18nText()`; dynamic expressions silently
+  collapse to the literal `"[object Object]"`. (`common-mistakes-imports.md`)
+- **M51** — `ModelPath.SelectedPlant` is referenced but does not exist; causes "Model path is
+  required" exception at subscribe time. (`common-mistakes-data.md`)
+- **M53** — MicroChart color value uses wrong enum class (e.g. `BulletMicroChartColor.Good`
+  instead of `ValueColor.Good`); runtime parser rejection at render. (`common-mistakes-ui.md`)
+- **M54** — `LineMicroChartPoint` constructed with unknown property (e.g. `emphasized` or `color`
+  on a type that does not support them); runtime "unknown setting" error. (`common-mistakes-ui.md`)
+- **M55** — list-binding template conflict: a named template object and an anonymous template used
+  together; runtime assertion "single template object" at render. (`common-mistakes-ui.md`)
 
 > **M66** (binding-referenced instance initialised in `onInit()` — ⚠️ Warning) and **M72** (internal /
 > app-router API hard-wired into extension source — ⚠️ Warning) are lower-severity but checked here;
@@ -235,6 +262,15 @@ Check each code (grep + fix in the cited category doc):
 - **M36** — deprecated SAPUI5 pseudo-module enum imports → **MUST load**
   `get_pattern_doc({ name: "deprecated-imports" })` (the exhaustive list + exact greps) and run those
   greps verbatim; do not guess. Fix = destructure the enum from `sap/m/library` / `sap/ui/core/library`.
+- **M38** — DOM element IDs or class names assembled from concatenated `this.oPluginId` / controller
+  string in a global `document.getElementById`-style lookup; fragile across multi-tenant deployments.
+  (`common-mistakes-imports.md`)
+- **M56** — `FlexAlignItems.FlexStart` / `FlexJustifyContent.FlexStart` used instead of
+  `FlexAlignItems.Start` / `FlexJustifyContent.Start`; currently silently ignored but marked
+  `[FUTURE FATAL]` — will throw in an upcoming SAPUI5 version. (`common-mistakes-ui.md`)
+- **M62** — pre-formatted display strings (e.g. `"5 PC"`) stored in OData model and passed directly
+  to a UI5 `float`/`int` property; correct per M43 check only incidentally (the model value is a
+  string), but blocks downstream numeric processing. (`common-mistakes-ui.md`)
 - **M84** — mutable instance state on public `this._x` fields vs true-private `#` fields. Report **once,
   at class level** (fires on the pattern at scale, ~15+ `this._x` with near-zero `#`); NOT in the Phase 3d
   gate. (`common-mistakes-lifecycle.md` #M84)
