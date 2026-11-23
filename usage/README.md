@@ -7,7 +7,7 @@
 > - **Claude Code** — auto-loads `CLAUDE.md` from the project root. Nothing to type.
 > - **Cline / Cursor / other agents** — do **not** auto-load it. Begin your first prompt with **“Read `CLAUDE.md`, then …”**.
 >
-> **Use a strong reasoning-tier model for the Phase A scaffold** (as of mid-2026, **Anthropic Opus 4.x**). Phase A sets architecture, base classes, imports, i18n, and PPD wiring — a weak model there compounds through every iteration. Phase B (iteration) can run on a mid-tier model (Sonnet-class).
+> **Use a strong reasoning-tier model for the Phase A scaffold** (e.g. Claude Opus or equivalent). Phase A sets architecture, base classes, imports, i18n, and PPD wiring — a weak model there compounds through every iteration. Phase B (iteration) can run on a mid-tier model (Sonnet-class).
 
 ---
 
@@ -15,7 +15,7 @@
 
 This workflow enables rapid development of SAP Digital Manufacturing POD 2.0 extensions using an AI coding agent backed by the `sap-dm-pod2-mcp-server`.
 
-The server exposes **23 tools · 6 resources · 5 prompts** covering POD2 pattern docs, POD2 API references, SAPUI5 API (bundled offline, pinned to SAP DM's UI5 target), SAP DM REST specs, MDO entities, reference extensions, and full-text search. The UI5 lookup is native — a separate `sapui5-mcp-server` is not needed.
+The server exposes tools, prompts, and resources covering POD2 pattern docs, POD2 API references, SAPUI5 API (bundled offline, pinned to SAP DM's UI5 target), SAP DM REST specs, MDO entities, reference extensions, and full-text search (see `list_capabilities` for the current count). The UI5 lookup is native — a separate `sapui5-mcp-server` is not needed.
 
 For the full capability catalog, see the [root README](../README.md) and `CLAUDE.md`.
 

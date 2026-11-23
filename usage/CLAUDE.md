@@ -125,13 +125,11 @@ The user has deployed the extension and now describes what to refine (often with
 
 ## 🔧 MCP Servers — Quick Reference
 
-**`sap-dm-pod2-mcp-server`** (HTTP, `http://localhost:3001/mcp` — or the deployed BTP endpoint) — 23 tools · 5 prompts · 6 resource URIs.
+**`sap-dm-pod2-mcp-server`** (HTTP, `http://localhost:3001/mcp` — or the deployed BTP endpoint) — tools, prompts, and resource URIs (current list via `list_capabilities`).
 
 Call `get_pod2_guidelines` once at start — it returns the full tool catalog and workflows. Use `list_capabilities` if you need the overview again. Key tool groups: patterns (`get_pattern_doc`, `search_docs`), POD2 API (`get_api_doc`, `search_api_docs`), UI5 API (`get_ui5_api`, `search_ui5_api`, `list_ui5_libraries`), REST (`get_rest_api`, `search_rest_apis`), examples (`get_example`), MDO (`get_mdo_entity`), cross-search (`search_all`), validation (`validate_project`).
 
 Prompts: `create_widget`, `create_action`, `create_extension` (reads `POD2_EXTENSION_TEMPLATE.md`), `migrate_widget`, `validate_project`. Invocation syntax is agent-specific — see the Agent-Specific Notes in `usage/README.md`.
-
-> **`sapui5-mcp-server` is no longer needed** — UI5 API tools (`get_ui5_api`, `search_ui5_api`, `list_ui5_libraries`) are native in `sap-dm-pod2-mcp-server`, backed by a bundled offline JSON at `docu/ui5-api-specs/`. Remove `sapui5-mcp-server` from your MCP config if you had it registered.
 
 ---
 
