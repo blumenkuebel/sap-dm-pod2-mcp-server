@@ -182,7 +182,7 @@ differ from the default are called out inline:
 - **M2** — extension.json schema (required per entry: `modulePath` + `type`; optional widget metadata: `name`, `description`, `supportsProductionProcess`).
 - **M3** — `PodContext` / `ModelPath` import path (`sap/dm/dme/pod2/context/*`, not legacy `…/model/*`).
 - **M5** — subscribe callback parameter order must be `(newValue, path)`.
-- **M6** — `_createView()` returns the root control with `oConfig.id` as **positional first** arg.
+- **M6** — `_createView()` returns the root control with `oConfig.id` or `this.getId()` as **positional first** arg (both are equivalent).
 - **M14** — JSONModel initialised inside `_createView()` before bound controls are built.
 - **M21** — top-level container must be `CustomPanel`, not plain `sap.m.Panel`.
 - **M29** — SFC status compared as **string** (`=== "401"`), never a number.
@@ -343,7 +343,7 @@ For each component type present in the extension, verify it follows the Best-Pra
 | Static `#oI18nModel` field | `static #oI18nModel = new I18nResourceModel({ bundleName: "..." })` | ❌ Error |
 | Static accessor set | `getI18nModel()`, `getDisplayName()`, `getIcon()`, `getCategory()`, `getDescription()` — all present | ❌ Error if any missing |
 | `onInit()` registers i18nCustomModel | `setModel(...)` with name `"i18n<WidgetShortName>"` (e.g. `i18nCoating`, `i18nHelloWorld`). Multi-widget plugins register ONE model per widget (e.g. `i18nCoating` AND `i18nHelloWorld` side-by-side) — NOT a finding. Flag ONLY: missing `setModel`, or a generic `"i18n"` / other non-canonical name. | ⚠️ Warning (M35) — only for the flag cases |
-| `_createView()` with `oConfig.id` positional | Root control gets `new <Control>(oConfig.id, { ... })` | ❌ Error (M6/M31) |
+| `_createView()` with ID positional | Root control gets `new <Control>(oConfig.id, { ... })` or `new <Control>(this.getId(), { ... })` | ❌ Error (M6/M31) |
 | `onExit()` with `super.onExit()` | Present and calls super | ⚠️ Warning if missing |
 | PodContext subscribe/unsubscribe parity | Count subscribes == count unsubscribes in `onExit()` | ⚠️ Warning |
 | No `console.log` — uses Logger or `sap/base/Log` | grep for `console.log` / `console.error` | ⚠️ Warning |

@@ -634,7 +634,7 @@ class DashboardWidget extends Widget {
 class DashboardWidget extends Widget {
     _createView() {                                   // ✓ no arguments
         const oConfig = this.getConfig();             // ✓ read config from the widget instance
-        return new VBox(oConfig.id, {                 // ✓ M6 — oConfig.id is the required positional first arg
+        return new VBox(oConfig.id, {                 // ✓ M6 — oConfig.id or this.getId() as positional first arg
             items: [ /* … */ ]
         });
     }
@@ -653,7 +653,7 @@ Auto-fixable: **yes** (mechanical two-step):
 ### Related
 
 - `sap.dm.dme.pod2.widget.Widget.md` §`_createView` — the abstract method has no parameters. Its docstring was clarified as of 2026-07-07 to explicitly name `this.getConfig()` as the config source.
-- M6 — the returned root control must receive `oConfig.id` as its first positional constructor argument.
+- M6 — the returned root control must receive `oConfig.id` or `this.getId()` as its first positional constructor argument (both are equivalent at runtime).
 - M66 — related lifecycle trap; `_createView()` runs BEFORE `onInit()`, so binding-referenced instances must exist before `_createView` builds the view.
 - `Customer.Coating/widget/CoatingWidget.js` — Ground-Truth example of the correct pattern.
 

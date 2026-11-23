@@ -16,17 +16,16 @@ _createView() {
     });
 }
 
-// ✅ CORRECT - Pass oConfig.id as FIRST parameter
+// ✅ CORRECT — option A: this.getId() (idiomatic, matches SAP official examples)
+_createView() {
+    return new VBox(this.getId(), {
+        items: [new Text({ text: "Hello" })]
+    });
+}
+
+// ✅ CORRECT — option B: oConfig.id (used in project reference examples; equivalent at runtime)
 _createView() {
     const oConfig = this.getConfig();
-
-    if (!oConfig || !oConfig.id) {
-        return new VBox({
-            items: [new Text({ text: "Configuration error" })]
-        });
-    }
-
-    // Pass ID as first parameter (UI5 constructor pattern)
     return new VBox(oConfig.id, {
         items: [new Text({ text: "Hello" })]
     });
@@ -34,6 +33,8 @@ _createView() {
 ```
 
 **Why this happens**: POD 2.0 requires the view ID to match the widget configuration ID for proper lifecycle management.
+
+**Both forms are equivalent.** The POD 2.0 framework registers the Widget with the ID from its configuration before calling `_createView()`, so `this.getId()` returns the same value as `oConfig.id`. The SAP official documentation uses `this.getId()`; the project reference examples use `oConfig.id`. Either is correct.
 
 **See also**: [Mistake #31](common-mistakes-ui.md#mistake-31-control-id-must-be-first-constructor-argument) — the related anti-pattern when the ID *is* available but assigned the wrong way (via `setId()` or as `{ id: ... }` in the settings object).
 
