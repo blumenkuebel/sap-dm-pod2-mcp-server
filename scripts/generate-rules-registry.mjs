@@ -57,8 +57,12 @@ export async function buildMarkdown() {
     const idLink = r.anchor ? `[${r.id}](${doc}#${r.anchor})` : r.id;
     const down = r.downgradable ? "yes" : "**no**";
     const src = r.provenance.source ? ` — ${cell(r.provenance.source)}` : "";
-    return `| ${idLink} | ${cell(r.title)} | ${r.category} | ${sevIcon[r.severity]} | ${down} | ${provIcon[r.provenance.status]}${src} |`;
+    const vbadge = r.verification?.checks?.length ? ` · 🔧 machine-checked (${r.verification.method})` : "";
+    const lbadge = r.lifecycle && r.lifecycle.status !== "current" ? ` · ⛔ ${r.lifecycle.status}` : "";
+    return `| ${idLink} | ${cell(r.title)} | ${r.category} | ${sevIcon[r.severity]} | ${down} | ${provIcon[r.provenance.status]}${src}${vbadge}${lbadge} |`;
   });
+
+  const machineChecked = rules.filter((r) => r.verification?.checks?.length).length;
 
   return `# Rules Registry
 
@@ -75,6 +79,10 @@ Each rule's grounding:
 - **🧩 inferred** — derived from the project reference examples, **not yet SAP-doc confirmed**. These
   are the audit targets: the same reverse-from-example origin that produced the wrong M6/M21 rules.
 - **❓ unverified** — no cited source yet. Cleanup backlog.
+
+**🔧 machine-checked (Tier A): ${machineChecked} rules.** Their stated facts are re-verified against the
+bundled SAP specs on every \`npm test\` (\`test/verify-rules.test.js\`); a spec update that invalidates a
+fact turns the build red (obsolescence signal). Run \`node scripts/verify-rules.mjs\` for the report.
 
 | Status | Count |
 |---|---:|

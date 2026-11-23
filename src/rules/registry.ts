@@ -13,6 +13,39 @@ export type ProvenanceStatus = "verified" | "inferred" | "unverified";
 export type AuditList = "errors" | "warnings" | "info" | "html5" | "none";
 export type RuleCategory = "setup" | "lifecycle" | "imports" | "ui" | "config" | "data" | "i18n" | "html5-migration";
 
+// --- Fact verification (Tier A = machine-checkable against the bundled specs) ---
+export type SpecCheck =
+  | { kind: "ui5SymbolExists"; symbol: string; present: boolean }
+  | { kind: "ui5AggregationType"; symbol: string; aggregation: string; type: string }
+  | { kind: "ui5PropertyExists"; symbol: string; property: string; present: boolean }
+  | { kind: "ui5EnumMember"; enumSymbol: string; member: string; present: boolean }
+  | { kind: "pod2ClassExists"; fqn: string; present: boolean }
+  | { kind: "restEndpointExists"; service: string; path: string; method: string; present: boolean };
+
+export type VerificationMethod =
+  | "ui5-api"
+  | "pod2-api"
+  | "rest-api" // Tier A — checks[] are evaluated by scripts/verify-rules-core.mjs
+  | "behavior"
+  | "convention"
+  | "manual"; // Tier B — tagged only; needs SAP sample / human judgment
+
+export interface Verification {
+  method: VerificationMethod;
+  /** Tier A only: machine-checkable predicates against the bundled specs. */
+  checks?: SpecCheck[];
+  /** The spec snapshot the facts were authored/confirmed against. */
+  authoredAgainst?: { dmRelease?: string; ui5Version?: string };
+  note?: string;
+}
+
+export type LifecycleStatus = "current" | "obsolete" | "changed" | "unknown";
+export interface Lifecycle {
+  status: LifecycleStatus;
+  sinceRelease?: string;
+  note?: string;
+}
+
 export interface Rule {
   /** Canonical reference token, e.g. "M6", "HTML5-FETCH". */
   id: string;
@@ -31,6 +64,10 @@ export interface Rule {
   /** One-line justification against the Classification Criteria. */
   severityReason: string;
   provenance: { status: ProvenanceStatus; source?: string };
+  /** Tier-A fact verification (machine-checkable) or a Tier-B method tag. */
+  verification?: Verification;
+  /** Version lifecycle — set when a rule becomes obsolete/changed in a newer release. */
+  lifecycle?: Lifecycle;
   status?: "active" | "retired";
 }
 
@@ -89,7 +126,12 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: { status: "verified", source: "machine-checked against bundled specs (pod2-api); see verify-rules" },
+    verification: {
+      method: "pod2-api",
+      authoredAgainst: { dmRelease: "2608", ui5Version: "1.151.0" },
+      checks: [{ kind: "pod2ClassExists", fqn: "sap.dm.dme.pod2.context.PodContext", present: true }],
+    },
   },
   {
     id: "M4",
@@ -196,7 +238,12 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: { status: "verified", source: "machine-checked against bundled specs (ui5-api); see verify-rules" },
+    verification: {
+      method: "ui5-api",
+      authoredAgainst: { dmRelease: "2608", ui5Version: "1.151.0" },
+      checks: [{ kind: "ui5SymbolExists", symbol: "sap.m.PlacementType", present: true }],
+    },
   },
   {
     id: "M13",
@@ -519,6 +566,14 @@ export const RULES: Rule[] = [
       status: "verified",
       source: "UI5 runtime 404 on sap/m/Item.js (1.136.15); cross-checked via get_ui5_api",
     },
+    verification: {
+      method: "ui5-api",
+      authoredAgainst: { dmRelease: "2608", ui5Version: "1.151.0" },
+      checks: [
+        { kind: "ui5SymbolExists", symbol: "sap.m.Item", present: false },
+        { kind: "ui5SymbolExists", symbol: "sap.ui.core.Item", present: true },
+      ],
+    },
   },
   {
     id: "M42",
@@ -593,7 +648,17 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: { status: "verified", source: "machine-checked against bundled specs (ui5-api); see verify-rules" },
+    verification: {
+      method: "ui5-api",
+      authoredAgainst: { dmRelease: "2608", ui5Version: "1.151.0" },
+      note: "Prose names a BulletMicroChartColor enum that does not exist; the real enum is sap.m.ValueColor.",
+      checks: [
+        { kind: "ui5SymbolExists", symbol: "sap.m.ValueColor", present: true },
+        { kind: "ui5EnumMember", enumSymbol: "sap.m.ValueColor", member: "Good", present: true },
+        { kind: "ui5SymbolExists", symbol: "sap.suite.ui.microchart.BulletMicroChartColor", present: false },
+      ],
+    },
   },
   {
     id: "M54",
@@ -606,7 +671,20 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: { status: "verified", source: "machine-checked against bundled specs (ui5-api); see verify-rules" },
+    verification: {
+      method: "ui5-api",
+      authoredAgainst: { dmRelease: "2608", ui5Version: "1.151.0" },
+      checks: [
+        { kind: "ui5SymbolExists", symbol: "sap.suite.ui.microchart.LineMicroChartEmphasizedPoint", present: true },
+        {
+          kind: "ui5PropertyExists",
+          symbol: "sap.suite.ui.microchart.LineMicroChartPoint",
+          property: "color",
+          present: false,
+        },
+      ],
+    },
   },
   {
     id: "M55",
@@ -642,7 +720,12 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: { status: "verified", source: "machine-checked against bundled specs (ui5-api); see verify-rules" },
+    verification: {
+      method: "ui5-api",
+      authoredAgainst: { dmRelease: "2608", ui5Version: "1.151.0" },
+      checks: [{ kind: "ui5SymbolExists", symbol: "sap.f.Header", present: false }],
+    },
   },
   {
     id: "M58",
@@ -729,7 +812,12 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: { status: "verified", source: "machine-checked against bundled specs (ui5-api); see verify-rules" },
+    verification: {
+      method: "ui5-api",
+      authoredAgainst: { dmRelease: "2608", ui5Version: "1.151.0" },
+      checks: [{ kind: "ui5AggregationType", symbol: "sap.m.MessageStrip", aggregation: "link", type: "sap.m.Link" }],
+    },
   },
   {
     id: "M65",
