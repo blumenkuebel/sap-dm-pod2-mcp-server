@@ -173,6 +173,11 @@ Use these test-questions to assign or verify every finding's severity:
 - **ℹ️ Info** — code is correct and will stay correct; improvement is for maintainability or style
   only.
 
+> **Provenance caveat.** `rules-registry.md` records each rule's grounding. When you cite a rule whose
+> provenance is `inferred` (derived from the reference examples) or `unverified` (no cited SAP source
+> yet), report the finding with a short caveat that the rule is not SAP-confirmed, so the user can weigh
+> it. A `verified` rule needs no caveat.
+
 ### Errors (must-fix — these are broken in current SAP DM)
 
 Check each of these codes (load the cited category doc for the grep + fix). Severity notes that

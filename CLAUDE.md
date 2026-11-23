@@ -92,6 +92,7 @@ npm run start:stdio    # stdio transport
 npm run lint           # ESLint
 npm run format         # Prettier (write)
 npm run check-doc-links # Verify docu/ internal cross-links (also part of npm test)
+npm run generate-rules-registry # Regenerate docu/rules-registry.md from src/rules/registry.ts
 ```
 
 ### Spec Generation
@@ -188,6 +189,7 @@ When editing anything under `docu/`, follow these rules (each prevents a defect 
 3. **Single source of truth.** Don't copy a code snippet or table into a second file. Keep it in the one canonical doc for that topic and link to it from elsewhere (e.g. cell types → `tablecell-patterns.md`, bindings → `binding-patterns.md`, mistakes → `common-mistakes-<category>.md`, REST calling → `pod2-public-api-pattern.md`).
 4. **Keep `src/tools/docs.ts` in sync with `docu/`.** When you add, delete, or repurpose a `docu/*.md`, update its entry in the `list_pattern_docs` description map so the description matches the file's actual content (a deleted file must have no entry; a repurposed file must not keep its old description).
 5. **Preserve the `validate-project-instructions.md` phase contract.** The tool slices `## Orchestration Index`, and the index points agents at each phase by its exact `## Phase N` heading string. If you rename, add, or remove a phase heading, update the index's phase map to match — `test/tool-modules.test.js` asserts every indexed phase resolves to a non-empty slice, so a drift fails `npm test`. Keep per-rule detection greps + fixes in the `common-mistakes-*` category docs (single source of truth); Phase 3 is only an audit-trigger list that points at them.
+6. **Rule metadata lives in the registry.** `src/rules/registry.ts` is the single source of truth for every mistake's **metadata** — id, category, severity (+ reason), downgradability, and provenance (`verified` / `inferred` / `unverified`). The prose entries hold the grep + fix; the registry holds the classification. After changing a `## Mistake` heading, its Phase 3 severity placement, a "cannot be downgraded" list, or any registry field, run `npm run generate-rules-registry` and commit the regenerated `docu/rules-registry.md`. `test/rules-registry.test.js` fails on registry↔doc drift, double-classification, downgrade-list divergence, missing provenance, or a stale generated file. Provenance is a classification only — a rule marked `inferred`/`unverified` has not been confirmed against SAP docs and is a cleanup target, not a fact to trust.
 
 ### Large results & host truncation
 An oversized tool result is truncated by the host to a small preview, so a tool that returns a whole large file silently loses most of its content. Tools that can return big payloads therefore ship compact modes and must keep them:

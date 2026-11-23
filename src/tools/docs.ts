@@ -37,11 +37,13 @@ export function registerDocsTools(server: FastMCP): void {
         "common-mistakes-ui.md":
           "UI & bindings mistakes: binding syntax in WidgetProperty metadata, styleClass, expression binding, view ID, multi-part binding null checks, custom-control/DOM-UI vs standard controls (#10, #12-#13, #17, #20, #28, #31, #42, #43, #52-#56, #58-#63, #77)",
         "common-mistakes-config.md":
-          "Configuration & properties mistakes: PropertyEditor defaults, callback parameter order, property exclusion, CustomPanel vs sap.m.Panel, widget metadata i18n keys (#14, #18, #21-#22, #25-#26, #32)",
+          "Configuration & properties mistakes: PropertyEditor defaults, callback parameter order, property exclusion, widget metadata i18n keys (#14, #18, #22, #25-#26, #32)",
         "common-mistakes-data.md":
           "Data, state & TableWidget mistakes: column/cell index mismatch, GrowingJSONModel paging, selection sync with PodContext, SFC status types, internal-vs-public API, manual fetch/XHR vs API clients, context from model path vs PodContext (#23-#24, #27, #29, #34, #51, #72, #73, #74)",
         "common-mistakes-i18n.md":
           "Internationalization mistakes: German SFC→PSN translation, widget metadata i18n key naming (#30)",
+        "rules-registry.md":
+          "Generated metadata registry for every mistake/rule (id, severity, downgradability, provenance) — single source src/rules/registry.ts. Shows which rules are SAP-verified vs inferred-from-example vs unverified; links each to its common-mistakes-* entry for the grep + fix.",
         "migration-suspect-list.md":
           "29-category checklist of easy-to-miss UX features plus 11 hidden source-code bug patterns — used by the migrate_widget prompt",
         "dashboard-patterns.md":
