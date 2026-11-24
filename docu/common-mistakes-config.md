@@ -4,278 +4,115 @@
 
 ---
 
-## Mistake #14: Missing onExit() Unsubscribe - Memory Leak! ❌
+## Mistake #14: Missing onExit() — Timer/Dialog/Listener Cleanup ❌
 
 ### The Problem
 
-PodContext subscriptions must be cleaned up in `onExit()`. Failure to unsubscribe causes memory leaks.
+`Widget.destroy()` automatically calls `PodContext.unsubscribeAll(this)` **before** calling `onExit()` — so PodContext subscriptions are always cleaned up by the framework when the widget is destroyed. Manual `PodContext.unsubscribe()` calls in `onExit()` are redundant (but harmless).
 
-### ❌ WRONG - Memory leak
+What is **not** auto-cleaned and therefore still requires `onExit()`:
+- `setInterval` / `setTimeout` handles
+- Dynamically created dialogs and popovers
+- DOM event listeners added manually
+- Abort controllers for in-flight fetch calls
+- Other non-PodContext cleanup
+
+### ✅ What the framework auto-handles
 
 ```javascript
 async onInit() {
     await super.onInit();
     if (PodContext.isRunMode()) {
-        // Subscribing to PodContext events
-        PodContext.subscribe(
-            ModelPath.SelectedOperationActivities,
-            this._onSelectionChange,
-            this
-        );
+        PodContext.subscribe(ModelPath.SelectedOperationActivities, this._onChange, this);
+        PodContext.subscribe(ModelPath.CurrentResource, this._onResource, this);
     }
 }
-// ❌ Missing onExit()! Subscription persists after extension destroyed
+// ✅ No onExit() needed just for PodContext unsubscribe.
+// Widget.destroy() calls PodContext.unsubscribeAll(this) automatically.
 ```
 
-**What happens:**
-1. User opens extension → subscription registered
-2. User closes extension → widget destroyed BUT subscription still active
-3. Context changes → callback fires on destroyed widget → errors
-4. Memory leak accumulates with each open/close cycle
+> **Note:** This only holds when you pass `this` (the widget) as the `bindContext` — the standard pattern. If you use a different object as bindContext, `unsubscribeAll(this)` won't cover it.
 
-### ✅ CORRECT - Always unsubscribe
+### ❌ WRONG — Leaking timers and dialogs
 
 ```javascript
 async onInit() {
     await super.onInit();
-    if (PodContext.isRunMode()) {
-        PodContext.subscribe(
-            ModelPath.SelectedOperationActivities,
-            this._onSelectionChange,
-            this
-        );
-    }
+    this.#iTimer = setInterval(() => this._poll(), 5000);
+    this.#oDialog = new Dialog({ title: "My Dialog" });
+}
+// No onExit() — timer keeps firing after widget is gone; dialog is never destroyed
+```
+
+### ✅ CORRECT — Clean up what the framework doesn't
+
+```javascript
+async onInit() {
+    await super.onInit();
+    this.#iTimer = setInterval(() => this._poll(), 5000);
+    this.#oDialog = new Dialog({ title: "My Dialog", afterClose: () => this.#oDialog?.destroy() });
 }
 
 onExit() {
     super.onExit();
-    if (PodContext.isRunMode()) {
-        // MUST unsubscribe from ALL subscriptions
-        PodContext.unsubscribe(
-            ModelPath.SelectedOperationActivities,
-            this._onSelectionChange,
-            this
-        );
-    }
-    
-    // Clean up private fields
-    this.#oLog = null;
-    this.#oModel = null;
+    clearInterval(this.#iTimer);
+    this.#oDialog?.destroy();
+    this.#oDialog = null;
 }
 ```
 
-### Why This Matters
+### Complete onExit() Checklist
 
-**Production impact:**
-- Memory leaks accumulate as users open/close plugins repeatedly
-- Callbacks fire on destroyed widgets → runtime errors
-- Production systems degrade over time
-- Hard to debug - symptoms appear hours after deployment
+When implementing `onExit()`, ensure you clean up:
 
-**Real scenario:**
-```
-User workflow: Open extension → Close → Open → Close (10x per day)
-After 1 week: 50 orphaned subscriptions
-Result: Browser slowdown, errors, crashes
-```
+✅ `clearInterval` / `clearTimeout` for every timer  
+✅ Destroy any dialogs/popovers created in `onInit()` (also cover the `afterClose` path)  
+✅ Remove DOM event listeners added via `addEventListener`  
+✅ Abort in-flight fetch calls via `AbortController`  
 
-### Complete Cleanup Checklist
+You do **not** need to manually call `PodContext.unsubscribe()` for the standard `PodContext.subscribe(path, cb, this)` pattern — the framework does it for you.
 
-When implementing `onExit()`, ensure you:
-
-✅ Unsubscribe from ALL PodContext subscriptions  
-✅ Call `super.onExit()` first  
-✅ Nullify private fields (`#oLog`, `#oModel`, etc.)  
-✅ Clear intervals/timeouts if used  
-✅ Destroy any manual event listeners  
-✅ Clean up file upload controls  
-✅ Abort pending async operations if possible  
-
-### Multiple Subscriptions Example
+### Multiple Subscriptions + Timer Example
 
 ```javascript
 class MyWidget extends ControlWidget {
-    #oLog = Logger.getLogger("my.widget");
-    #oModel = new JSONModel({});
     #iTimerId = null;
 
     async onInit() {
         await super.onInit();
-        
         if (PodContext.isRunMode()) {
-            // Multiple subscriptions
-            PodContext.subscribe(
-                ModelPath.SelectedOperationActivities,
-                this._onOperationsChange,
-                this
-            );
-            
-            PodContext.subscribe(
-                ModelPath.CurrentResource,
-                this._onResourceChange,
-                this
-            );
-            
-            // Timer for polling
-            this.#iTimerId = setInterval(() => {
-                this._pollStatus();
-            }, 5000);
+            PodContext.subscribe(ModelPath.SelectedOperationActivities, this._onOpsChange, this);
+            PodContext.subscribe(ModelPath.CurrentResource, this._onResourceChange, this);
+            this.#iTimerId = setInterval(() => this._pollStatus(), 5000);
         }
     }
 
     onExit() {
         super.onExit();
-        
-        if (PodContext.isRunMode()) {
-            // Unsubscribe ALL subscriptions
-            PodContext.unsubscribe(
-                ModelPath.SelectedOperationActivities,
-                this._onOperationsChange,
-                this
-            );
-            
-            PodContext.unsubscribe(
-                ModelPath.CurrentResource,
-                this._onResourceChange,
-                this
-            );
-        }
-        
-        // Clear timer
+        // PodContext cleanup is automatic — no unsubscribe calls needed.
+        // Clear the timer the framework doesn't know about:
         if (this.#iTimerId) {
             clearInterval(this.#iTimerId);
             this.#iTimerId = null;
         }
-        
-        // Clean up private fields
-        this.#oLog = null;
-        this.#oModel = null;
     }
 }
-```
-
-### TableWidget Special Case
-
-TableWidget has built-in subscription management for table data, but **custom subscriptions still need manual cleanup**:
-
-```javascript
-class MyTableWidget extends TableWidget {
-    #oLog = Logger.getLogger("my.table");
-
-    async onInit() {
-        await super.onInit();
-        
-        if (PodContext.isRunMode()) {
-            // TableWidget manages its own table subscriptions
-            // But custom subscriptions need cleanup!
-            PodContext.subscribe(
-                ModelPath.CurrentWorkCenter,
-                this._onWorkCenterChange,
-                this
-            );
-        }
-    }
-
-    onExit() {
-        super.onExit(); // ✅ Cleans up TableWidget's internal subscriptions
-        
-        if (PodContext.isRunMode()) {
-            // ✅ Clean up YOUR custom subscriptions
-            PodContext.unsubscribe(
-                ModelPath.CurrentWorkCenter,
-                this._onWorkCenterChange,
-                this
-            );
-        }
-        
-        this.#oLog = null;
-    }
-}
-```
-
-### Common Patterns
-
-**Pattern 1: Guard with isRunMode()**
-```javascript
-onExit() {
-    super.onExit();
-    
-    // ✅ BEST PRACTICE: Same guard as onInit()
-    if (PodContext.isRunMode()) {
-        PodContext.unsubscribe(/* ... */);
-    }
-    
-    // Always clean up fields (no guard needed)
-    this.#oLog = null;
-    this.#oModel = null;
-}
-```
-
-**Pattern 2: Defensive unsubscribe**
-```javascript
-onExit() {
-    super.onExit();
-    
-    // ✅ Unsubscribe even if not sure it was subscribed
-    // (PodContext.unsubscribe() is safe to call multiple times)
-    if (PodContext.isRunMode()) {
-        PodContext.unsubscribe(
-            ModelPath.SelectedOperationActivities,
-            this._onSelectionChange,
-            this
-        );
-    }
-}
-```
-
-### How to Verify
-
-**1. Check every subscribe has matching unsubscribe**
-```bash
-# Quick check in your widget file
-grep -n "PodContext.subscribe" MyWidget.js
-grep -n "PodContext.unsubscribe" MyWidget.js
-# Should have same count!
-```
-
-**2. Ensure onExit() exists**
-```javascript
-// Every widget with subscribe() MUST have onExit()
-async onInit() {
-    PodContext.subscribe(/* ... */);
-}
-
-onExit() { // ← MUST exist!
-    super.onExit();
-    PodContext.unsubscribe(/* ... */);
-}
-```
-
-**3. Test memory leaks**
-```
-1. Open browser dev tools → Memory tab
-2. Take heap snapshot
-3. Open extension → Close extension → Repeat 10x
-4. Take another heap snapshot
-5. Compare: Check for retained widget instances
 ```
 
 ### Prevention Checklist
 
 Before submitting widget code:
 
-- [ ] Every `PodContext.subscribe()` has matching `unsubscribe()`
-- [ ] `onExit()` method exists and calls `super.onExit()`
-- [ ] All private fields nullified in `onExit()`
-- [ ] Timers/intervals cleared in `onExit()`
-- [ ] Same `isRunMode()` guard in both `onInit()` and `onExit()`
-- [ ] Tested: Open → Close → Open → Close (no errors)
+- [ ] `onExit()` exists and calls `super.onExit()`
+- [ ] Every `setInterval`/`setTimeout` is cleared in `onExit()`
+- [ ] Every dialog/popover created in `onInit()` is destroyed in `onExit()` or `afterClose`
+- [ ] No DOM event listeners left dangling
 
 ### See Also
 
-- [Widget Lifecycle](widget-patterns-core.md#controlwidget-pattern-for-single-controls) - Complete lifecycle documentation
-- [PodContext subscribe/unsubscribe](subscribe-patterns.md#the-subscribe-pattern-complete) - subscribe/unsubscribe documentation
-- [TableWidget Pattern](widget-patterns-core.md#tablewidget-complete-pattern-for-complex-tables) - Complete TableWidget with onExit()
+- [Widget Lifecycle](widget-patterns-core.md#controlwidget-pattern-for-single-controls) — complete lifecycle documentation
+- [PodContext subscribe/unsubscribe](subscribe-patterns.md#the-subscribe-pattern-complete) — subscribe/unsubscribe documentation
+- [Mistake #15](common-mistakes-setup.md#mistake-15-not-destroying-dynamic-dialogspopovers) / [Mistake #19](common-mistakes-lifecycle.md#mistake-19-not-destroying-dialogs-in-afterclose-) — dialog destruction patterns
 
 ---
 
@@ -423,50 +260,53 @@ onExit() {
 
 ## Mistake #26: Using Wrong Property Exclusion Pattern
 
-**Error**: Using EXCLUDE_PROPERTIES when you need IGNORE_TABLE_PROPERTIES or vice versa
+**Error**: Using `EXCLUDE_PROPERTIES` where `INCLUDE_PROPERTIES` (or vice versa) is the right tool, or adding properties to a list that has no effect.
 
-**Found in**: Production POD 2.0 worklist widgets
+**Found in**: Custom POD 2.0 widgets extending `ControlWidget` or `TableWidget`.
 
-### Understanding the Three Patterns
+### Understanding the two designer-panel patterns
 
 | Pattern | Type | Purpose | Use When |
 |---------|------|---------|----------|
-| EXCLUDE_PROPERTIES | static | Hide from POD Designer | Blacklist properties from property panel |
-| INCLUDE_PROPERTIES | static | Show in POD Designer | Whitelist properties for property panel |
-| IGNORE_TABLE_PROPERTIES | instance | Skip in table constructor | Properties used by widget but not sap.m.Table |
+| `static EXCLUDE_PROPERTIES` | static | **Hide** specific properties from POD Designer property panel | Blacklist: most properties visible, a few hidden |
+| `static INCLUDE_PROPERTIES` | static | **Show only** specific properties in POD Designer property panel | Whitelist: tight control, only named properties visible |
 
-### ❌ WRONG - Excluding property that table needs
+Both are static class properties read by `ControlWidget` via `_findClassProperty()` (walks the prototype chain). Only one should be used at a time.
+
+> **`IGNORE_TABLE_PROPERTIES` does nothing.** This instance property appears in some framework widgets but is never read by `TableWidget._createTable()`. The table constructor already auto-filters all non-`sap.m.Table` properties by checking `Table.getMetadata().getAllSettings()` — no manual exclusion list is needed.
+
+### ❌ WRONG — Blacklisting properties that the designer should show
 
 ```javascript
-class MyTableWidget extends TableWidget {
+class MyWidget extends ControlWidget {
     static EXCLUDE_PROPERTIES = [
-        "pageSize",  // ❌ Wrong! Widget still uses it internally
-        "printButtonVisible"  // ❌ Wrong! Not a table property at all
+        "growing",           // ❌ if you DO want users to configure this
+        "printButtonVisible" // ❌ if this is a valid designer option
     ];
 }
 ```
 
-**Problems**:
-- If table constructor needs `pageSize`, excluding it breaks functionality
-- If property is widget-specific (not table-specific), wrong pattern used
-
-### ✅ CORRECT - Use right pattern for each property
+### ✅ CORRECT — Blacklist approach (hide a few, show the rest)
 
 ```javascript
-class OrderListTableWidget extends TableWidget {
-    // Exclude from POD Designer property panel (user can't configure)
+class MyWidget extends ControlWidget {
     static EXCLUDE_PROPERTIES = [
-        ...TableWidget.EXCLUDE_PROPERTIES,
-        "growing",           // ✅ Table property, hide from designer
-        "growingThreshold"   // ✅ Table property, hide from designer
+        ...ControlWidget.ALWAYS_EXCLUDE_PROPERTIES, // inherit the framework defaults
+        "growing",           // ✅ always programmatic, hide from designer
+        "growingThreshold"   // ✅ always programmatic, hide from designer
     ];
-    
-    // Don't pass to sap.m.Table constructor (widget-specific config)
-    IGNORE_TABLE_PROPERTIES = [
-        "pageSize",          // ✅ Widget uses it, but not for table constructor
-        "printButtonVisible",  // ✅ Widget property, not table property
-        "printConfigOrder",  // ✅ Custom config, not table property
-        "printConfigLabel"   // ✅ Custom config, not table property
+}
+```
+
+### ✅ CORRECT — Whitelist approach (show only named properties)
+
+```javascript
+class MyWidget extends ControlWidget {
+    static INCLUDE_PROPERTIES = [
+        "alternateRowColors",
+        "backgroundDesign",
+        "visible",
+        "width"
     ];
 }
 ```
@@ -474,60 +314,20 @@ class OrderListTableWidget extends TableWidget {
 ### Decision Tree
 
 ```
-Is the property a standard sap.m.Table property?
-├─ YES: Is it for user configuration?
-│  ├─ YES: Don't exclude it
-│  └─ NO: Use EXCLUDE_PROPERTIES (hide from designer)
-└─ NO: Is it widget-specific configuration?
-   └─ YES: Use IGNORE_TABLE_PROPERTIES (skip in constructor)
+Do you want most properties visible and only a few hidden?
+├─ YES → use EXCLUDE_PROPERTIES (blacklist)
+└─ NO  → use INCLUDE_PROPERTIES (whitelist, show only named ones)
+
+Is the property widget-specific and not an sap.m.Table property?
+└─ No action needed — TableWidget._createTable() auto-filters non-Table properties.
+   IGNORE_TABLE_PROPERTIES has no effect.
 ```
 
-### Example Scenarios
+### Prevention
 
-**Scenario 1: Page Size**
-- Property Purpose: Widget uses for pagination logic
-- Not a sap.m.Table constructor property
-- Solution: `IGNORE_TABLE_PROPERTIES`
-
-**Scenario 2: Growing Table Settings**
-- Property Purpose: sap.m.Table constructor properties
-- Don't want user to configure (programmatic control)
-- Solution: `EXCLUDE_PROPERTIES`
-
-**Scenario 3: Print Button Config**
-- Property Purpose: Widget toolbar configuration
-- Has nothing to do with table
-- Solution: `IGNORE_TABLE_PROPERTIES`
-
-### ✅ CORRECT - Complete Example
-
-```javascript
-class ProductionTableWidget extends TableWidget {
-    // Whitelist approach (tight control)
-    static INCLUDE_PROPERTIES = [
-        "alternateRowColors",
-        "backgroundDesign",
-        "inset",
-        "visible",
-        "width"
-    ];
-    
-    // Widget-specific properties (not for table constructor)
-    IGNORE_TABLE_PROPERTIES = [
-        "pageSize",
-        "refreshInterval",
-        "showToolbar",
-        "customActions"
-    ];
-}
-```
-
-### Prevention:
-1. Understand property purpose
-2. Check if property belongs to sap.m.Table API
-3. Use EXCLUDE/INCLUDE for designer control
-4. Use IGNORE_TABLE_PROPERTIES for widget-specific config
-5. Never mix approaches without understanding
+1. Know whether your intent is "hide a few" (EXCLUDE) or "show only these" (INCLUDE)
+2. Never use both on the same class
+3. Do not add `IGNORE_TABLE_PROPERTIES` — it is not read by the framework
 
 ---
 

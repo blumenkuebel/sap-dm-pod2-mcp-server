@@ -28,14 +28,20 @@ export type VerificationMethod =
   | "rest-api" // Tier A — checks[] are evaluated by scripts/verify-rules-core.mjs
   | "behavior"
   | "convention"
-  | "manual"; // Tier B — tagged only; needs SAP sample / human judgment
+  | "manual"
+  | "framework-source"; // Tier B — read-only audit of proprietary POD2 framework source (never committed)
 
 export interface Verification {
   method: VerificationMethod;
   /** Tier A only: machine-checkable predicates against the bundled specs. */
   checks?: SpecCheck[];
   /** The spec snapshot the facts were authored/confirmed against. */
-  authoredAgainst?: { dmRelease?: string; ui5Version?: string };
+  authoredAgainst?: {
+    dmRelease?: string;
+    ui5Version?: string;
+    /** framework-source: human-readable identifier of the framework snapshot (e.g. "POD2 2208 internal"). */
+    frameworkRef?: string;
+  };
   note?: string;
 }
 
@@ -92,7 +98,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget.destroy",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Widget.destroy() calls PodContext.unsubscribeAll(this) before onExit(). Manual PodContext.unsubscribe() in onExit() is redundant. onExit() is still needed for timers, dialogs, and other non-subscription cleanup.",
+    },
   },
   {
     id: "M1B",
@@ -142,7 +156,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: propertyeditor/StringPropertyEditor.js#StringPropertyEditor.constructor",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "StringPropertyEditor(accessor, propName, options): 3rd arg is CustomInput init-settings object or a string interpreted as InputType. It is NOT a default value. The displayed value always comes from _getPropertyValue() → widget.getPropertyValue(). Passing a path string as 3rd arg silently sets input type to that string.",
+    },
   },
   {
     id: "M5",
@@ -153,7 +175,15 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: context/PodContext.js#PodContext.#F",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Callback is called as: t.callback.call(t.bindContext, i.get(e), e) for single path — value is first, path is second. Multi-path: callback(valuesMap, changedPathsMap).",
+    },
   },
   {
     id: "M6",
@@ -254,18 +284,38 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: context/ModelPath.js#ModelPath",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Full ModelPath enum confirmed (~36 constants). SelectedWorkListItem (singular) is absent; correct is SelectedWorkListItems (plural). LastSelectedWorkListItem, SelectedOperationActivities etc. all confirmed.",
+    },
   },
   {
     id: "M14",
-    title: "Missing onExit() Unsubscribe - Memory Leak!",
+    title: "Missing onExit() — Timer/Dialog/Listener Cleanup",
     category: "config",
-    anchor: "mistake-14-missing-onexit-unsubscribe---memory-leak-",
+    anchor: "mistake-14-missing-onexit--timerdialoglistener-cleanup-",
     severity: "error",
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget.destroy + context/PodContext.js#PodContext.unsubscribeAll",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Widget.destroy() calls PodContext.unsubscribeAll(this) BEFORE onExit(). unsubscribeAll iterates all subscription lists and removes entries where bindContext === widget. Manual PodContext.unsubscribe() in onExit() is therefore redundant for the standard pattern (bindContext === this). onExit() is still essential for timers, dialogs, models, and other non-subscription cleanup.",
+    },
+    lifecycle: {
+      status: "changed",
+      note: "Original claim ('memory leak from missing manual unsubscribe') is wrong for this framework version. Framework auto-cleans PodContext subscriptions. Prose updated to reflect auto-cleanup and redirect focus to remaining onExit() duties.",
+    },
   },
   {
     id: "M15",
@@ -276,7 +326,15 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget.destroy",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Widget.destroy() only destroys child widgets in aggregations and the widget's own view. Dynamically created dialogs and popovers (attached to UI5 Core popup layer, not to the widget view) are NOT auto-destroyed. They must be destroyed manually in afterClose or onExit.",
+    },
   },
   {
     id: "M16",
@@ -310,7 +368,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: model/GrowingJSONListBinding.js#GrowingJSONListBinding.#r",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "onGrowing callback is called as onGrowing(growingThreshold, currentItemCount) and must return [newItems, totalCount]. Not incrementing a page counter causes the same first page to reload on every growing event.",
+    },
   },
   {
     id: "M19",
@@ -321,7 +387,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget.destroy",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Same root cause as M15: Widget.destroy() does not auto-destroy dialogs. Dialogs opened via open() live on the UI5 Core popup layer outside the widget's view tree. afterClose is the idiomatic destroy point for one-shot dialogs; onExit is the fallback for persistent dialog instances.",
+    },
   },
   {
     id: "M20",
@@ -376,7 +450,15 @@ export const RULES: Rule[] = [
     auditList: "info",
     downgradable: true,
     severityReason: "Correct and stays correct; maintainability/style only (Phase 3 → Info).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: context/PodContext.js#PodContext.subscribe",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "PodContext.subscribe() first normalises: const s = Array.isArray(t) ? t : [t]. Array of paths is a first-class API; multiple separate calls produce multiple independent callbacks instead of one batched callback.",
+    },
   },
   {
     id: "M26",
@@ -387,7 +469,19 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/ControlWidget.js#ControlWidget.#s + widget/core/TableWidget.js#TableWidget._createTable",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "EXCLUDE_PROPERTIES and INCLUDE_PROPERTIES are real static class properties read by ControlWidget.#s() via _findClassProperty(). TableWidget._createTable() already auto-filters all non-sap.m.Table properties via getMetadata().getAllSettings() — IGNORE_TABLE_PROPERTIES (instance property seen in some framework widgets) has no effect in this version and is dead code.",
+    },
+    lifecycle: {
+      status: "changed",
+      note: "Original prose presented IGNORE_TABLE_PROPERTIES as a valid mechanism to skip widget-specific properties from the Table constructor. This is wrong: TableWidget auto-filters via metadata. Prose updated.",
+    },
   },
   {
     id: "M27",
@@ -445,7 +539,15 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/ControlWidget.js#ControlWidget._createView + runtime/PodRuntime.js#PodRuntime.createWidget",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "ControlWidget._createView() does: new this.#t(t.id, o) — ID is always the positional first arg. PodRuntime.createWidget() also asserts o.getId() === config.id after _createView().",
+    },
   },
   {
     id: "M32",
@@ -492,8 +594,13 @@ export const RULES: Rule[] = [
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
     provenance: {
-      status: "inferred",
-      source: "Reference examples (Coating/HelloWorld/TableView) bundleName pattern; not SAP-doc confirmed",
+      status: "verified",
+      source: "POD2 framework: PodObject.js#PodObject.getI18nModel + context/PodContext.js#PodContext.applyCoreModelsTo",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "PodContext.applyCoreModelsTo() only registers the global 'i18n' model on the runtime App. Custom widget i18n models (returned by PodObject.getI18nModel()) must be manually registered in onInit() via this.getPodRuntime().getView().setModel(MyWidget.getI18nModel(), 'i18nMyWidget').",
     },
   },
   {
@@ -505,7 +612,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: enumeration/SFCStatus.js + enumeration/SFCStatusCode.js + enumeration/ContentDensity.js",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "All framework enums use sap.ui.define(['sap/ui/base/DataType'], E => { DataType.registerEnum(...) }). No standalone pseudo-module imports used anywhere in the framework. Confirmed correct pattern.",
+    },
   },
   {
     id: "M37",
@@ -539,7 +654,15 @@ export const RULES: Rule[] = [
     downgradable: false,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "inferred", source: "All reference examples extend Widget; not SAP-doc confirmed" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/LayoutWidget.js#LayoutWidget + widget/ControlWidget.js#ControlWidget.constructor",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "LayoutWidget extends ControlWidget. ControlWidget.constructor(ControlClass, config) stores ControlClass in a private field; _createView() does new this.#t(t.id, o). Extending LayoutWidget without passing the ControlClass leaves this.#t undefined → crash in _createView(). LayoutWidget is for POD Designer container widgets (VBox, HBox) that host child POD widgets in aggregations.",
+    },
   },
   {
     id: "M40",
@@ -607,7 +730,15 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: library-preload.js#sap.dm.dme.pod2.widget.ComponentWidget",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "ComponentWidget confirmed in library-preload.js. Its _createView() calls Component.create({manifest:true}) triggering full component bootstrap (router, manifest.json, ComponentContainer). Using it for a simple migration adds unnecessary bootstrap overhead — use plain Widget instead.",
+    },
   },
   {
     id: "M51",
@@ -841,9 +972,13 @@ export const RULES: Rule[] = [
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
     provenance: {
-      status: "inferred",
-      source:
-        "Ground-Truth Customer.Coating/widget/CoatingWidget.js (_createView no-args); SAP sample corroborates this.getConfig()",
+      status: "verified",
+      source: "POD2 framework: runtime/PodRuntime.js#PodRuntime.createWidget",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "PodRuntime.createWidget() calls: const o = await i._createView() — zero arguments passed. Config must be accessed via this.getConfig() inside _createView().",
     },
   },
   {
@@ -858,7 +993,15 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "⚠️ Warning-grade exception, swept with Errors: binding-referenced instances must init in onInit(), not _createView().",
-    provenance: { status: "inferred", source: "Customer.Coating lazy-init pattern; inferred, not SAP-doc confirmed" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: runtime/PodRuntime.js#PodRuntime.createWidget + PodRuntime.#f",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "createWidget() calls _createView() synchronously, then #f() calls onInit() only after the full page widget tree is assembled. Any instance needed by a binding formatter must be initialised in _createView() (or lazily on first use), not in onInit().",
+    },
   },
   {
     id: "M70",
@@ -910,7 +1053,15 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: api/RestClient.js#RestClient.fetch",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "RestClient.fetch() automatically adds Accept-Language, x-dme-plant, x-dme-industry-type, x-csrf-token headers and handles 403/session-expiry redirect. Manual fetch() bypasses all of these, causing auth and CSRF failures in production.",
+    },
   },
   {
     id: "M74",
@@ -933,7 +1084,15 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: runtime/PodRuntime.js#PodRuntime.createWidget + PodRuntime.#f",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "_createView() is called recursively during widget-tree construction; child widgets are not yet created when parent's _createView() runs. onInit() is called in #f() only after the full tree is assembled. Cross-widget lookups, event wiring, and timers must go in onInit().",
+    },
   },
   {
     id: "M76",
@@ -1018,7 +1177,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Widget.js uses only engine-enforced # private fields (#e, #t, #r, #i, #o, #n, #s, #a, #d, #g, #u). The framework never uses this._x convention for internal state. Extensions should follow the same private-field pattern.",
+    },
   },
   {
     id: "HTML5-CHART",
