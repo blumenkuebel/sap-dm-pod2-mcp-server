@@ -279,11 +279,9 @@ Any hit → replace with the canonical pattern shown above (Widget) or `BusyIndi
 
 ## Mistake #35: Missing i18nCustomModel Registration in `onInit()` ❌ → ✅
 
-**Error**: The POD 2.0 framework cannot resolve i18n keys from the extension's bundle. `{i18nMyWidget>myWidget.title}` bindings silently show the raw key instead of the translated text. `getI18nText()` calls in the widget return the key as-is.
+**When needed**: Without registration, `{i18nXxx>...}` data bindings in the view silently show the raw key, and other controls outside the widget (e.g. a Button in the POD Designer toolbar) cannot look up the extension's i18n keys. `getI18nText()` calls inside the widget class itself work via the static model without registration.
 
-**Found in**: Any widget that has an `I18nResourceModel` defined as a static field but forgets to register it on the POD view in `onInit()`.
-
-**Critical**: Without this registration, the POD 2.0 framework has no way to resolve your extension's i18n keys. The static `I18nResourceModel` only works for **programmatic** lookups (`this.getI18nText("...")`) inside the widget class itself — it does NOT automatically become available for `{i18nXxx>...}` bindings in the UI or for the framework's internal metadata resolution (widget displayName, description, category in the POD Designer palette).
+**Found in**: Widgets that use `{i18nXxx>...}` bindings in the XML view or whose i18n keys need to be accessible from the POD Designer palette — but have no `setModel` call in `onInit()`.
 
 ### ❌ WRONG — I18nResourceModel defined but not registered on POD view
 
@@ -317,9 +315,8 @@ class MyWidget extends Widget {
     async onInit() {
         await super.onInit();
 
-        // Register i18n custom model for this extension on the POD view.
-        // This is REQUIRED for the POD 2.0 framework to access
-        // extension i18n keys (bindings, metadata, POD Designer palette).
+        // Register i18n model on the POD view — needed for {i18nMyWidget>...}
+        // view bindings and POD Designer palette display.
         this.getPodRuntime().getView().setModel(
             MyWidget.getI18nModel(),
             "i18nMyWidget"  // ✅ Convention: "i18n" + PascalCase widget name
@@ -341,7 +338,7 @@ The pattern is: `"i18n"` + PascalCase widget short name (without the `Widget` su
 
 ### Why This Matters
 
-1. **POD Designer palette** reads `getDisplayName()` / `getDescription()` / `getCategory()` — those static methods call `getI18nText()` which internally needs the model registered to function correctly in all framework contexts.
+1. **POD Designer palette**: the palette display (widget title, description, category) uses `{i18nXxx>...}` binding expressions on the POD view — these only resolve if the model is registered.
 2. **Bindings** like `text: "{i18nCoating>coating.title.sfcs}"` in the widget's view only work if the model is set on the POD view.
 3. **Lifecycle**: must happen in `onInit()` (not in `_createView()`) because `getPodRuntime()` may not be available earlier.
 
@@ -355,14 +352,13 @@ grep -nE "setModel.*i18n" widget/
 grep -nE "\"i18n[A-Z]" widget/
 ```
 
-If the widget has a static `#oI18nModel` but no `setModel(...)` call in `onInit()` → missing registration.
+If the widget uses `{i18nXxx>...}` bindings in the view but has no `setModel(...)` call in `onInit()` → registration needed.
 
 ### Prevention
 
-- ✅ In EVERY widget that has `static #oI18nModel`: add the `setModel` call in `onInit()`
+- ✅ When the widget uses `{i18nXxx>...}` view bindings or needs POD Designer palette display: register the model in `onInit()`
 - ✅ Use the naming convention: `"i18n" + PascalCase widget short name` (multi-widget plugins register one model per widget)
 - ✅ Place it right after `await super.onInit()` — before any other logic
-- ❌ Don't skip it "because getI18nText works without it" — bindings and framework metadata access will break
 - ❌ Don't use a generic name like `"i18n"` — it will collide with other plugins / the framework's own i18n model
 
 ### Multi-Widget Plugins

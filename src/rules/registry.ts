@@ -729,11 +729,11 @@ export const RULES: Rule[] = [
     title: "Missing i18nCustomModel Registration in `onInit()`",
     category: "lifecycle",
     anchor: "mistake-35-missing-i18ncustommodel-registration-in-oninit---",
-    severity: "error",
+    severity: "warning",
     auditList: "none",
     downgradable: true,
     severityReason:
-      "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
+      "Needed only when {i18nXxx>...} view bindings or POD Designer palette display are used — not a universal requirement for every widget.",
     provenance: {
       status: "verified",
       source: "POD2 framework: PodObject.js#PodObject.getI18nModel + context/PodContext.js#PodContext.applyCoreModelsTo",
@@ -741,7 +741,7 @@ export const RULES: Rule[] = [
     verification: {
       method: "framework-source",
       authoredAgainst: { frameworkRef: "UI5 1.148.9" },
-      note: "PodContext.applyCoreModelsTo() only registers the global 'i18n' model on the runtime App. Custom widget i18n models (returned by PodObject.getI18nModel()) must be manually registered in onInit() via this.getPodRuntime().getView().setModel(MyWidget.getI18nModel(), 'i18nMyWidget').",
+      note: "PodContext.applyCoreModelsTo() only registers the global 'i18n' model on the runtime App. Custom widget i18n models must be manually registered in onInit() via setModel() when {i18nXxx>...} bindings or external i18n access (POD Designer palette, other controls) are needed. getI18nText() inside the widget class works via the static model without registration.",
     },
   },
   {

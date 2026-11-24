@@ -346,7 +346,7 @@ For each component type present in the extension, verify it follows the Best-Pra
 | ES6 class with `sap.ui.define` | `class <Name>Widget extends Widget { ... }` OR `extends <FrameworkWidget>` (e.g. `WorkListTableWidget`) | ❌ Error if missing |
 | Static `#oI18nModel` field | `static #oI18nModel = new I18nResourceModel({ bundleName: "..." })` | ❌ Error |
 | Static accessor set | `getI18nModel()`, `getDisplayName()`, `getIcon()`, `getCategory()`, `getDescription()` — all present | ❌ Error if any missing |
-| `onInit()` registers i18nCustomModel | `setModel(...)` with name `"i18n<WidgetShortName>"` (e.g. `i18nCoating`, `i18nHelloWorld`). Multi-widget plugins register ONE model per widget (e.g. `i18nCoating` AND `i18nHelloWorld` side-by-side) — NOT a finding. Flag ONLY: missing `setModel`, or a generic `"i18n"` / other non-canonical name. | ⚠️ Warning (M35) — only for the flag cases |
+| `onInit()` registers i18nCustomModel | Needed when the widget uses `{i18nXxx>...}` view bindings or POD Designer palette display. If present: `setModel(...)` with name `"i18n<WidgetShortName>"` (e.g. `i18nCoating`, `i18nHelloWorld`). Multi-widget plugins register ONE model per widget — NOT a finding. Flag ONLY: widget uses `{i18nXxx>...}` bindings but `setModel` is absent, or model uses a generic `"i18n"` / other non-canonical name. | ⚠️ Warning (M35) — only for the flag cases |
 | `_createView()` with ID positional | Root control gets `new <Control>(oConfig.id, { ... })` or `new <Control>(this.getId(), { ... })` | ❌ Error (M6/M31) |
 | `onExit()` with `super.onExit()` | Present and calls super | ⚠️ Warning if missing |
 | PodContext subscribe/unsubscribe parity | Count subscribes == count unsubscribes in `onExit()` | ⚠️ Warning |
