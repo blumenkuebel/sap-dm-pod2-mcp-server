@@ -359,8 +359,8 @@ from the widget's short name in camelCase.
 The prefix is always the **widget's short name in camelCase** — e.g. `coating.*`,
 `stepStatus.*`, `helloWorld.*`, `tableView.*`. This clearly separates widget metadata
 from action metadata (`validationAction.*`, `executionAction.*`) and avoids collisions
-in multi-widget plugins. The generic `widget.*` prefix is **deprecated** and must not be
-used.
+in multi-widget plugins. The generic `widget.*` prefix is **deprecated**: in a single-widget
+plugin it still works, but in a multi-widget plugin it causes key collisions and is an error.
 
 ### What `Category` Actually Is
 
