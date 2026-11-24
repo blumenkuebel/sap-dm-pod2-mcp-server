@@ -603,7 +603,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: context/PodContext.js — getSelectedWorkListItems + setSelectedWorkListItems confirmed",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "PodContext exposes getSelectedWorkListItems() and setSelectedWorkListItems(). Bidirectional sync (subscribe → _syncSelectionsWithPodContext) is the required pattern for table widgets reacting to external selection changes.",
+    },
   },
   {
     id: "M28",
@@ -614,7 +622,14 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 binding framework convention: multi-part formatters receive undefined before data loads",
+    },
+    verification: {
+      method: "convention",
+      note: "SAPUI5 always calls multi-part formatters immediately on binding registration, before the model data arrives. All formatter arguments may be undefined/null at that point. Defensive checks are required to avoid 'undefined' in rendered text.",
+    },
   },
   {
     id: "M29",
@@ -639,7 +654,14 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAP DM product convention: PSN (Produktionsstücknummer) is the established German term for SFC across the standard SAP DM UI",
+    },
+    verification: {
+      method: "convention",
+      note: "SAP Digital Manufacturing's standard German UI uses PSN everywhere. Extensions using SFC in German i18n bundles stand out as inconsistent with the product's own terminology.",
+    },
   },
   {
     id: "M31",
@@ -669,7 +691,15 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: true,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js — getDisplayName, getDescription, getCategory are static methods read by POD Designer",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Widget.js confirms getDisplayName(), getDescription(), getCategory() exist as static methods called by the POD Designer palette. Consistent named-prefix key style (e.g. coating.displayName) is a convention to avoid i18n key collisions between multiple widgets/actions in the same plugin.",
+    },
   },
   {
     id: "M33",
@@ -742,7 +772,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "ECMAScript specification: Tagged Template Literals (ES2015 §12.3.5) — fn() `...` invokes fn as tag",
+    },
+    verification: {
+      method: "convention",
+      note: "Pure JavaScript syntax rule: a function call expression immediately followed (no newline/semicolon) by a template literal is parsed as a tagged template, not a function call plus string. The dynamic substitution is silently dropped.",
+    },
   },
   {
     id: "M38",
@@ -753,7 +790,14 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "HTML Living Standard: Named access on the Window object — DOM elements with id are exposed as window properties",
+    },
+    verification: {
+      method: "convention",
+      note: "Browser spec: DOM elements with id attributes are accessible as window globals in non-strict mode. This is fragile: breaks under strict mode, module bundlers, multiple widget instances (id collision), iframes, and shadow DOM. The correct pattern is storing control references in private class fields.",
+    },
   },
   {
     id: "M39",
@@ -818,7 +862,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 ManagedObject.extend() behavior: no renderer in metadata → UI5 infers external renderer file",
+    },
+    verification: {
+      method: "behavior",
+      note: "SAPUI5 framework: when Control.extend() metadata has no `renderer` key, UI5 appends 'Renderer' to the class name and issues a synchronous GET for that file. In a POD 2.0 extension the renderer file does not exist → hard 404 → module load failure. Fix: pass renderer: null or renderer: {} to suppress the auto-load.",
+    },
   },
   {
     id: "M43",
@@ -829,7 +880,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 ManagedObject.validateProperty(): strict type checking throws on string-for-float",
+    },
+    verification: {
+      method: "behavior",
+      note: "ManagedObject.validateProperty() enforces strict type checks. A string like '1' fails validation for float/int properties even when it parses cleanly. Common migration trap: HTML5 code uses String() for CSS positioning; transliterating to UI5 microchart coordinates without removing the cast throws at runtime.",
+    },
   },
   {
     id: "M50",
@@ -877,7 +935,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 XML view parser error-recovery: on parse failure, unresolved aggregation names are attempted as class lookups",
+    },
+    verification: {
+      method: "behavior",
+      note: "SAPUI5 XML view parser: when a fatal error occurs (e.g. missing IAsyncContentCreation, unknown property), the parser's error recovery path tries to resolve aggregation wrapper tags like <items> as class names → GET sap/m/items.js → 404. The 404 is always a cascade; the real error appears earlier in the console.",
+    },
   },
   {
     id: "M53",
@@ -939,7 +1004,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 XMLTemplateProcessor: list bindings assert single template — attribute binding + aggregation wrapper conflict",
+    },
+    verification: {
+      method: "behavior",
+      note: "SAPUI5 XML view parser: specifying both an attribute-style aggregation binding (points='{path}') and an explicit <aggregation> wrapper with a child template for the SAME aggregation registers two templates → assertion 'list bindings support only a single template object'. Fix: use one form exclusively.",
+    },
   },
   {
     id: "M56",
@@ -989,7 +1061,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 sap.m.App: top-level shell control, renders as position:fixed/full-viewport — not embeddable",
+    },
+    verification: {
+      method: "behavior",
+      note: "sap.m.App and sap.m.SplitApp are viewport-level shell controls: their root element is position:fixed and occupies the full viewport. Embedded inside a POD widget slot (bounded height/width), the control breaks out of the slot. Use sap.m.NavContainer for in-widget navigation instead.",
+    },
   },
   {
     id: "M59",
@@ -1003,7 +1082,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD 2.0 architecture: POD runtime owns the outer Fiori shell; widgets render only their body region",
+    },
+    verification: {
+      method: "convention",
+      note: "POD 2.0 runtime provides the SAP Fiori launchpad shell, page header, breadcrumb, and navigation. A widget that renders a second shell bar or header duplicates focus stops, wastes vertical space, and clashes with screen readers.",
+    },
   },
   {
     id: "M60",
@@ -1018,7 +1104,14 @@ export const RULES: Rule[] = [
     downgradable: false,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "basics.md §0 Prime Directive Escalation Ladder: custom control is Rung 4, requires team alignment + exception marker",
+    },
+    verification: {
+      method: "convention",
+      note: "Prime Directive §0: a plain .extend(CustomVBox, {...}) for a pure display template skips Rungs 1-3 of the escalation ladder (GenericTile + NumericContent covers 80% of KPI-tile use cases). Custom control is only justified for reusable behavior, not display templates.",
+    },
   },
   {
     id: "M61",
@@ -1030,7 +1123,14 @@ export const RULES: Rule[] = [
     downgradable: false,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD 2.0 extension guidelines: no custom CSS surface; Fiori theme tokens + sapUi* utility classes only",
+    },
+    verification: {
+      method: "convention",
+      note: "POD 2.0 extension guidelines ban extension-owned CSS files, inline style attributes, and non-Fiori styleClass names. A CSS file without a documented loader call is dead code (not loaded at runtime). The exception marker // standard-only: exception — <reason> is required for any deviation.",
+    },
   },
   {
     id: "M62",
@@ -1041,7 +1141,14 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 ManagedObject.validateProperty(): numeric properties (float/int) reject strings",
+    },
+    verification: {
+      method: "behavior",
+      note: "SAPUI5 standard controls for numeric display (NumericContent, BulletMicroChart, ProgressIndicator) require float/int properties. Storing pre-formatted strings like '85.4 %' in the JSONModel forces all downstream controls to use Text instead of their native numeric rendering — loses formatting, theming, and accessibility features.",
+    },
   },
   {
     id: "M63",
@@ -1053,7 +1160,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 sap.suite.ui.microchart.BulletMicroChart: only 'press' event (whole-chart), no per-shape events",
+    },
+    verification: {
+      method: "behavior",
+      note: "BulletMicroChart (and other microcharts) expose only a whole-chart press event — no per-shape/per-point selectData events. Per-shape drill-down requires sap.viz.ui5.controls.VizFrame.",
+    },
   },
   {
     id: "M64",
@@ -1125,7 +1239,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "⚠️ Warning-grade exception: applies only to html5-origin code; not auto-fixable.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "basics.md §0 Prime Directive: 'smallest standard control that fits ALL source fields' — not 'first-match'",
+    },
+    verification: {
+      method: "convention",
+      note: "Prime Directive fit check: when a source composite carries more slots than the first-match standard control provides, the correct control is the next rung up the escalation ladder — not GenericTile with silent field drops. Unmapped source fields must be surfaced explicitly in MIGRATION_MAPPING.md.",
+    },
   },
   {
     id: "M71",
@@ -1227,7 +1348,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD 2.0 extension guidelines: §0 Prime Directive at DOM level — raw DOM bypasses UI5 control tree",
+    },
+    verification: {
+      method: "convention",
+      note: "Hand-built DOM elements (document.createElement, el.style.cssText, appendChild) are outside the UI5 control tree. They ignore Fiori theming, bypass onExit cleanup, break POD Designer preview, violate CSP, and reinvent — worse — what standard controls already provide (e.g. sap.m.BusyDialog for blocking overlays).",
+    },
   },
   {
     id: "M78",
@@ -1240,7 +1368,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "Browser security model: mutating XMLHttpRequest.prototype/window.fetch affects all consumers page-wide",
+    },
+    verification: {
+      method: "convention",
+      note: "Monkey-patching XMLHttpRequest.prototype or window.fetch mutates browser-wide state from one widget. Multiple instances or extensions doing the same corrupt each other. Restoration is fragile. The correct pattern is using RestClient / fetch directly in the extension's own code and reading the returned result.",
+    },
   },
   {
     id: "M79",
@@ -1266,7 +1401,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD 2.0 widget boundary contract: each widget is the single writer of its own controls' state",
+    },
+    verification: {
+      method: "convention",
+      note: "POD 2.0 architecture: each widget owns its controls. Cross-widget state mutation (setSelected/setValue on a foreign control) desyncs the owner's backing model from the control state, and force-enabling a disabled control bypasses the validation guard that disabled it.",
+    },
   },
   {
     id: "M81",
@@ -1277,7 +1419,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD 2.0 widget boundary contract: business operations must use the public API/Action, not counterfeit events",
+    },
+    verification: {
+      method: "convention",
+      note: "Firing oTable.fireSelectionChange / oButton.firePress / getDomRef().click() on a foreign widget's controls lies to that control's owner — the handler runs with hand-crafted parameters that may not match real state. The correct trigger for a cross-widget operation is the POD 2.0 Action API.",
+    },
   },
   {
     id: "M84",
@@ -1308,7 +1457,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Error); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 2: every Chart.js/d3/plotly/echarts call must be replaced with sap.suite.ui.microchart / sap.viz.ui5.controls.VizFrame",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: Canvas-based chart libraries (Chart.js, d3, plotly, echarts) are incompatible with Fiori theme, accessibility, and POD Designer. Must be re-implemented using the standard SAPUI5 chart controls per chart-migration-map.md.",
+    },
   },
   {
     id: "HTML5-FETCH",
@@ -1320,7 +1476,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Error); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 1: every fetch()/XMLHttpRequest/$.ajax becomes ODataV4Client or ApiClient",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: native fetch/XHR bypass the POD 2.0 RestClient contract (error handling, ApiError, auth). Every HTTP call must go through ODataV4Client or ApiClient — no exceptions inside a POD 2.0 extension unless the target is a non-DM service with explicit customer sign-off.",
+    },
   },
   {
     id: "HTML5-INLINE-HANDLER",
@@ -1332,7 +1495,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Error); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 5: every onclick=/onchange= becomes attachPress/attachChange",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: inline HTML event handlers (onclick=, onchange=) are incompatible with the UI5 event model and CSP. Must be replaced with control.attachPress() / attachChange() etc.",
+    },
   },
   {
     id: "HTML5-CHART-SCRIPT-TAG",
@@ -1344,7 +1514,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Error); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 2 + M11 (Third-Party Library Loading): <script src=...> is incompatible with AMD/sap.ui.define",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: <script src='Chart.js'> and similar global-script loads are incompatible with the SAPUI5 AMD loader. The library must either be loaded via sap.ui.define (if UMD-compatible) or removed entirely and replaced with standard SAPUI5 controls.",
+    },
   },
   {
     id: "HTML5-TOFIXED",
@@ -1356,7 +1533,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Warning); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 7: every .toFixed(N) becomes sap.ui.core.format.NumberFormat",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: Number.toFixed() ignores the user's locale. SAP DM targets international plants. Replace with NumberFormat.getFloatInstance({minFractionDigits:N, maxFractionDigits:N}).format(value) driven by sap/ui/core/Configuration.getLanguage().",
+    },
   },
   {
     id: "HTML5-MODULE-STATE",
@@ -1368,7 +1552,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Warning); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 3: every module-level let/var becomes a private class field (#name)",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: module-level mutable state is shared across all widget instances and survives widget destroy/re-create. Must be moved to class private fields (#name) so each instance has its own copy.",
+    },
   },
   {
     id: "HTML5-EMOJI-ICON",
@@ -1380,7 +1571,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Warning); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 9: every emoji glyph becomes sap-icon:// + sap.ui.core.ValueState for color",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: emoji glyphs (🟢🟡🔴🔔) used as status icons are unthemeable and inaccessible. Replace with sap-icon:// URIs + ValueState for color + tooltip for screen readers.",
+    },
   },
   {
     id: "HTML5-LOCALE-LITERAL",
@@ -1392,7 +1590,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Warning); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 6: every locale-hardcoded string becomes DateFormat/NumberFormat driven by Configuration.getLanguage()",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: hard-coded locale strings ('de-DE', 'en-GB') ignore the POD user's configured language. Must be replaced with sap.ui.core.Configuration.getLanguage() / DateFormat / NumberFormat so formatting adapts to the user's locale.",
+    },
   },
   {
     id: "HTML5-TIMER-HANDLE",
@@ -1404,7 +1609,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Warning); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 4: every setInterval gets a stored handle (this.#nIntervalId)",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: setInterval/setTimeout return values must be stored in a class private field (this.#nIntervalId) so clearInterval/clearTimeout can be called in onExit() — otherwise the timer leaks and keeps firing after the widget is destroyed.",
+    },
   },
   {
     id: "HTML5-TIMER-CLEANUP",
@@ -1416,7 +1628,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Warning); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 4: matching clearInterval in onExit() required for each stored timer handle",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: every stored timer handle (this.#nIntervalId) must have a matching clearInterval/clearTimeout call in onExit(). Without cleanup the timer outlives the widget and fires against a destroyed context.",
+    },
   },
   {
     id: "HTML5-MAGIC-THRESHOLD",
@@ -1428,7 +1647,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "HTML5→POD migration residue (Phase 3 → HTML5 Residue, Warning); detection in html5-migration-guide.md.",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "html5-migration-guide.md Golden Rule 10: every hard-coded threshold becomes a widget property (see property-editors.md)",
+    },
+    verification: {
+      method: "convention",
+      note: "HTML5 migration golden rule: magic numbers used as business thresholds (if (val > 20)) must be exposed as configurable widget properties so operators can adjust them in POD Designer without code changes.",
+    },
   },
 ];
 
