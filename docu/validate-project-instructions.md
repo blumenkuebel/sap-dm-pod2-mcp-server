@@ -377,7 +377,7 @@ For each component type present in the extension, verify it follows the Best-Pra
 | Check | Expected | Severity |
 |---|---|---|
 | `i18n.properties` present (fallback) | `i18n.properties` | ❌ Error if missing |
-| Locale bundles present | At least one `i18n_<locale>.properties` file (e.g. `i18n_de.properties`, `i18n_en.properties`, `i18n_fr.properties`) — any language code is acceptable | ⚠️ Warning if none present |
+| Locale bundles present | At least one `i18n_<locale>.properties` file — both `i18n_<lang>.properties` and `i18n_<lang>_<COUNTRY>.properties` forms are valid (e.g. `i18n_de.properties`, `i18n_en.properties`, `i18n_en_US.properties`). Count both forms as satisfying this check. | ⚠️ Warning if none present |
 | Widget metadata trio: `<widgetName>.displayName`, `<widgetName>.description`, `<widgetName>.category` | Camelcase per-widget prefix (e.g. `coating.*`, `helloWorld.*`) in all present bundles. Multi-widget plugins have one trio per widget — NOT a finding. Flag cases: (1) literal `widget.` prefix in a **multi-widget plugin** → ❌ Error (M32, key collision); (2) literal `widget.` prefix in a **single-widget plugin** → ⚠️ Warning (deprecated pattern, but functional); (3) unprefixed `displayName=` with no prefix at all → ❌ Error regardless. Custom suffix names within the correct widget prefix (e.g. `cuttingexecution.title` instead of `cuttingexecution.displayName`) are NOT M32 violations — do not flag them. | see flag cases |
 | Action metadata uses action prefix | `validationAction.displayName=...`, `executionAction.displayName=...` | ⚠️ Warning if unprefixed |
 | German bundle: no user-facing "SFC" | Should use "PSN" | ⚠️ Warning (M30) |

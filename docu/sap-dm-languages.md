@@ -263,14 +263,16 @@ i18n_US.properties  # ❌ WRONG - US is a country code
 i18n_en.properties  # ✅ CORRECT - en is a language code
 ```
 
-### ❌ Pitfall 2: Creating Region-Specific Variants
+### ⚠️ Pitfall 2: Redundant Region-Specific Variants
 ```
-i18n_en_US.properties  # ❌ WRONG - not needed, use en
-i18n_en_GB.properties  # ❌ WRONG - not needed, use en
-i18n_es_MX.properties  # ❌ WRONG - only one Spanish supported
+i18n_en_US.properties  # ⚠️ redundant — SAPUI5 loads it for en_US locale, but content is identical to i18n_en.properties
+i18n_en_GB.properties  # ⚠️ redundant — same English content
+i18n_es_MX.properties  # ⚠️ redundant — only one Spanish supported in SAP DM
 ```
 
-Exception: Traditional Chinese (`zh_TW`) is the only region-specific variant supported.
+Region-specific files (`i18n_<lang>_<COUNTRY>.properties`) are **technically valid** — SAPUI5's ResourceModel includes them in the fallback chain for `<lang>_<COUNTRY>` browser locales. However, since SAP DM does not differentiate between regional variants of the same language, they always duplicate the language-only file (`i18n_en.properties`). Create the region-specific file only if you intentionally need different translations for a specific region.
+
+Exception: Traditional Chinese (`zh_TW`) is the only region-specific variant that carries distinct content (Simplified vs. Traditional).
 
 ### ❌ Pitfall 3: Missing Default Bundle
 ```
