@@ -18,7 +18,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { RULES } = await import(pathToFileURL(path.join(ROOT, "dist", "rules", "registry.js")).href);
 
 const TIER_A = new Set(["ui5-api", "pod2-api", "rest-api"]);
-const TIER_B = new Set(["behavior", "convention", "manual"]);
+const TIER_B = new Set(["behavior", "convention", "manual", "framework-source"]);
 
 test("schema hygiene: checks only on Tier-A methods; Tier-B carries no checks", () => {
   for (const r of RULES) {
