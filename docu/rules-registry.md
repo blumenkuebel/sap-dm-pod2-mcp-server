@@ -24,14 +24,14 @@ symbol.
 
 | Status | Count |
 |---|---:|
-| ✅ verified | 33 |
-| 🧩 inferred | 1 |
-| ❓ unverified | 51 |
+| ✅ verified | 40 |
+| 🧩 inferred | 0 |
+| ❓ unverified | 45 |
 | **total** | **85** |
 
-**🧩 inferred (confirm against SAP docs or demote):** M39
+**🧩 inferred (confirm against SAP docs or demote):** —
 
-**❓ unverified (cite a source or re-test):** M0, M1, M1B, M2, M4, M7, M8, M10, M11, M14, M15, M16, M17, M19, M20, M22, M23, M24, M26, M27, M28, M30, M32, M37, M38, M42, M43, M52, M55, M58, M59, M60, M61, M62, M63, M70, M77, M78, M80, M81, HTML5-CHART, HTML5-CHART-SCRIPT-TAG, HTML5-EMOJI-ICON, HTML5-FETCH, HTML5-INLINE-HANDLER, HTML5-LOCALE-LITERAL, HTML5-MAGIC-THRESHOLD, HTML5-MODULE-STATE, HTML5-TIMER-CLEANUP, HTML5-TIMER-HANDLE, HTML5-TOFIXED
+**❓ unverified (cite a source or re-test):** M0, M1B, M2, M7, M8, M10, M11, M16, M17, M20, M22, M23, M24, M27, M28, M30, M32, M37, M38, M42, M43, M52, M55, M58, M59, M60, M61, M62, M63, M70, M77, M78, M80, M81, HTML5-CHART, HTML5-CHART-SCRIPT-TAG, HTML5-EMOJI-ICON, HTML5-FETCH, HTML5-INLINE-HANDLER, HTML5-LOCALE-LITERAL, HTML5-MAGIC-THRESHOLD, HTML5-MODULE-STATE, HTML5-TIMER-CLEANUP, HTML5-TIMER-HANDLE, HTML5-TOFIXED
 
 > When an agent cites a rule whose status is **inferred** or **unverified**, it must report the finding
 > with a provenance caveat (the rule is not SAP-confirmed) — see `validate-project-instructions.md` Phase 3.
@@ -45,11 +45,11 @@ swept under Errors yet be Warning-grade, e.g. M66/M70/M72).
 | ID | Title | Category | Severity | Downgradable | Provenance |
 |----|-------|----------|----------|:------------:|------------|
 | [M0](common-mistakes-setup.md#mistake-0-wrong-namespace-in-extensionjson) | Wrong Namespace in extension.json | setup | 🔴 Error | **no** | ❓ unverified |
-| [M1](common-mistakes-setup.md#mistake-1-missing-onexit-after-podcontextsubscribe) | Missing onExit() After PodContext.subscribe() | setup | ⚠️ Warning | yes | ❓ unverified · ⛔ changed |
+| [M1](common-mistakes-setup.md#mistake-1-missing-onexit-after-podcontextsubscribe) | Missing onExit() After PodContext.subscribe() | setup | ⚠️ Warning | yes | ✅ verified — POD2 framework: widget/Widget.js#Widget.destroy · 📄 source-verified |
 | [M1B](common-mistakes-setup.md#mistake-1b-creating-namespace-folders-during-generation) | Creating Namespace Folders During Generation | setup | ⚠️ Warning | yes | ❓ unverified |
 | [M2](common-mistakes-setup.md#mistake-2-binding-syntax-in-widgetproperty-metadata) | Binding Syntax in WidgetProperty Metadata | setup | 🔴 Error | **no** | ❓ unverified |
 | [M3](common-mistakes-lifecycle.md#mistake-3-wrong-podcontext-import-path---) | Wrong PodContext Import Path | lifecycle | 🔴 Error | **no** | ✅ verified — machine-checked against bundled specs (pod2-api); see verify-rules · 🔧 machine-checked (pod2-api) |
-| [M4](common-mistakes-lifecycle.md#mistake-4-passing-default-value-to-stringpropertyeditor---) | Passing Default Value to StringPropertyEditor | lifecycle | ⚠️ Warning | yes | ❓ unverified |
+| [M4](common-mistakes-lifecycle.md#mistake-4-passing-default-value-to-stringpropertyeditor---) | Passing Default Value to StringPropertyEditor | lifecycle | ⚠️ Warning | yes | ✅ verified — POD2 framework: propertyeditor/StringPropertyEditor.js#StringPropertyEditor.constructor · 📄 source-verified |
 | [M5](common-mistakes-lifecycle.md#mistake-5-wrong-callback-parameter-order---) | Wrong Callback Parameter Order | lifecycle | 🔴 Error | **no** | ✅ verified — POD2 framework: context/PodContext.js#PodContext.#F · 📄 source-verified |
 | [M6](common-mistakes-imports.md#mistake-6-missing-view-id-in-_createview---) | Missing View ID in _createView() | imports | 🔴 Error | yes | ✅ verified — SAP official Widget sample uses this.getId(); POD sets widget id from config before _createView() — common-mistakes-imports.md |
 | [M7](common-mistakes-imports.md#mistake-7-no-defensive-type-checking---) | No Defensive Type Checking | imports | ⚠️ Warning | yes | ❓ unverified |
@@ -59,18 +59,18 @@ swept under Errors yet be Warning-grade, e.g. M66/M70/M72).
 | [M11](common-mistakes-imports.md#mistake-11-third-party-library-loading-fails---) | Third-Party Library Loading Fails | imports | ⚠️ Warning | yes | ❓ unverified |
 | [M12](common-mistakes-ui.md#mistake-12-wrong-placementtype-import---) | Wrong PlacementType Import | ui | 🔴 Error | yes | ✅ verified — machine-checked against bundled specs (ui5-api); see verify-rules · 🔧 machine-checked (ui5-api) |
 | [M13](common-mistakes-ui.md#mistake-13-wrong-modelpath-constants---) | Wrong ModelPath Constants | ui | ⚠️ Warning | yes | ✅ verified — POD2 framework: context/ModelPath.js#ModelPath · 📄 source-verified |
-| [M14](common-mistakes-config.md#mistake-14-missing-onexit-unsubscribe---memory-leak-) | Missing onExit() Unsubscribe - Memory Leak! | config | 🔴 Error | **no** | ❓ unverified · ⛔ changed |
-| [M15](common-mistakes-setup.md#mistake-15-not-destroying-dynamic-dialogspopovers) | Not Destroying Dynamic Dialogs/Popovers | setup | 🔴 Error | **no** | ❓ unverified |
+| [M14](common-mistakes-config.md#mistake-14-missing-onexit--timerdialoglistener-cleanup-) | Missing onExit() — Timer/Dialog/Listener Cleanup | config | 🔴 Error | **no** | ✅ verified — POD2 framework: widget/Widget.js#Widget.destroy + context/PodContext.js#PodContext.unsubscribeAll · 📄 source-verified · ⛔ changed |
+| [M15](common-mistakes-setup.md#mistake-15-not-destroying-dynamic-dialogspopovers) | Not Destroying Dynamic Dialogs/Popovers | setup | 🔴 Error | **no** | ✅ verified — POD2 framework: widget/Widget.js#Widget.destroy · 📄 source-verified |
 | [M16](common-mistakes-setup.md#mistake-16-generic-no-data-text) | Generic No-Data Text | setup | ⚠️ Warning | yes | ❓ unverified |
 | [M17](common-mistakes-ui.md#mistake-17-formatter-instead-of-expression-binding) | Formatter Instead of Expression Binding | ui | ℹ️ Info | yes | ❓ unverified |
 | [M18](common-mistakes-config.md#mistake-18-not-incrementing-page-in-growingjsonmodel-) | Not Incrementing Page in GrowingJSONModel | config | ⚠️ Warning | yes | ✅ verified — POD2 framework: model/GrowingJSONListBinding.js#GrowingJSONListBinding.#r · 📄 source-verified |
-| [M19](common-mistakes-lifecycle.md#mistake-19-not-destroying-dialogs-in-afterclose-) | Not Destroying Dialogs in afterClose | lifecycle | ⚠️ Warning | yes | ❓ unverified |
+| [M19](common-mistakes-lifecycle.md#mistake-19-not-destroying-dialogs-in-afterclose-) | Not Destroying Dialogs in afterClose | lifecycle | ⚠️ Warning | yes | ✅ verified — POD2 framework: widget/Widget.js#Widget.destroy · 📄 source-verified |
 | [M20](common-mistakes-ui.md#mistake-20-columncell-index-mismatch-) | Column/Cell Index Mismatch | ui | ⚠️ Warning | yes | ❓ unverified |
 | [M22](common-mistakes-config.md#mistake-22-using-toast-for-persistent-notifications---) | Using toast() for Persistent Notifications | config | ⚠️ Warning | yes | ❓ unverified |
 | [M23](common-mistakes-data.md#mistake-23-forgetting-to-clear-busy-state-on-error---) | Forgetting to Clear Busy State on Error | data | ⚠️ Warning | yes | ❓ unverified |
 | [M24](common-mistakes-data.md#mistake-24-not-handling-expected-api-error-codes---) | Not Handling Expected API Error Codes | data | ⚠️ Warning | yes | ❓ unverified |
 | [M25](common-mistakes-config.md#mistake-25-subscribing-to-multiple-paths-with-multiple-calls---) | Subscribing to Multiple Paths with Multiple Calls | config | ℹ️ Info | yes | ✅ verified — POD2 framework: context/PodContext.js#PodContext.subscribe · 📄 source-verified |
-| [M26](common-mistakes-config.md#mistake-26-using-wrong-property-exclusion-pattern) | Using Wrong Property Exclusion Pattern | config | ⚠️ Warning | yes | ❓ unverified |
+| [M26](common-mistakes-config.md#mistake-26-using-wrong-property-exclusion-pattern) | Using Wrong Property Exclusion Pattern | config | ⚠️ Warning | yes | ✅ verified — POD2 framework: widget/ControlWidget.js#ControlWidget.#s + widget/core/TableWidget.js#TableWidget._createTable · 📄 source-verified · ⛔ changed |
 | [M27](common-mistakes-data.md#mistake-27-missing-selection-synchronization-with-podcontext) | Missing Selection Synchronization with PodContext | data | ⚠️ Warning | yes | ❓ unverified |
 | [M28](common-mistakes-ui.md#mistake-28-multi-part-bindings-without-defensive-checks) | Multi-Part Bindings Without Defensive Checks | ui | ⚠️ Warning | yes | ❓ unverified |
 | [M29](common-mistakes-data.md#mistake-29-sfc-status-as-number-instead-of-string---) | SFC Status as Number Instead of String | data | 🔴 Error | **no** | ✅ verified — docu/pod2-api-specs/sap.dm.dme.pod2.api.internal.worklist.md (sfcStatus typed as string) |
@@ -83,7 +83,7 @@ swept under Errors yet be Warning-grade, e.g. M66/M70/M72).
 | [M36](common-mistakes-imports.md#mistake-36-deprecated-sapui5-pseudo-module-enum-imports) | Deprecated SAPUI5 Pseudo-Module Enum Imports | imports | ⚠️ Warning | yes | ✅ verified — POD2 framework: enumeration/SFCStatus.js + enumeration/SFCStatusCode.js + enumeration/ContentDensity.js · 📄 source-verified |
 | [M37](common-mistakes-imports.md#mistake-37-tagged-template-misuse-on-geti18ntext-hidden-bug) | Tagged-Template Misuse on `getI18nText` (Hidden Bug) | imports | 🔴 Error | **no** | ❓ unverified |
 | [M38](common-mistakes-imports.md#mistake-38-undeclared-dom-id-globals-instead-of-thisbyid-hidden-bug) | Undeclared DOM-ID Globals Instead of `this.byId` (Hidden Bug) | imports | ⚠️ Warning | yes | ❓ unverified |
-| [M39](common-mistakes-lifecycle.md#mistake-39-wrong-base-class--layoutwidget-instead-of-widget) | Wrong Base Class — LayoutWidget Instead of Widget | lifecycle | 🔴 Error | **no** | 🧩 inferred — All reference examples extend Widget; not SAP-doc confirmed |
+| [M39](common-mistakes-lifecycle.md#mistake-39-wrong-base-class--layoutwidget-instead-of-widget) | Wrong Base Class — LayoutWidget Instead of Widget | lifecycle | 🔴 Error | **no** | ✅ verified — POD2 framework: widget/LayoutWidget.js#LayoutWidget + widget/ControlWidget.js#ControlWidget.constructor · 📄 source-verified |
 | [M40](common-mistakes-i18n.md#mistake-40-unescaped-curly-braces-and-single-quotes-in-i18n-properties) | Unescaped Curly Braces and Single Quotes in i18n Properties | i18n | ⚠️ Warning | yes | ✅ verified — SAP UI5 API sap.base.i18n.ResourceBundle (escaping rules) |
 | [M41](common-mistakes-imports.md#mistake-41-non-existent-module-paths-sapmitem-sapmicon-----runtime-404--extension-fails-to-load) | Non-existent module paths (`sap/m/Item`, `sap/m/Icon`, …) (RUNTIME 404 — extension fails to load) | imports | 🔴 Error | **no** | ✅ verified — UI5 runtime 404 on sap/m/Item.js (1.136.15); cross-checked via get_ui5_api · 🔧 machine-checked (ui5-api) |
 | [M42](common-mistakes-ui.md#mistake-42-custom-control-extend-without-renderer--404-during-extension-load----runtime-404) | Custom control (`.extend(...)`) without `renderer` — 404 during extension load (RUNTIME 404) | ui | 🔴 Error | **no** | ❓ unverified |

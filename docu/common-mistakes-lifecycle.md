@@ -26,24 +26,26 @@ import ModelPath from "sap/dm/dme/pod2/context/ModelPath";
 
 ## Mistake #4: Passing Default Value to StringPropertyEditor ❌ → ✅
 
-**Issue**: Passing a default value as the 3rd parameter to `StringPropertyEditor` can cause issues.
+**Issue**: The third argument to `StringPropertyEditor` is **not** a default value — it is `CustomInput` init settings (an object) or an `InputType` string. Passing a path string as the third argument silently sets the input's `type` to that string instead of leaving it as plain text.
 
 ```javascript
-// ❌ WRONG - Don't pass default value to property editor
-new StringPropertyEditor(
-    this,
-    "apiEndpoint",
-    "/production/process/execute"  // ❌ Don't pass this!
-)
+// ❌ WRONG — "/production/process/execute" is NOT stored as a default value.
+//            It sets CustomInput.type = "/production/process/execute" (garbage type).
+new StringPropertyEditor(this, "apiEndpoint", "/production/process/execute")
 
-// ✅ CORRECT - Let default come from getDefaultConfig()
-new StringPropertyEditor(
-    this,
-    "apiEndpoint"  // Only 2 parameters!
-)
+// ✅ CORRECT — 2 args only. The displayed value comes from getPropertyValue().
+new StringPropertyEditor(this, "apiEndpoint")
 ```
 
-**Why**: Default values should be defined in `getDefaultConfig()` and handled by `getPropertyValue()`, not passed to the property editor constructor.
+**Why**: `StringPropertyEditor(accessor, propName, options)` does:
+```javascript
+const p = typeof options === "object" ? options : {};
+if (typeof options === "string") p.type = options;  // string → InputType
+this.#input = new CustomInput(p);
+this.#input.setValue(this._getPropertyValue());   // value always from widget config!
+```
+
+The value is always read from `widget.getPropertyValue("apiEndpoint")` → from widget config. The third argument only controls the `CustomInput` constructor options (e.g. `InputType.Url`).
 
 **Official SAP Pattern:**
 ```javascript

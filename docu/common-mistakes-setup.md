@@ -95,25 +95,21 @@ static #oI18nModel = new I18nResourceModel({
 
 ## Mistake #1: Missing onExit() After PodContext.subscribe()
 
-> **Stub — merged into [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit-unsubscribe---memory-leak-) (canonical treatment).** Load `common-mistakes-config` for the full pattern (subscribe/unsubscribe pairing, `_activeSubs` bookkeeping, MyView cleanup, validator hook). The one-line summary: every `PodContext.subscribe(...)` in `onInit()` MUST have a matching `PodContext.unsubscribe(...)` in `onExit()` using the exact same callback reference — otherwise callbacks fire on destroyed widgets and memory grows over time.
+> **Stub — merged into [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit--timerdialoglistener-cleanup-) (canonical treatment).** Load `common-mistakes-config` for the full pattern.
+>
+> Key fact: `Widget.destroy()` calls `PodContext.unsubscribeAll(this)` **before** `onExit()` — PodContext subscriptions are auto-cleaned for the standard `subscribe(path, cb, this)` pattern. `onExit()` is still required for timers, dialogs, and other non-subscription cleanup.
 
 ```javascript
-// ❌ WRONG — no onExit
-onInit() {
-    PodContext.subscribe(ModelPath.WorkInstructions, this._updateText, this);
-}
-
-// ✅ CORRECT
-onInit() {
-    PodContext.subscribe(ModelPath.WorkInstructions, this._updateText, this);
-}
+// ✅ No manual unsubscribe needed for PodContext — framework handles it.
+// But onExit() IS still needed for timers, dialogs, event listeners:
 onExit() {
     super.onExit();
-    PodContext.unsubscribe(ModelPath.WorkInstructions, this._updateText, this);
+    clearInterval(this.#iTimer);   // ← timer not auto-cleaned
+    this.#oDialog?.destroy();      // ← dialog not auto-cleaned
 }
 ```
 
-See [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit-unsubscribe---memory-leak-) for the full rule, the `_activeSubs` counter pattern, and the multi-subscribe edge cases.
+See [Mistake #14](common-mistakes-config.md#mistake-14-missing-onexit--timerdialoglistener-cleanup-) for the full rule and checklist.
 
 ---
 

@@ -98,10 +98,14 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
-    lifecycle: {
-      status: "changed",
-      note: "Widget.destroy() now auto-calls PodContext.unsubscribeAll(this) BEFORE onExit(). Manual unsubscribe in onExit() is redundant. Rule prose should be updated to reflect auto-cleanup. Source: widget/Widget.js#Widget.destroy POD2.",
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget.destroy",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Widget.destroy() calls PodContext.unsubscribeAll(this) before onExit(). Manual PodContext.unsubscribe() in onExit() is redundant. onExit() is still needed for timers, dialogs, and other non-subscription cleanup.",
     },
   },
   {
@@ -152,7 +156,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: propertyeditor/StringPropertyEditor.js#StringPropertyEditor.constructor",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "StringPropertyEditor(accessor, propName, options): 3rd arg is CustomInput init-settings object or a string interpreted as InputType. It is NOT a default value. The displayed value always comes from _getPropertyValue() → widget.getPropertyValue(). Passing a path string as 3rd arg silently sets input type to that string.",
+    },
   },
   {
     id: "M5",
@@ -284,17 +296,25 @@ export const RULES: Rule[] = [
   },
   {
     id: "M14",
-    title: "Missing onExit() Unsubscribe - Memory Leak!",
+    title: "Missing onExit() — Timer/Dialog/Listener Cleanup",
     category: "config",
-    anchor: "mistake-14-missing-onexit-unsubscribe---memory-leak-",
+    anchor: "mistake-14-missing-onexit--timerdialoglistener-cleanup-",
     severity: "error",
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget.destroy + context/PodContext.js#PodContext.unsubscribeAll",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Widget.destroy() calls PodContext.unsubscribeAll(this) BEFORE onExit(). unsubscribeAll iterates all subscription lists and removes entries where bindContext === widget. Manual PodContext.unsubscribe() in onExit() is therefore redundant for the standard pattern (bindContext === this). onExit() is still essential for timers, dialogs, models, and other non-subscription cleanup.",
+    },
     lifecycle: {
       status: "changed",
-      note: "Widget.destroy() calls PodContext.unsubscribeAll(this) BEFORE onExit(). Missing manual unsubscribe in onExit() is NOT a memory leak in this framework version — cleanup is automatic. Rule prose should be updated. Source: widget/Widget.js#Widget.destroy POD2.",
+      note: "Original claim ('memory leak from missing manual unsubscribe') is wrong for this framework version. Framework auto-cleans PodContext subscriptions. Prose updated to reflect auto-cleanup and redirect focus to remaining onExit() duties.",
     },
   },
   {
@@ -306,7 +326,15 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget.destroy",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Widget.destroy() only destroys child widgets in aggregations and the widget's own view. Dynamically created dialogs and popovers (attached to UI5 Core popup layer, not to the widget view) are NOT auto-destroyed. They must be destroyed manually in afterClose or onExit.",
+    },
   },
   {
     id: "M16",
@@ -359,7 +387,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/Widget.js#Widget.destroy",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "Same root cause as M15: Widget.destroy() does not auto-destroy dialogs. Dialogs opened via open() live on the UI5 Core popup layer outside the widget's view tree. afterClose is the idiomatic destroy point for one-shot dialogs; onExit is the fallback for persistent dialog instances.",
+    },
   },
   {
     id: "M20",
@@ -433,7 +469,19 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/ControlWidget.js#ControlWidget.#s + widget/core/TableWidget.js#TableWidget._createTable",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "EXCLUDE_PROPERTIES and INCLUDE_PROPERTIES are real static class properties read by ControlWidget.#s() via _findClassProperty(). TableWidget._createTable() already auto-filters all non-sap.m.Table properties via getMetadata().getAllSettings() — IGNORE_TABLE_PROPERTIES (instance property seen in some framework widgets) has no effect in this version and is dead code.",
+    },
+    lifecycle: {
+      status: "changed",
+      note: "Original prose presented IGNORE_TABLE_PROPERTIES as a valid mechanism to skip widget-specific properties from the Table constructor. This is wrong: TableWidget auto-filters via metadata. Prose updated.",
+    },
   },
   {
     id: "M27",
@@ -606,7 +654,15 @@ export const RULES: Rule[] = [
     downgradable: false,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (error).",
-    provenance: { status: "inferred", source: "All reference examples extend Widget; not SAP-doc confirmed" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: widget/LayoutWidget.js#LayoutWidget + widget/ControlWidget.js#ControlWidget.constructor",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "LayoutWidget extends ControlWidget. ControlWidget.constructor(ControlClass, config) stores ControlClass in a private field; _createView() does new this.#t(t.id, o). Extending LayoutWidget without passing the ControlClass leaves this.#t undefined → crash in _createView(). LayoutWidget is for POD Designer container widgets (VBox, HBox) that host child POD widgets in aggregations.",
+    },
   },
   {
     id: "M40",
