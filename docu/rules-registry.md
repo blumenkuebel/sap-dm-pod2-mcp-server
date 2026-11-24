@@ -14,7 +14,7 @@ Each rule's grounding:
   are the audit targets: the same reverse-from-example origin that produced the wrong M6/M21 rules.
 - **❓ unverified** — no cited source yet. Cleanup backlog.
 
-**🔧 machine-checked (Tier A): 8 rules.** Their stated facts are re-verified against the
+**🔧 machine-checked (Tier A): 11 rules.** Their stated facts are re-verified against the
 bundled SAP specs on every `npm test` (`test/verify-rules.test.js`); a spec update that invalidates a
 fact turns the build red (obsolescence signal). Run `node scripts/verify-rules.mjs` for the report.
 
@@ -24,14 +24,14 @@ symbol.
 
 | Status | Count |
 |---|---:|
-| ✅ verified | 40 |
+| ✅ verified | 53 |
 | 🧩 inferred | 0 |
-| ❓ unverified | 45 |
+| ❓ unverified | 32 |
 | **total** | **85** |
 
 **🧩 inferred (confirm against SAP docs or demote):** —
 
-**❓ unverified (cite a source or re-test):** M0, M1B, M2, M7, M8, M10, M11, M16, M17, M20, M22, M23, M24, M27, M28, M30, M32, M37, M38, M42, M43, M52, M55, M58, M59, M60, M61, M62, M63, M70, M77, M78, M80, M81, HTML5-CHART, HTML5-CHART-SCRIPT-TAG, HTML5-EMOJI-ICON, HTML5-FETCH, HTML5-INLINE-HANDLER, HTML5-LOCALE-LITERAL, HTML5-MAGIC-THRESHOLD, HTML5-MODULE-STATE, HTML5-TIMER-CLEANUP, HTML5-TIMER-HANDLE, HTML5-TOFIXED
+**❓ unverified (cite a source or re-test):** M27, M28, M30, M32, M37, M38, M42, M43, M52, M55, M58, M59, M60, M61, M62, M63, M70, M77, M78, M80, M81, HTML5-CHART, HTML5-CHART-SCRIPT-TAG, HTML5-EMOJI-ICON, HTML5-FETCH, HTML5-INLINE-HANDLER, HTML5-LOCALE-LITERAL, HTML5-MAGIC-THRESHOLD, HTML5-MODULE-STATE, HTML5-TIMER-CLEANUP, HTML5-TIMER-HANDLE, HTML5-TOFIXED
 
 > When an agent cites a rule whose status is **inferred** or **unverified**, it must report the finding
 > with a provenance caveat (the rule is not SAP-confirmed) — see `validate-project-instructions.md` Phase 3.
@@ -44,31 +44,31 @@ swept under Errors yet be Warning-grade, e.g. M66/M70/M72).
 
 | ID | Title | Category | Severity | Downgradable | Provenance |
 |----|-------|----------|----------|:------------:|------------|
-| [M0](common-mistakes-setup.md#mistake-0-wrong-namespace-in-extensionjson) | Wrong Namespace in extension.json | setup | 🔴 Error | **no** | ❓ unverified |
+| [M0](common-mistakes-setup.md#mistake-0-wrong-namespace-in-extensionjson) | Wrong Namespace in extension.json | setup | 🔴 Error | **no** | ✅ verified — SAP Help Portal — Packaging and Uploading Custom Plugins (POD 2.0): https://help.sap.com/docs/sap-digital-manufacturing/application-help-for-manage-pods-2-0/packaging-and-uploading-custom-plugins |
 | [M1](common-mistakes-setup.md#mistake-1-missing-onexit-after-podcontextsubscribe) | Missing onExit() After PodContext.subscribe() | setup | ⚠️ Warning | yes | ✅ verified — POD2 framework: widget/Widget.js#Widget.destroy · 📄 source-verified |
-| [M1B](common-mistakes-setup.md#mistake-1b-creating-namespace-folders-during-generation) | Creating Namespace Folders During Generation | setup | ⚠️ Warning | yes | ❓ unverified |
-| [M2](common-mistakes-setup.md#mistake-2-binding-syntax-in-widgetproperty-metadata) | Binding Syntax in WidgetProperty Metadata | setup | 🔴 Error | **no** | ❓ unverified |
+| [M1B](common-mistakes-setup.md#mistake-1b-creating-namespace-folders-during-generation) | Creating Namespace Folders During Generation | setup | ⚠️ Warning | yes | ✅ verified — SAP Help Portal — Packaging and Uploading Custom Plugins (POD 2.0): https://help.sap.com/docs/sap-digital-manufacturing/application-help-for-manage-pods-2-0/packaging-and-uploading-custom-plugins |
+| [M2](common-mistakes-setup.md#mistake-2-binding-syntax-in-widgetproperty-metadata) | Binding Syntax in WidgetProperty Metadata | setup | 🔴 Error | **no** | ✅ verified — POD2 framework: propertyeditor/PropertyEditor.js#PropertyEditor._createLabel + propertyeditor/Property.js#Property.constructor · 📄 source-verified |
 | [M3](common-mistakes-lifecycle.md#mistake-3-wrong-podcontext-import-path---) | Wrong PodContext Import Path | lifecycle | 🔴 Error | **no** | ✅ verified — machine-checked against bundled specs (pod2-api); see verify-rules · 🔧 machine-checked (pod2-api) |
 | [M4](common-mistakes-lifecycle.md#mistake-4-passing-default-value-to-stringpropertyeditor---) | Passing Default Value to StringPropertyEditor | lifecycle | ⚠️ Warning | yes | ✅ verified — POD2 framework: propertyeditor/StringPropertyEditor.js#StringPropertyEditor.constructor · 📄 source-verified |
 | [M5](common-mistakes-lifecycle.md#mistake-5-wrong-callback-parameter-order---) | Wrong Callback Parameter Order | lifecycle | 🔴 Error | **no** | ✅ verified — POD2 framework: context/PodContext.js#PodContext.#F · 📄 source-verified |
 | [M6](common-mistakes-imports.md#mistake-6-missing-view-id-in-_createview---) | Missing View ID in _createView() | imports | 🔴 Error | yes | ✅ verified — SAP official Widget sample uses this.getId(); POD sets widget id from config before _createView() — common-mistakes-imports.md |
-| [M7](common-mistakes-imports.md#mistake-7-no-defensive-type-checking---) | No Defensive Type Checking | imports | ⚠️ Warning | yes | ❓ unverified |
-| [M8](common-mistakes-imports.md#mistake-8-invalid-extensionjson-structure---) | Invalid extension.json Structure | imports | ⚠️ Warning | yes | ❓ unverified |
+| [M7](common-mistakes-imports.md#mistake-7-no-defensive-type-checking---) | No Defensive Type Checking | imports | ⚠️ Warning | yes | ✅ verified — POD2 framework: context/PodContext.js#PodContext.#F + PodContext.getWhenAvailable + PodContext.clearWorkList · 📄 source-verified |
+| [M8](common-mistakes-imports.md#mistake-8-invalid-extensionjson-structure---) | Invalid extension.json Structure | imports | ⚠️ Warning | yes | ✅ verified — SAP Help Portal — Packaging and Uploading Custom Plugins (POD 2.0): https://help.sap.com/docs/sap-digital-manufacturing/application-help-for-manage-pods-2-0/packaging-and-uploading-custom-plugins |
 | [M9](common-mistakes-imports.md#mistake-9-spreading-parent-properties-in-getdefaultconfig---) | Spreading Parent Properties in getDefaultConfig() | imports | ⚠️ Warning | yes | ✅ verified — SAP Help Portal — Add Widget Properties (help.sap.com/docs/.../8dbdab1343184bf19ed36cf26f6aaf08.html) |
-| [M10](common-mistakes-ui.md#mistake-10-using-class-instead-of-styleclass---) | Using "class" Instead of "styleClass" | ui | ⚠️ Warning | yes | ❓ unverified |
-| [M11](common-mistakes-imports.md#mistake-11-third-party-library-loading-fails---) | Third-Party Library Loading Fails | imports | ⚠️ Warning | yes | ❓ unverified |
+| [M10](common-mistakes-ui.md#mistake-10-using-class-instead-of-styleclass---) | Using "class" Instead of "styleClass" | ui | ⚠️ Warning | yes | ✅ verified — SAPUI5 API — sap.m.VBox (no 'class' property) + sap.ui.core.Control.addStyleClass() · 🔧 machine-checked (ui5-api) |
+| [M11](common-mistakes-imports.md#mistake-11-third-party-library-loading-fails---) | Third-Party Library Loading Fails | imports | ⚠️ Warning | yes | ✅ verified — SAPUI5 runtime: sap-ui-core.js (UI5 1.148.9) — define.amd management + bundled UMD libraries (URI.js, jQuery) using AMD detection · 📄 source-verified |
 | [M12](common-mistakes-ui.md#mistake-12-wrong-placementtype-import---) | Wrong PlacementType Import | ui | 🔴 Error | yes | ✅ verified — machine-checked against bundled specs (ui5-api); see verify-rules · 🔧 machine-checked (ui5-api) |
 | [M13](common-mistakes-ui.md#mistake-13-wrong-modelpath-constants---) | Wrong ModelPath Constants | ui | ⚠️ Warning | yes | ✅ verified — POD2 framework: context/ModelPath.js#ModelPath · 📄 source-verified |
 | [M14](common-mistakes-config.md#mistake-14-missing-onexit--timerdialoglistener-cleanup-) | Missing onExit() — Timer/Dialog/Listener Cleanup | config | 🔴 Error | **no** | ✅ verified — POD2 framework: widget/Widget.js#Widget.destroy + context/PodContext.js#PodContext.unsubscribeAll · 📄 source-verified · ⛔ changed |
 | [M15](common-mistakes-setup.md#mistake-15-not-destroying-dynamic-dialogspopovers) | Not Destroying Dynamic Dialogs/Popovers | setup | 🔴 Error | **no** | ✅ verified — POD2 framework: widget/Widget.js#Widget.destroy · 📄 source-verified |
-| [M16](common-mistakes-setup.md#mistake-16-generic-no-data-text) | Generic No-Data Text | setup | ⚠️ Warning | yes | ❓ unverified |
-| [M17](common-mistakes-ui.md#mistake-17-formatter-instead-of-expression-binding) | Formatter Instead of Expression Binding | ui | ℹ️ Info | yes | ❓ unverified |
+| [M16](common-mistakes-setup.md#mistake-16-generic-no-data-text) | Generic No-Data Text | setup | ⚠️ Warning | yes | ✅ verified — POD2 development convention — derived from SAP best practices for empty-state UX in POD 2.0 extensions |
+| [M17](common-mistakes-ui.md#mistake-17-formatter-instead-of-expression-binding) | Formatter Instead of Expression Binding | ui | ℹ️ Info | yes | ✅ verified — SAPUI5 expression binding (sap/ui/base/BindingParser.complexParser) — used directly by PodContext.resolveBinding |
 | [M18](common-mistakes-config.md#mistake-18-not-incrementing-page-in-growingjsonmodel-) | Not Incrementing Page in GrowingJSONModel | config | ⚠️ Warning | yes | ✅ verified — POD2 framework: model/GrowingJSONListBinding.js#GrowingJSONListBinding.#r · 📄 source-verified |
 | [M19](common-mistakes-lifecycle.md#mistake-19-not-destroying-dialogs-in-afterclose-) | Not Destroying Dialogs in afterClose | lifecycle | ⚠️ Warning | yes | ✅ verified — POD2 framework: widget/Widget.js#Widget.destroy · 📄 source-verified |
-| [M20](common-mistakes-ui.md#mistake-20-columncell-index-mismatch-) | Column/Cell Index Mismatch | ui | ⚠️ Warning | yes | ❓ unverified |
-| [M22](common-mistakes-config.md#mistake-22-using-toast-for-persistent-notifications---) | Using toast() for Persistent Notifications | config | ⚠️ Warning | yes | ❓ unverified |
-| [M23](common-mistakes-data.md#mistake-23-forgetting-to-clear-busy-state-on-error---) | Forgetting to Clear Busy State on Error | data | ⚠️ Warning | yes | ❓ unverified |
-| [M24](common-mistakes-data.md#mistake-24-not-handling-expected-api-error-codes---) | Not Handling Expected API Error Codes | data | ⚠️ Warning | yes | ❓ unverified |
+| [M20](common-mistakes-ui.md#mistake-20-columncell-index-mismatch-) | Column/Cell Index Mismatch | ui | ⚠️ Warning | yes | ✅ verified — SAPUI5 API — sap.m.Table.columns (sap.m.Column) + sap.m.ColumnListItem.cells (sap.ui.core.Control) · 🔧 machine-checked (ui5-api) |
+| [M22](common-mistakes-config.md#mistake-22-using-toast-for-persistent-notifications---) | Using toast() for Persistent Notifications | config | ⚠️ Warning | yes | ✅ verified — POD2 framework: context/MessageHistory.js#MessageHistory.toast + showSuccess/showError · 📄 source-verified |
+| [M23](common-mistakes-data.md#mistake-23-forgetting-to-clear-busy-state-on-error---) | Forgetting to Clear Busy State on Error | data | ⚠️ Warning | yes | ✅ verified — SAPUI5 API — sap.ui.core.Control.busy + busyIndicatorDelay (default 1000ms) · 🔧 machine-checked (ui5-api) |
+| [M24](common-mistakes-data.md#mistake-24-not-handling-expected-api-error-codes---) | Not Handling Expected API Error Codes | data | ⚠️ Warning | yes | ✅ verified — POD2 framework: api/RestClient.js#RestClient.#l + api/ApiError.js + library-preload.js · 📄 source-verified |
 | [M25](common-mistakes-config.md#mistake-25-subscribing-to-multiple-paths-with-multiple-calls---) | Subscribing to Multiple Paths with Multiple Calls | config | ℹ️ Info | yes | ✅ verified — POD2 framework: context/PodContext.js#PodContext.subscribe · 📄 source-verified |
 | [M26](common-mistakes-config.md#mistake-26-using-wrong-property-exclusion-pattern) | Using Wrong Property Exclusion Pattern | config | ⚠️ Warning | yes | ✅ verified — POD2 framework: widget/ControlWidget.js#ControlWidget.#s + widget/core/TableWidget.js#TableWidget._createTable · 📄 source-verified · ⛔ changed |
 | [M27](common-mistakes-data.md#mistake-27-missing-selection-synchronization-with-podcontext) | Missing Selection Synchronization with PodContext | data | ⚠️ Warning | yes | ❓ unverified |

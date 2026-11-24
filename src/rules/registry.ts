@@ -87,7 +87,14 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAP Help Portal — Packaging and Uploading Custom Plugins (POD 2.0): https://help.sap.com/docs/sap-digital-manufacturing/application-help-for-manage-pods-2-0/packaging-and-uploading-custom-plugins",
+    },
+    verification: {
+      method: "manual",
+      note: "Official SAP example shows modulePath (slash-notation) and type (dot-notation) both using the same namespace prefix, independent of the working directory name. Confirms the M0 rule that the namespace is defined in extension.json and must be used consistently.",
+    },
   },
   {
     id: "M1",
@@ -118,7 +125,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (warning).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAP Help Portal — Packaging and Uploading Custom Plugins (POD 2.0): https://help.sap.com/docs/sap-digital-manufacturing/application-help-for-manage-pods-2-0/packaging-and-uploading-custom-plugins",
+    },
+    verification: {
+      method: "manual",
+      note: "SAP doc states: 'Make sure to compress your extension so that the extension.json file is at the root.' This requires all extension files to sit at the ZIP root — a wrapper subfolder nesting extension.json breaks this requirement.",
+    },
   },
   {
     id: "M2",
@@ -129,7 +143,15 @@ export const RULES: Rule[] = [
     auditList: "errors",
     downgradable: false,
     severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: propertyeditor/PropertyEditor.js#PropertyEditor._createLabel + propertyeditor/Property.js#Property.constructor",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "displayName flows: WidgetProperty(config) → Property.constructor → propertyEditor._createLabel(displayName) → new sap.m.Label({ text: displayName }). The Label constructor receives the raw string — no binding expression expansion occurs. Passing '{i18n>key}' renders the literal string as the label text. The correct pattern is to resolve the key first via getI18nText() and pass the resolved string as displayName.",
+    },
   },
   {
     id: "M3",
@@ -209,7 +231,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: context/PodContext.js#PodContext.#F + PodContext.getWhenAvailable + PodContext.clearWorkList",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "PodContext.#F() (callback dispatcher) passes the raw model value to callbacks: t.callback.call(t.bindContext, modelProperties.get(path), path). The model does not initialize all paths — uninitialized paths return undefined. clearWorkList() explicitly sets SelectedWorkListItems to []. getWhenAvailable() checks e!==undefined&&e!==null before resolving, confirming the framework treats undefined/null as normal model states. Callbacks must therefore handle undefined, null, and [] defensively.",
+    },
   },
   {
     id: "M8",
@@ -220,7 +250,14 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAP Help Portal — Packaging and Uploading Custom Plugins (POD 2.0): https://help.sap.com/docs/sap-digital-manufacturing/application-help-for-manage-pods-2-0/packaging-and-uploading-custom-plugins",
+    },
+    verification: {
+      method: "manual",
+      note: "SAP doc defines the valid extension.json schema: top-level 'widgets' and 'actions' arrays (either may be omitted). Each widget entry requires 'modulePath' and 'type'; optional fields are 'name', 'description', 'supportsProductionProcess' (boolean, default false). The type value should use dot-notation matching the slash-notation modulePath (recommended, not required).",
+    },
   },
   {
     id: "M9",
@@ -245,7 +282,19 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 API — sap.m.VBox (no 'class' property) + sap.ui.core.Control.addStyleClass()",
+    },
+    verification: {
+      method: "ui5-api",
+      checks: [
+        { kind: "ui5PropertyExists", symbol: "sap.m.VBox", property: "class", present: false },
+        { kind: "ui5SymbolExists", symbol: "sap.ui.core.Control", present: true },
+      ],
+      authoredAgainst: { ui5Version: "1.151.0" },
+      note: "sap.m.VBox has no 'class' property — passing {class: '...'} in the constructor triggers UI5 ManagedObject assertion 'encountered unknown setting'. The correct API is addStyleClass() inherited from sap.ui.core.Control.",
+    },
   },
   {
     id: "M11",
@@ -256,7 +305,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 runtime: sap-ui-core.js (UI5 1.148.9) — define.amd management + bundled UMD libraries (URI.js, jQuery) using AMD detection",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "sap-ui-core.js exposes define.amd and explicitly manages 'suppressing define.amd per module'. Bundled third-party libraries (URI.js, jQuery.mobile, jQuery) all check typeof define===\"function\"&&define.amd and call define() instead of setting globals. SAPUI5 solves this internally via per-module suppression. Extensions must use the new Function(\"define\",\"exports\",\"module\", src) trick to shadow define so UMD libraries fall through to global export.",
+    },
   },
   {
     id: "M12",
@@ -345,7 +402,14 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 development convention — derived from SAP best practices for empty-state UX in POD 2.0 extensions",
+    },
+    verification: {
+      method: "convention",
+      note: "UX best practice: setNoDataText() (sap.m.ListBase, inherited by sap.m.Table) should reflect the actual empty-state cause derived from PodContext state (e.g. getFilterResources()?.length). API facts confirmed: sap.m.ListBase.noDataText exists in UI5 1.151.0; PodContext.getFilterResources() confirmed from framework source.",
+    },
   },
   {
     id: "M17",
@@ -357,7 +421,14 @@ export const RULES: Rule[] = [
     downgradable: true,
     severityReason:
       "Not enumerated in a Phase 3 severity list; checked under Phase 3b/3d or the Prime Directive (info).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 expression binding (sap/ui/base/BindingParser.complexParser) — used directly by PodContext.resolveBinding",
+    },
+    verification: {
+      method: "convention",
+      note: "Expression binding syntax {= expr } is supported via BindingParser.complexParser, which PodContext imports and uses in resolveBinding(). For single-condition booleans, {= ${prop} === 'VALUE' } is idiomatic UI5 — a custom formatter adds indirection without benefit.",
+    },
   },
   {
     id: "M18",
@@ -406,7 +477,19 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 API — sap.m.Table.columns (sap.m.Column) + sap.m.ColumnListItem.cells (sap.ui.core.Control)",
+    },
+    verification: {
+      method: "ui5-api",
+      checks: [
+        { kind: "ui5AggregationType", symbol: "sap.m.Table", aggregation: "columns", type: "sap.m.Column" },
+        { kind: "ui5AggregationType", symbol: "sap.m.ColumnListItem", aggregation: "cells", type: "sap.ui.core.Control" },
+      ],
+      authoredAgainst: { ui5Version: "1.151.0" },
+      note: "sap.m.Table renders each ColumnListItem by pairing cells[i] with columns[i] positionally. Inserting a column at index X without inserting the corresponding cell at the same index X causes cells to appear in the wrong columns.",
+    },
   },
   {
     id: "M22",
@@ -417,7 +500,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: context/MessageHistory.js#MessageHistory.toast + showSuccess/showError",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "MessageHistory.toast() calls sap.m.MessageToast.show() with DEFAULT_TOAST_DURATION=7000ms — auto-dismisses. MessageHistory.showSuccess()/showError()/showWarning()/showInfo() call sap.m.MessageBox.success()/error()/warning()/information() — modal dialogs that require user acknowledgment. Both add to MessageHistory (PodContext). For important outcomes (API success/failure), showSuccess()/showError() must be used so the user cannot miss them.",
+    },
   },
   {
     id: "M23",
@@ -428,7 +519,19 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "SAPUI5 API — sap.ui.core.Control.busy + busyIndicatorDelay (default 1000ms)",
+    },
+    verification: {
+      method: "ui5-api",
+      checks: [
+        { kind: "ui5PropertyExists", symbol: "sap.ui.core.Control", property: "busy", present: true },
+        { kind: "ui5PropertyExists", symbol: "sap.ui.core.Control", property: "busyIndicatorDelay", present: true },
+      ],
+      authoredAgainst: { ui5Version: "1.151.0" },
+      note: "setBusy(true) activates the overlay; setBusyIndicatorDelay(0) removes the default 1000ms delay. Without a finally block, an async throw bypasses setBusy(false) in the try block, leaving the widget permanently overlaid. The fix is finally { oView.setBusy(false) }.",
+    },
   },
   {
     id: "M24",
@@ -439,7 +542,15 @@ export const RULES: Rule[] = [
     auditList: "warnings",
     downgradable: true,
     severityReason: "Works in the happy path but is legacy, risky, or environment-dependent (Phase 3 → Warnings).",
-    provenance: { status: "unverified" },
+    provenance: {
+      status: "verified",
+      source: "POD2 framework: api/RestClient.js#RestClient.#l + api/ApiError.js + library-preload.js",
+    },
+    verification: {
+      method: "framework-source",
+      authoredAgainst: { frameworkRef: "UI5 1.148.9" },
+      note: "RestClient.#l() parses the JSON error body and throws ApiError({message, status, body: parsedJSON}). The body field holds the full SAP DM error response — error code is at oError.body.error.code. The code 'sfc.notInCompletePending' is confirmed in the library-preload bundle as a known normal-state response code, not a true error.",
+    },
   },
   {
     id: "M25",
