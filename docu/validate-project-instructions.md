@@ -378,14 +378,14 @@ For each component type present in the extension, verify it follows the Best-Pra
 | Check | Expected | Severity |
 |---|---|---|
 | `i18n.properties` present (fallback) | `i18n.properties` | ❌ Error if missing |
-| Locale bundles present | `i18n_de.properties`, `i18n_en.properties` recommended | ⚠️ Warning if absent |
+| Locale bundles present | At least one language-specific bundle recommended for each deployment language (e.g. `i18n_de.properties`, `i18n_en.properties`) | ⚠️ Warning if absent |
 | Widget metadata trio: `<widgetName>.displayName`, `<widgetName>.description`, `<widgetName>.category` | Camelcase per-widget prefix (e.g. `coating.*`, `helloWorld.*`) in all present bundles. Multi-widget plugins have one trio per widget — NOT a finding. Flag ONLY: literal `widget.` prefix, or unprefixed `displayName=` | ❌ Error (M32) — only for the flag cases |
 | Action metadata uses action prefix | `validationAction.displayName=...`, `executionAction.displayName=...` | ⚠️ Warning if unprefixed |
 | German bundle: no user-facing "SFC" | Should use "PSN" | ⚠️ Warning (M30) |
 | Key consistency across locales | Same key set in all present bundles (no keys missing in one locale) | ⚠️ Warning |
 | **Hardcoded user-facing strings vs i18n** | Every operator-visible string comes from `getI18nText(...)` — NOT a literal in `text:`/`setText(...)`/`setTooltip(...)`/`MessageBox.*`/`MessageToast.show(...)`. See the systemic-i18n sweep below. | ⚠️ Warning (systemic → escalate — see below) |
 
-**Systemic i18n sweep (promote from note to finding).** The common "it works, it's just English" case hides a real defect: the German operator sees English, and the fix is not one line. Run a concrete sweep, not a vibe check:
+**Systemic i18n sweep (promote from note to finding).** The common "it works, it's just English" case hides a real defect: operators in every locale other than the development language see the hardcoded text — German, Polish, French, Chinese, or any other. The fix is not one line. Run a concrete sweep, not a vibe check:
 
 1. **Hardcoded user-facing string inventory**:
    ```
@@ -393,7 +393,7 @@ For each component type present in the extension, verify it follows the Best-Pra
    ```
    Exclude obvious non-UI literals (CSS, icon URIs `sap-icon://…`, model paths). Each remaining hit is a user-facing string that is not translatable.
 2. **Unused-bundle-key cross-check**: for every key in `i18n.properties`, `grep` the JS for `getI18nText("<key>"`. Keys defined in the bundle but never read (while the JS hardcodes the same text as a literal) are the tell-tale of "someone added keys, then bypassed them".
-3. **Severity escalation**: a handful of stray literals → ⚠️ Warning, listed. But when the sweep shows the **widget is systemically English-hardcoded** — most user-facing strings are literals AND/OR bundle keys exist but are unused AND/OR no locale bundles (`i18n_de.properties`, `i18n_en.properties`) are present — report it as a **single consolidated ❌ Error-grade i18n finding** ("i18n is not wired: N user-facing literals, M unused bundle keys, no locale bundles"), because the widget cannot be operated in a non-English plant. Cross-reference M30/M32/M35; do not quote a count in any doc text (report counts live in `VALIDATION-REPORT.md`, which is generated per-run, not in the instructions).
+3. **Severity escalation**: a handful of stray literals → ⚠️ Warning, listed. But when the sweep shows the **widget is systemically not localizable** — most user-facing strings are literals AND/OR bundle keys exist but are unused AND/OR no locale bundles are present — report it as a **single consolidated ❌ Error-grade i18n finding** ("i18n is not wired: N user-facing literals, M unused bundle keys, no locale bundles"), because the hardcoded strings cannot be translated to any language. Cross-reference M30/M32/M35; do not quote a count in any doc text (report counts live in `VALIDATION-REPORT.md`, which is generated per-run, not in the instructions).
 
 #### extension.json
 
