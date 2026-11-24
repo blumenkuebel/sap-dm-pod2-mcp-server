@@ -709,7 +709,8 @@ export const RULES: Rule[] = [
     severity: "error",
     auditList: "errors",
     downgradable: true,
-    severityReason: "Breaks at load/runtime or violates a non-negotiable POD framework contract (Phase 3 → Errors).",
+    severityReason:
+      "oView.setBusy() in an Action always targets the wrong scope (POD Shell view) — Error. BusyIndicator.show/hide in a Widget is downgradable: Warning when widget-scope was intended, not a finding when full-screen block is intentional.",
     provenance: { status: "verified", source: "SAP UI5 API sap.ui.core.BusyIndicator (sapui5.hana.ondemand.com)" },
   },
   {

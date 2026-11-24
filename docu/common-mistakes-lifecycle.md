@@ -199,15 +199,19 @@ sap.ui.define([
 });
 ```
 
-### Decision Matrix — There Are Exactly Two Cases
+### Decision Matrix — Choose by Scope
 
-| Context | Required Pattern | Import | Scope |
+| Context | Intent | Pattern | Scope |
 |---|---|---|---|
-| **Widget** (onInit, _createView, event handler, async method) | `const oView = this.getView(); oView.setBusyIndicatorDelay(0); oView.setBusy(true/false);` | — | Widget area only |
-| **Action** (`execute()`) | `BusyIndicator.show(0)` / `BusyIndicator.hide()` | `"sap/ui/core/BusyIndicator"` | Global overlay |
+| **Widget** | Block widget area only (default) | `const oView = this.getView(); oView.setBusyIndicatorDelay(0); oView.setBusy(true/false);` | Widget area only |
+| **Widget** | Intentionally block the entire POD screen | `BusyIndicator.show(0)` / `BusyIndicator.hide()` | Global overlay |
+| **Action** (`execute()`) | Loading state during API call | `BusyIndicator.show(0)` / `BusyIndicator.hide()` | Global overlay |
 
-**No other patterns are allowed.** In particular:
+Using `BusyIndicator.show/hide` inside a Widget is **not inherently wrong** — it is the correct choice when the widget intentionally needs to block the whole POD (e.g. a process-triggering action where no other interaction should be possible). Use `oView.setBusy()` when you only want to grey out the widget's own area.
 
+Using `oView.setBusy()` inside an **Action** is always wrong: `this.getPodRuntime().getView()` returns the POD Shell view, not any widget view — it either blocks the entire POD or does nothing, never the expected scope.
+
+These patterns are always wrong regardless of context:
 - ❌ `this.setBusy(...)` — `Widget` does NOT have a `setBusy()` method (TypeError or no-op).
 - ❌ `oView.setBusy(true)` **without** a preceding `oView.setBusyIndicatorDelay(0)` — UI5 default is a 1000ms delay, which causes a perceived "no feedback" UX. Delay 0 is mandatory.
 - ❌ Inline `new BusyIndicator(...)` from `sap/m/BusyIndicator` as a sub-control inside a widget — overkill; the view-level busy state (`getView().setBusy()`) is the supported mechanism.

@@ -202,8 +202,7 @@ differ from the default are called out inline:
 - **M65** — `_createView()` takes **no** args; read config via `this.getConfig()`.
 - **M71** — correct notification-subscribe keys (`onMessage`, `EventType.*`) and `Logger.warn` (no
   `.warning()`). (`common-mistakes-imports.md`)
-- **M33** — BusyIndicator: exactly two allowed patterns (Widget `oView.setBusy`, Action
-  `BusyIndicator.show/hide`); anything else is an Error. (`common-mistakes-lifecycle.md`)
+- **M33** — BusyIndicator scope: `oView.setBusy()` in an **Action** is always ❌ Error (`getPodRuntime().getView()` returns the POD Shell view, never the widget view). `BusyIndicator.show/hide` in a **Widget** is ⚠️ Warning if widget-scope was intended (use `oView.setBusy()` instead), but NOT a finding if full-screen block is intentional. (`common-mistakes-lifecycle.md`)
 - **M70** — silent information loss via standard-control bias (applies only when
   `sourceFormat === "html5"`; checks `MIGRATION_MAPPING.md` / `MIGRATION_VERIFICATION.md` coverage).
   ⚠️ Warning-grade exception — checked here because it only applies to html5-origin code; NOT
