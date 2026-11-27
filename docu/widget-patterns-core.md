@@ -1311,7 +1311,7 @@ _updateModel(aData) {
 ✅ Logging with context
 ✅ Clear data on error/null request
 
-See [common-mistakes.md #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator) for the full rule.
+See [common-mistakes-index.md #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator) for the full rule.
 
 ### Common Patterns
 

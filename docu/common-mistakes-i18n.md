@@ -1,6 +1,6 @@
 # Common Mistakes — 🌍 Internationalization
 
-> Part of the [Common Mistakes catalog](common-mistakes.md). Full index and preamble in the main file.
+> Part of the [Common Mistakes catalog](common-mistakes-index.md). Full index and preamble in the main file.
 >
 > **Language list & file naming** → for the complete set of 28 supported languages, ISO 639-1 codes, and the `i18n_<code>.properties` naming convention (zh_TW/pt/es/sr special cases, ResourceModel fallback), see [`sap-dm-languages.md`](sap-dm-languages.md).
 

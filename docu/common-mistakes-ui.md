@@ -1,6 +1,6 @@
 # Common Mistakes — 🎨 UI & Bindings
 
-> Part of the [Common Mistakes catalog](common-mistakes.md). Full index and preamble in the main file.
+> Part of the [Common Mistakes catalog](common-mistakes-index.md). Full index and preamble in the main file.
 
 ---
 
@@ -169,7 +169,7 @@ _onWorkListSelectionChanged(aSelectedItems, sPath) {
 ```
 
 **How to Find Correct Constants:**
-1. Always check [model-paths.md](model-paths.md#all-standard-model-paths) for exact constant names
+1. Always check [podcontext-model-paths.md](podcontext-model-paths.md#all-standard-model-paths) for exact constant names
 2. Look for "Items" (plural) suffix for arrays
 3. Check return type (array vs single object vs primitive)
 4. Use TypeScript definitions or JSDoc if available
@@ -237,7 +237,7 @@ aCells.splice(iIdx, 0, customCell);  // Same index!
 
 **Why Critical:** Mismatched indices cause cells to appear in wrong columns, breaking table layout.
 
-**See also:** [advanced-patterns.md#3-dynamic-column-creation](advanced-patterns.md#3-dynamic-column-creation)
+**See also:** [enterprise-patterns.md#3-dynamic-column-creation](enterprise-patterns.md#3-dynamic-column-creation)
 
 ---
 
@@ -975,7 +975,7 @@ new Bar({ contentLeft: [ new Image("logo") ], contentRight: [ /* avatar */ ] }) 
 
 ## Mistake #60: Custom control class for pure display composition — use `GenericTile` / `NumericContent` / `NumericHeader` instead ❌ → ✅
 
-> **Specialisation of [`basics.md`](../basics.md) §0 — Prime Directive: Standard Controls Before Custom.** Rung 4 (custom control) requires team alignment + the `// standard-only: exception — <reason>` marker; a plain `.extend(CustomVBox, {...})` for a template hits before rung 4 without ever climbing 1-3. This mistake catches the ladder-skip.
+> **Specialisation of [`pod2-core-concepts.md`](../pod2-core-concepts.md) §0 — Prime Directive: Standard Controls Before Custom.** Rung 4 (custom control) requires team alignment + the `// standard-only: exception — <reason>` marker; a plain `.extend(CustomVBox, {...})` for a template hits before rung 4 without ever climbing 1-3. This mistake catches the ladder-skip.
 
 ### Symptom
 
@@ -1047,7 +1047,7 @@ No new class file. Fiori tokens propagate. `indicator` handles trend arrows. `va
 
 ## Mistake #61: No extension-owned CSS surface — Fiori standard controls only ❌ → ✅ (STYLING BAN)
 
-> **Specialisation of [`basics.md`](../basics.md) §0 — Prime Directive: Standard Controls Before Custom.** Custom CSS is the most common way developers try to skip the Escalation Ladder — instead of climbing to a larger standard control that already carries the desired visual, they paint the missing style onto a smaller one. Every M61 finding is really a "which standard control was NOT climbed to?" question.
+> **Specialisation of [`pod2-core-concepts.md`](../pod2-core-concepts.md) §0 — Prime Directive: Standard Controls Before Custom.** Custom CSS is the most common way developers try to skip the Escalation Ladder — instead of climbing to a larger standard control that already carries the desired visual, they paint the missing style onto a smaller one. Every M61 finding is really a "which standard control was NOT climbed to?" question.
 
 ### Scope — umbrella rule
 
@@ -1334,7 +1334,7 @@ Auto-fixable: yes (mechanical: replace `"sap/m/Button"` import with `"sap/m/Link
 
 ## Mistake #70: Silent information loss via standard-control bias ❌ → ✅ (SEMANTIC — no runtime error, invisible until visual review)
 
-> **Specialisation of [`basics.md`](../basics.md) §0 — Prime Directive: Standard Controls Before Custom.** M70 catches the misread of the ladder as "pick the first-choice standard control" — instead of "climb rung 2 (escalate within the family) when rung 1's control has fewer slots than the source needs". The rule is *"the SMALLEST standard control that fits ALL source fields"* — a fit check, not a lookup.
+> **Specialisation of [`pod2-core-concepts.md`](../pod2-core-concepts.md) §0 — Prime Directive: Standard Controls Before Custom.** M70 catches the misread of the ladder as "pick the first-choice standard control" — instead of "climb rung 2 (escalate within the family) when rung 1's control has fewer slots than the source needs". The rule is *"the SMALLEST standard control that fits ALL source fields"* — a fit check, not a lookup.
 
 ### Symptom
 
@@ -1540,7 +1540,7 @@ auto-destroyed) rather than a hand-built panel.
 
 - **M60** — custom control class where a standard exists (control-level sibling).
 - **M61** — extension CSS surface / inline style / hard-coded colors (styling-level sibling + the exception marker).
-- §0 Prime Directive (`basics.md`) — standard controls before custom.
+- §0 Prime Directive (`pod2-core-concepts.md`) — standard controls before custom.
 - `dialog-patterns.md` — `Dialog`/`MessageBox` patterns; M33 — the two allowed busy-indicator patterns.
 
 ---

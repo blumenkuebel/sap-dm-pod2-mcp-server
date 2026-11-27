@@ -68,7 +68,7 @@ Omitting these dependencies causes the widget to fail loading in POD Designer wi
 
 **State**: d3 is often used for bespoke visualisations that have no UI5 equivalent. In that case the migration decision is between:
 1. **Simplify** to a supported chart type (e.g. a force-directed status graph becomes a `sap.m.List` of status rows).
-2. **Bespoke composite** — `VBox` + `Icon` + `Text` driven by data (see `advanced-patterns.md` for the status-board pattern).
+2. **Bespoke composite** — `VBox` + `Icon` + `Text` driven by data (see `enterprise-patterns.md` for the status-board pattern).
 3. **Consult** — mark the feature as `⚠️ Bespoke composite required — consult user` in `MIGRATION_MAPPING.md` and stop.
 
 ---
@@ -217,7 +217,7 @@ When migrating against a newer UI5 release, re-verify these traps by calling `ge
 - `html5-migration-guide.md` — the mechanical rewrite recipe per line
 - `tablecell-patterns.md` §BulletMicroChart, §LineMicroChart — embedded in table cells
 - `widget-patterns-advanced.md` §Custom Widget Events — chart-click drill-down
-- `advanced-patterns.md` — bespoke composite decision reference
+- `enterprise-patterns.md` — bespoke composite decision reference
 - `validate-project-instructions.md` §HTML5 Residue — Phase 5 residue rules
 - `common-mistakes-ui.md` #M43, #M52-#M56 — parser-strictness traps for UI5 v1.136+
 - `get_ui5_api` — verify every target control at implementation time

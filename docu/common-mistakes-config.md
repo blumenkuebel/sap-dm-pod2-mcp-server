@@ -1,6 +1,6 @@
 # Common Mistakes — ⚙️ Configuration & Properties
 
-> Part of the [Common Mistakes catalog](common-mistakes.md). Full index and preamble in the main file.
+> Part of the [Common Mistakes catalog](common-mistakes-index.md). Full index and preamble in the main file.
 
 ---
 
@@ -143,7 +143,7 @@ async _fetchPostings() {
 
 **Why Critical:** Essential for pagination to work - without incrementing, same page loads repeatedly.
 
-**See also:** [widget-patterns.md - GrowingJSONModel](widget-patterns-advanced.md#growingpagination-pattern-for-tablewidget)
+**See also:** [widget-patterns-index.md - GrowingJSONModel](widget-patterns-advanced.md#growingpagination-pattern-for-tablewidget)
 
 ---
 

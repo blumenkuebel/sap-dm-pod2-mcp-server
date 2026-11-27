@@ -13,7 +13,7 @@ POD widgets can call any of the 77+ SAP Digital Manufacturing REST APIs for prod
 
 ### API Reference
 
-📖 **Complete API Reference**: [sapdm-api-reference.md](sapdm-api-reference.md)  
+📖 **Complete API Reference**: [sap-dm-rest-services-overview.md](sap-dm-rest-services-overview.md)  
 📖 **API Specifications**: [sap-dm-api-specs/](sap-dm-api-specs/)
 
 ### Authentication & Base URL Pattern
@@ -471,7 +471,7 @@ async _pollAsyncResult(sExecutionId, iMaxAttempts = 30) {
 ### API Documentation
 
 📖 **See Also:**
-- **[sapdm-api-reference.md](sapdm-api-reference.md)** - Complete reference for all 77+ SAP DM APIs
+- **[sap-dm-rest-services-overview.md](sap-dm-rest-services-overview.md)** - Complete reference for all 77+ SAP DM APIs
 - **[sap-dm-api-specs/](sap-dm-api-specs/)** - Full OpenAPI/Swagger specifications
 - **SAP Help Portal**: [API Integration Guide](https://help.sap.com/docs/sap-digital-manufacturing/operations-guide/prepare-for-api-integration)
 
@@ -860,8 +860,8 @@ sap.ui.define([
 ## Navigation
 
 **Other references**:
-- [Common Mistakes](common-mistakes.md) - All mistakes with fixes
-- [SAP DM API Reference](sapdm-api-reference.md) - Complete API documentation
+- [Common Mistakes](common-mistakes-index.md) - All mistakes with fixes
+- [SAP DM API Reference](sap-dm-rest-services-overview.md) - Complete API documentation
 - [Glossary](glossary.md) - Key terms & definitions
 
 

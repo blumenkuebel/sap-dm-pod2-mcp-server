@@ -207,7 +207,7 @@ try {
 }
 ```
 
-See [common-mistakes.md #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator) for the full rule (Widget vs. Action).
+See [common-mistakes-index.md #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator) for the full rule (Widget vs. Action).
 
 ### ✅ CORRECT: The official pattern
 ```javascript

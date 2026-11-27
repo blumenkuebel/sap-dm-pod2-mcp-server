@@ -52,7 +52,7 @@ retry (user confirms → resubmit with `ignoreWarnings`). This is the same error
 used by all posting dialogs — **don't reimplement it here**. See the canonical, fully
 explained version (including the three SAP error-response shapes):
 
-👉 [`advanced-patterns.md` → §4 Advanced Error Handling with Retry Logic](advanced-patterns.md#4-advanced-error-handling-with-retry-logic)
+👉 [`enterprise-patterns.md` → §4 Advanced Error Handling with Retry Logic](enterprise-patterns.md#4-advanced-error-handling-with-retry-logic)
 
 ## Static Configuration ⭐⭐⭐⭐
 
@@ -233,4 +233,4 @@ _onDurationChange(oEvent) {
 
 ---
 
-**See**: [dialog-patterns.md](dialog-patterns.md), [advanced-patterns.md](advanced-patterns.md), [widget-patterns.md](widget-patterns.md)
+**See**: [dialog-patterns.md](dialog-patterns.md), [enterprise-patterns.md](enterprise-patterns.md), [widget-patterns-index.md](widget-patterns-index.md)

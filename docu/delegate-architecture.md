@@ -963,5 +963,5 @@ await DataCollectionDelegate.refreshLoggedData();
 ## Related / See also
 
 - [`subscribe-patterns.md`](subscribe-patterns.md) — the `PodContext.subscribe()` / `isRunMode()` guard mechanics delegates rely on
-- [`model-paths.md`](model-paths.md#all-standard-model-paths) — `ModelPath` constants used in delegate subscriptions and setters
+- [`podcontext-model-paths.md`](podcontext-model-paths.md#all-standard-model-paths) — `ModelPath` constants used in delegate subscriptions and setters
 - [`widget-patterns-core.md`](widget-patterns-core.md) — widget-side lifecycle that consumes delegate-populated PodContext data

@@ -23,7 +23,7 @@ function textOf(res) {
 
 test("get_pattern_doc returns full content for a known doc", async () => {
   const { client } = await connect();
-  const res = await client.callTool({ name: "get_pattern_doc", arguments: { name: "basics" } });
+  const res = await client.callTool({ name: "get_pattern_doc", arguments: { name: "pod2-core-concepts" } });
   assert.equal(res.isError ?? false, false);
   assert.ok(textOf(res).length > 100);
   await client.close();
@@ -33,7 +33,7 @@ test("get_pattern_doc summary:true returns a table of contents", async () => {
   const { client } = await connect();
   const res = await client.callTool({
     name: "get_pattern_doc",
-    arguments: { name: "basics", summary: true },
+    arguments: { name: "pod2-core-concepts", summary: true },
   });
   const text = textOf(res);
   assert.match(text, /Table of contents/i);
@@ -44,7 +44,7 @@ test("get_pattern_doc reports available sections when a section is missing", asy
   const { client } = await connect();
   const res = await client.callTool({
     name: "get_pattern_doc",
-    arguments: { name: "basics", section: "__no_such_section__" },
+    arguments: { name: "pod2-core-concepts", section: "__no_such_section__" },
   });
   const text = textOf(res);
   assert.match(text, /not found/i);

@@ -226,7 +226,7 @@ export function getPatternDocFiles(): string[] {
   return cachedListing("__patternDocFiles__", DOCU_DIR, (dir) =>
     fs
       .readdirSync(dir, { withFileTypes: true })
-      .filter((d) => d.isFile() && d.name.endsWith(".md"))
+      .filter((d) => d.isFile() && d.name.endsWith(".md") && !d.name.startsWith("_"))
       .map((d) => d.name)
       .sort(),
   );

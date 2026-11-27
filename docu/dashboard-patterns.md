@@ -16,23 +16,23 @@ If the source is a single chart, a single table, or an editable form — this is
 
 ## Prime Directive (dashboard scope): standard control BEFORE composite BEFORE custom control
 
-> **Specialisation of [`basics.md`](basics.md) §0 — Prime Directive: Standard Controls Before Custom.**
+> **Specialisation of [`pod2-core-concepts.md`](pod2-core-concepts.md) §0 — Prime Directive: Standard Controls Before Custom.**
 >
 > Before extending, compositing, or CSS-styling anything: name the standard UI5 control that already does 80 % of it — then justify (in `MIGRATION_MAPPING.md`) why that control was rejected. Silence = pick the standard.
 
-This is the dashboard-scoped statement of the general **Escalation Ladder** in [`basics.md`](basics.md) §0. If the first-choice control is too small for the source, climb the ladder — search alternatives, then escalate within the family (see the "Escalate to" column below), then compose (`f:content` fragment inside a `sap.f.Card`), and only THEN — after team alignment and with a `// standard-only: exception — <reason>` marker — consider a custom control. `basics.md` §0 is the canonical rule; everything below is its dashboard specialisation.
+This is the dashboard-scoped statement of the general **Escalation Ladder** in [`pod2-core-concepts.md`](pod2-core-concepts.md) §0. If the first-choice control is too small for the source, climb the ladder — search alternatives, then escalate within the family (see the "Escalate to" column below), then compose (`f:content` fragment inside a `sap.f.Card`), and only THEN — after team alignment and with a `// standard-only: exception — <reason>` marker — consider a custom control. `pod2-core-concepts.md` §0 is the canonical rule; everything below is its dashboard specialisation.
 
 The HTML5 migrator's default bias goes the other way: presented with a hand-built KPI card, it happily reproduces the composition in `VBox` + `ObjectStatus` + `Text` + custom CSS. That is visually functional, semantically off-brand, and doubles the CSS surface. Fiori theme tokens don't propagate into hand-drawn compositions; PropertyEditor bindings feel less natural; every screen looks *close to* Fiori but not on-brand.
 
 The fix is a hard **standard-first bias**: look up the row in the [Chart→control decision table](#chartcontrol-decision-table) below **before** you write XML. **Read the Slots column BEFORE the First choice column** — the rule is "the SMALLEST standard control that fits ALL source fields", not "the first-choice control from the row that matched the primary KPI". If the source composite has more fields than the first-choice control has slots, escalate to the row named in the "Escalate to" column. If you cannot use any standard control, `MIGRATION_MAPPING.md` gets a one-sentence justification field. Empty justification = Phase-5 gate failure.
 
-Related anti-patterns and their standard replacements are enumerated as **Cat 29** in `migration-suspect-list.md` (S1–S7 anti-patterns) and as common-mistakes **M60–M63** and **M70** in `common-mistakes-ui.md` — all specialisations of `basics.md` §0.
+Related anti-patterns and their standard replacements are enumerated as **Cat 29** in `migration-suspect-list.md` (S1–S7 anti-patterns) and as common-mistakes **M60–M63** and **M70** in `common-mistakes-ui.md` — all specialisations of `pod2-core-concepts.md` §0.
 
 ---
 
 ## Fiori-native rendering rule: look native to SAP DM
 
-> **Complements — does not replace — the [Prime Directive](basics.md#0--prime-directive-standard-controls-before-custom). Where the Prime Directive governs *which control* to pick, this rule governs *what the pick must look like*.**
+> **Complements — does not replace — the [Prime Directive](pod2-core-concepts.md#0--prime-directive-standard-controls-before-custom). Where the Prime Directive governs *which control* to pick, this rule governs *what the pick must look like*.**
 >
 > The output must be visually indistinguishable from a native SAP DM widget sitting next to it in the same POD 2.0 page.
 
@@ -459,7 +459,7 @@ Bind a `CustomText` in the header to `/lastRefresh` via a formatter using `sap.u
 
 ## Pattern 5 — Data loading via ODataV4Client (MDO)
 
-For analytics use the MDO Extractor — see `basics.md` §"OData V4 for Custom Queries" and `mdo-extractor-reference.md` for entity coverage. **Never** `fetch()` directly.
+For analytics use the MDO Extractor — see `pod2-core-concepts.md` §"OData V4 for Custom Queries" and `mdo-extractor-reference.md` for entity coverage. **Never** `fetch()` directly.
 
 ```javascript
 import ODataV4Client from "sap/dm/dme/pod2/api/odata/ODataV4Client";
@@ -503,7 +503,7 @@ async _loadOee(sPeriod) {
 }
 ```
 
-Every MDO call: `await` + `try/catch` + widget-scoped `setBusy(true) … setBusy(false)` in a `finally` block. Cross-ref: `html5-migration-guide.md` for mechanical `fetch()` → `ODataV4Client` rewrites, `common-mistakes-data.md` #M51 for the Plant subscribe pitfalls, `model-paths.md` for the full ModelPath constants table.
+Every MDO call: `await` + `try/catch` + widget-scoped `setBusy(true) … setBusy(false)` in a `finally` block. Cross-ref: `html5-migration-guide.md` for mechanical `fetch()` → `ODataV4Client` rewrites, `common-mistakes-data.md` #M51 for the Plant subscribe pitfalls, `podcontext-model-paths.md` for the full ModelPath constants table.
 
 ---
 
@@ -700,7 +700,7 @@ Refer to the linked mistake numbers in `common-mistakes-imports.md`, `common-mis
 - [`widget-patterns-advanced.md`](widget-patterns-advanced.md) §ObjectStatus, §Custom Widget Events
 - [`tablecell-patterns.md`](tablecell-patterns.md) §BulletMicroChart, §LineMicroChart
 - [`subscribe-patterns.md`](subscribe-patterns.md)
-- [`basics.md`](basics.md) §OData V4 for Custom Queries
+- [`pod2-core-concepts.md`](pod2-core-concepts.md) §OData V4 for Custom Queries
 - [`mdo-extractor-reference.md`](mdo-extractor-reference.md)
 - [`property-editors.md`](property-editors.md)
 - [`common-mistakes-lifecycle.md`](common-mistakes-lifecycle.md) #M33 (BusyIndicator)

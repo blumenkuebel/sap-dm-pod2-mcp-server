@@ -35,7 +35,7 @@ Custom controls (`.extend(...)`, `sap/ui/core/Control` subclasses, hand-built co
    // standard-only: exception — <reason>: aligned with <team/person>, <ticket-or-note>
    sap.ui.core.Control.extend("customer.custom.extensions.<name>.<name>Control", { ... });
    ```
-   The `<reason>` MUST name the team/person consulted and either a ticket ID or a one-sentence note recording the decision. The generic `// validate: info-only` marker is **not** sufficient — this is a Rule-3 hard finding (see [`common-mistakes.md`](common-mistakes.md) §"What CANNOT be downgraded"). Missing marker → **M60/M61/Cat 29** error.
+   The `<reason>` MUST name the team/person consulted and either a ticket ID or a one-sentence note recording the decision. The generic `// validate: info-only` marker is **not** sufficient — this is a Rule-3 hard finding (see [`common-mistakes-index.md`](common-mistakes-index.md) §"What CANNOT be downgraded"). Missing marker → **M60/M61/Cat 29** error.
 
 **Legitimate custom-control cases** — the tail is genuinely narrow: reusable behaviour with an event/state-machine contract used ≥3× in the same extension (never a pure template — that's a fragment), a genuinely novel input surface that no existing UI5 control provides, or a compatibility shim for a legacy DOM component that the customer explicitly requires. Everything else — every KPI tile shape, every card layout, every chart-that-fits-a-microchart, every table decoration — is composition, not inheritance.
 

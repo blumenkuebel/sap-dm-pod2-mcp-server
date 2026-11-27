@@ -537,4 +537,4 @@ _createView() {
 **Related References**:
 - [tablecell-patterns.md](tablecell-patterns.md) - Cell-specific binding examples
 - [tablewidget-complete.md](tablewidget-complete.md) - TableWidget binding patterns
-- [widget-patterns.md](widget-patterns.md) - Complete widget examples
+- [widget-patterns-index.md](widget-patterns-index.md) - Complete widget examples

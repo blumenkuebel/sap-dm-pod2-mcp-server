@@ -173,7 +173,7 @@ test("HTML5-* rules match the Phase 3 HTML5 Residue list", () => {
 
 test("downgradability is consistent with both 'cannot be downgraded' lists", () => {
   // Hub list is the canonical mirror of rule.downgradable === false.
-  const hub = downgradeList("common-mistakes.md", /^### What CANNOT be downgraded/, /^## /);
+  const hub = downgradeList("common-mistakes-index.md", /^### What CANNOT be downgraded/, /^## /);
   const nonDowngradable = new Set(RULES.filter((r) => r.id.startsWith("M") && !r.downgradable).map((r) => r.id));
   for (const id of hub) {
     if (!RULES.some((r) => r.id === id)) continue; // ignore retired numbers in prose

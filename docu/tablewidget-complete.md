@@ -838,4 +838,4 @@ sap.ui.define([
 **Related References**:
 - [tablecell-patterns.md](tablecell-patterns.md) - All cell types
 - [binding-patterns.md](binding-patterns.md) - Data binding techniques
-- [widget-patterns.md](widget-patterns.md) - Complete templates
+- [widget-patterns-index.md](widget-patterns-index.md) - Complete templates

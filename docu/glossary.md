@@ -290,7 +290,7 @@ Compress-Archive -Path mycompany -DestinationPath mycompany.zip
 ## Navigation
 
 📖 **Main references**:
-- [Basics & Best Practices](basics.md) - Core development context
-- [Common Mistakes](common-mistakes.md) - All 28 mistakes with fixes
-- [Widget Patterns](widget-patterns.md) - Complete code patterns
-- [PATTERN-INDEX](PATTERN-INDEX.md) - Quick reference by widget type and use case
+- [Basics & Best Practices](pod2-core-concepts.md) - Core development context
+- [Common Mistakes](common-mistakes-index.md) - All 28 mistakes with fixes
+- [Widget Patterns](widget-patterns-index.md) - Complete code patterns
+- [PATTERN-INDEX](pattern-index.md) - Quick reference by widget type and use case

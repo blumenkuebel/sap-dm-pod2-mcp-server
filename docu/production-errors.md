@@ -413,6 +413,6 @@ Before deploying widgets, verify:
 
 ## See Also
 
-- [widget-patterns.md](widget-patterns.md) - Timer and interval management pattern
-- [common-mistakes.md](common-mistakes.md) - All common mistakes
+- [widget-patterns-index.md](widget-patterns-index.md) - Timer and interval management pattern
+- [common-mistakes-index.md](common-mistakes-index.md) - All common mistakes
 - [error-handling.md](error-handling.md) - Complete error handling patterns

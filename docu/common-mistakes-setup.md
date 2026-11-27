@@ -1,6 +1,6 @@
 # Common Mistakes — 🚀 Setup & File Generation
 
-> Part of the [Common Mistakes catalog](common-mistakes.md). Full index and preamble in the main file.
+> Part of the [Common Mistakes catalog](common-mistakes-index.md). Full index and preamble in the main file.
 
 ---
 

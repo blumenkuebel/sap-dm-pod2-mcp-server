@@ -327,7 +327,7 @@ Pattern Compliance" and "§2. REST API Versions"). Always emit the section — i
 
 ## Phase 3b — Best-Practice Pattern Audit (structural comparison against reference examples)
 
-This phase compares the extension's **architecture and code patterns** against the Best-Practice standard defined in `docu/basics.md`, `docu/widget-patterns-core.md`, and the production-grade reference example `Customer.Coating`.
+This phase compares the extension's **architecture and code patterns** against the Best-Practice standard defined in `docu/pod2-core-concepts.md`, `docu/widget-patterns-core.md`, and the production-grade reference example `Customer.Coating`.
 
 ### Load reference material
 
@@ -414,7 +414,7 @@ For each component type present in the extension, verify it follows the Best-Pra
 
 Add findings to the same `VALIDATION-REPORT.md` under a new section **"§1b. Best-Practice Pattern Compliance"** (between §1 Common Mistakes and §2 REST API Versions), using the same format:
 - File, line, found, expected, severity, auto-fixable flag.
-- Reference `docu/basics.md` or `docu/widget-patterns-core.md` as the doc source.
+- Reference `docu/pod2-core-concepts.md` or `docu/widget-patterns-core.md` as the doc source.
 
 ---
 

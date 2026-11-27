@@ -832,8 +832,8 @@ All 79 API specification files are available in [sap-dm-api-specs/](sap-dm-api-s
 ## See Also
 
 - **POD 2.0 framework class APIs** — use the `get_api_doc` tool (e.g. `get_api_doc('sap.dm.dme.pod2.context.PodContext')`); it serves the generated, authoritative class docs
-- [Widget Patterns](widget-patterns.md) - Widget implementation patterns
-- [Common Mistakes](common-mistakes.md) - Common POD extension errors
+- [Widget Patterns](widget-patterns-index.md) - Widget implementation patterns
+- [Common Mistakes](common-mistakes-index.md) - Common POD extension errors
 - [SAP Digital Manufacturing API Documentation](https://help.sap.com/docs/sap-digital-manufacturing/operations-guide/prepare-for-api-integration)
 
 ---

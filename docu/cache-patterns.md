@@ -208,4 +208,4 @@ static init() {
 
 ---
 
-**See**: [dialog-patterns.md](dialog-patterns.md), [advanced-patterns.md](advanced-patterns.md)
+**See**: [dialog-patterns.md](dialog-patterns.md), [enterprise-patterns.md](enterprise-patterns.md)

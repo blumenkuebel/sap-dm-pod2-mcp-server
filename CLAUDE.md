@@ -76,7 +76,7 @@ sap-dm-pod2-mcp-server/
 | Validation | `validate_project` |
 | Cross-area | `search_all` |
 
-**Resources (6):** `pod2://patterns`, `pod2://basics`, `pod2://api-index` + 3 URI templates  
+**Resources (6):** `pod2://patterns/index`, `pod2://patterns/basics`, `pod2://api/index` + 3 URI templates  
 **Prompts (5):** `create_widget`, `create_action`, `create_extension`, `migrate_widget`, `validate_project`
 
 ---

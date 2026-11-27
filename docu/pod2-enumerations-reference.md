@@ -13,7 +13,7 @@
 >
 > - When you read or write data via the **Public API / REST**, use the values from that
 >   API's own spec — use the `get_rest_api` tool or
->   [`sapdm-api-reference.md`](sapdm-api-reference.md), not the keys here.
+>   [`sap-dm-rest-services-overview.md`](sap-dm-rest-services-overview.md), not the keys here.
 > - **Worklist data** likewise carries **Public-API** values. The clearest trap is SFC
 >   status: the internal [`SFCStatus`](#sfcstatus-internal-framework-enum) enum is a broad
 >   catch-all, while a worklist item exposes the business status as

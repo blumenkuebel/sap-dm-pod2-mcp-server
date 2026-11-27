@@ -176,7 +176,7 @@ const selectedItems = this.getPodContext().getSelectedWorkListItems();
 ## Status Codes Reference
 
 > **Canonical source.** This table is the single source of truth for SFC numeric status
-> codes. [`enumerations-reference.md` → SFCStatusCode](enumerations-reference.md#sfcstatuscode-public-api-worklist-business-status)
+> codes. [`pod2-enumerations-reference.md` → SFCStatusCode](pod2-enumerations-reference.md#sfcstatuscode-public-api-worklist-business-status)
 > mirrors it for the enum overview — update this table first.
 
 | Code | Description | Usage Context |

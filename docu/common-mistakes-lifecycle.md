@@ -1,6 +1,6 @@
 # Common Mistakes — 💾 Lifecycle & Memory
 
-> Part of the [Common Mistakes catalog](common-mistakes.md). Full index and preamble in the main file.
+> Part of the [Common Mistakes catalog](common-mistakes-index.md). Full index and preamble in the main file.
 
 ---
 
@@ -881,7 +881,7 @@ If the widget genuinely must observe another widget, model the dependency throug
 - M65 — `_createView()` takes no arguments. M66 — `_createView()` runs before `onInit()`.
 - M39 — `await super.onInit()` contract.
 - M74 — cross-widget model scraping; M76 — the `setTimeout`/poll timing anti-pattern.
-- `basics.md` §Widget Lifecycle; `dashboard-patterns.md` §Pattern 1 (lifecycle box).
+- `pod2-core-concepts.md` §Widget Lifecycle; `dashboard-patterns.md` §Pattern 1 (lifecycle box).
 
 ---
 
@@ -1052,7 +1052,7 @@ Process / a shared `PodContext` value) — and raise it with the user rather tha
 - M80 — mutating the foreign controls you discovered; M81 — firing synthetic events at them.
 - M74 — reading a neighbour's **model** (the data analogue of this control analogue).
 - M75 — the `_createView()`/`setTimeout` wiring that usually sets these foreign refs up.
-- `basics.md` §0 Prime Directive & §Widget boundaries; `get_api_doc({ name: "PodContext" })`.
+- `pod2-core-concepts.md` §0 Prime Directive & §Widget boundaries; `get_api_doc({ name: "PodContext" })`.
 
 ---
 
@@ -1282,7 +1282,7 @@ class MyWidget extends Widget {
 ### Related
 
 - `html5-migration-guide.md` Cat 23 / B4 — module-level mutable state (the static analogue; same fix).
-- `basics.md` §Widget skeleton — declared private fields in the reference widgets.
+- `pod2-core-concepts.md` §Widget skeleton — declared private fields in the reference widgets.
 - M79/M80 — some of these `this._x` fields hold scavenged foreign-control refs (a second problem on top of the encapsulation one).
 
 ---

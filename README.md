@@ -21,7 +21,7 @@ Built with [FastMCP](https://github.com/punkpeye/fastmcp) — supports both **HT
 | Category | Count | Details |
 |---|---|---|
 | Tools | 23 | Guidelines, docs, API refs, REST specs, UI5 API, examples, MDO, validation, search |
-| Resources | 6 | Pattern index, basics, API index + 3 URI templates |
+| Resources | 6 | Pattern index, pod2-core-concepts, API index + 3 URI templates |
 | Prompts | 5 | create_widget, create_action, create_extension, migrate_widget, validate_project |
 
 ### Tools
@@ -31,7 +31,7 @@ Built with [FastMCP](https://github.com/punkpeye/fastmcp) — supports both **HT
 | `get_pod2_guidelines` | Core development rules, widget types, coding standards |
 | `list_capabilities` | Overview of all tools, resources, and prompts |
 | `list_pattern_docs` | Index of all pattern documentation files |
-| `get_pattern_doc` | Read a specific pattern doc (common-mistakes, widget-patterns, etc.) |
+| `get_pattern_doc` | Read a specific pattern doc (common-mistakes-*, enterprise-patterns, pod2-core-concepts, etc.) |
 | `search_docs` | Full-text search across pattern documentation |
 | `get_api_doc` | API reference for a POD2 class (e.g. Widget, Action, PodContext) |
 | `list_api_docs` | List POD2 API class docs |

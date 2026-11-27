@@ -324,6 +324,6 @@ Before uploading an extension, verify:
 
 ## Related / See also
 
-- [`basics.md`](basics.md#4-project-structure) — where `extension.json` sits in the overall project / folder structure
-- [`basics.md`](basics.md#0-namespace-cheatsheet-read-first) — namespace rules for the `type` / `modulePath` values
+- [`pod2-core-concepts.md`](pod2-core-concepts.md#4-project-structure) — where `extension.json` sits in the overall project / folder structure
+- [`pod2-core-concepts.md`](pod2-core-concepts.md#0-namespace-cheatsheet-read-first) — namespace rules for the `type` / `modulePath` values
 - [`common-mistakes-setup.md`](common-mistakes-setup.md#mistake-0-wrong-namespace-in-extensionjson) — the namespace/structure mistakes that break registration

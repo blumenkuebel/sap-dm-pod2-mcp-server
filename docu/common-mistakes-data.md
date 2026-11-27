@@ -1,6 +1,6 @@
 # Common Mistakes — 🔄 Data, State & TableWidget
 
-> Part of the [Common Mistakes catalog](common-mistakes.md). Full index and preamble in the main file.
+> Part of the [Common Mistakes catalog](common-mistakes-index.md). Full index and preamble in the main file.
 
 ---
 
@@ -591,7 +591,7 @@ onExit() {
 
 - **Always** look up the shape via `get_api_doc({ name: "sap.dm.dme.pod2.context.ModelPath" })` and `get_api_doc({ name: "sap.dm.dme.pod2.context.PodContext" })` — never guess constant names.
 - `subscribe` callback signature is `(newValue, path)` (M5) — but `newValue` is the model-path-specific type. For `ModelPath.Plant` it's a Plant **object**; for `ModelPath.SelectedWorkListItems` it's an **array**; for `ModelPath.SelectedOperation` it's a **string**. Consult the ModelPath docs table.
-- Reference: `docu/model-paths.md` — canonical table of every `ModelPath.*` constant and its value type.
+- Reference: `docu/podcontext-model-paths.md` — canonical table of every `ModelPath.*` constant and its value type.
 
 ### Detection pattern (validation)
 
@@ -602,7 +602,7 @@ onExit() {
 
 - M5 (Wrong Callback Parameter Order — `(newValue, path)`, not `(path, newValue)`).
 - M13 (Wrong ModelPath Constants — companion for all other typo-prone paths).
-- `docu/model-paths.md` (canonical constants table).
+- `docu/podcontext-model-paths.md` (canonical constants table).
 - `docu/subscribe-patterns.md`.
 
 ---

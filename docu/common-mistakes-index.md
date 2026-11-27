@@ -6,11 +6,11 @@ Quick reference guide to POD extension development pitfalls organized by categor
 
 ## Prime Directive — Standard Controls Before Custom
 
-> **When a UI requirement seems not to fit a control, the answer is almost always another SAPUI5 control — not a new one.** The full rule (Escalation Ladder: search alternatives → escalate within family → compose → custom only after team alignment) lives in [`basics.md`](basics.md) §0.
+> **When a UI requirement seems not to fit a control, the answer is almost always another SAPUI5 control — not a new one.** The full rule (Escalation Ladder: search alternatives → escalate within family → compose → custom only after team alignment) lives in [`pod2-core-concepts.md`](pod2-core-concepts.md) §0.
 >
 > **Scope: EVERY POD 2 UI decision** — greenfield widgets, actions with dialogs, form-based CRUD, table decorations, filter bars, POD Designer property editors, and every migration. Not just dashboards; not just HTML5 refactors.
 >
-> **M60, M61, M70, M77, and Cat 29 are all specialisations of this one rule** — each covers a specific way the ladder gets skipped (custom control, extension CSS, standard-control information loss, hand-built DOM UI, custom composite). Load `basics.md` §0 first when the extension's UI shape is under discussion; treat those mistakes as concrete detections of the same underlying bias.
+> **M60, M61, M70, M77, and Cat 29 are all specialisations of this one rule** — each covers a specific way the ladder gets skipped (custom control, extension CSS, standard-control information loss, hand-built DOM UI, custom composite). Load `pod2-core-concepts.md` §0 first when the extension's UI shape is under discussion; treat those mistakes as concrete detections of the same underlying bias.
 
 ---
 

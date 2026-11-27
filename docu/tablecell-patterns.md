@@ -507,4 +507,4 @@ _createCell(oColumnConfig) {
 **Related References**:
 - [tablewidget-complete.md](tablewidget-complete.md) - Complete TableWidget patterns
 - [binding-patterns.md](binding-patterns.md) - Data binding techniques
-- [widget-patterns.md](widget-patterns.md) - Full widget templates
+- [widget-patterns-index.md](widget-patterns-index.md) - Full widget templates

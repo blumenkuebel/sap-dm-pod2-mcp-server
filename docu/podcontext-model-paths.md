@@ -295,5 +295,5 @@ PodContext.unsubscribeAll(this);
 ## Related / See also
 
 - [`subscribe-patterns.md`](subscribe-patterns.md#modelpath-constants) — how to `subscribe()` to these paths with the `isRunMode()` guard and cleanup
-- [`enumerations-reference.md`](enumerations-reference.md) — enum values behind status/type paths (`WorkListType`, `SFCStatusCode`, …)
+- [`pod2-enumerations-reference.md`](pod2-enumerations-reference.md) — enum values behind status/type paths (`WorkListType`, `SFCStatusCode`, …)
 - [`worklist-data-structure.md`](worklist-data-structure.md) — field shape of the `WorkListItem` objects stored under the worklist paths

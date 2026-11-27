@@ -16,17 +16,17 @@ export function registerDocsTools(server: FastMCP): void {
     name: "list_pattern_docs",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Lists all available POD2 pattern documentation files (widget-patterns, advanced-patterns, common-mistakes-*, etc.) with descriptions.",
+      "Lists all available POD2 pattern documentation files (widget-patterns-core, enterprise-patterns, common-mistakes-*, etc.) with descriptions.",
     parameters: undefined,
     execute: async () => {
       const files = getPatternDocFiles();
       const descriptions: Record<string, string> = {
-        "advanced-patterns.md":
+        "enterprise-patterns.md":
           "11 advanced enterprise patterns (custom toolbars, authorization, dynamic columns, error handling with retry, async popovers, optimistic UI, master-detail navigation, warning dialogs, no-data messages, table selection, JSDoc extensibility)",
-        "basics.md": "POD2 Development Fundamentals – Architecture, Best Practices, extension structure",
+        "pod2-core-concepts.md": "POD2 Development Fundamentals – Architecture, Best Practices, extension structure",
         "binding-patterns.md": "Data binding patterns (multi-part, expression, formatter classes)",
         "cache-patterns.md": "Caching strategies for API data and computed values",
-        "common-mistakes.md":
+        "common-mistakes-index.md":
           "Index + preamble only — mistake content is split into category files. Load a category file directly (e.g. common-mistakes-setup, common-mistakes-lifecycle) to reduce tokens.",
         "common-mistakes-setup.md":
           "Setup & file generation mistakes: namespace, extension.json structure, flat layout, zip packaging (#0, #1, #1B, #2, #15, #16)",
@@ -42,6 +42,8 @@ export function registerDocsTools(server: FastMCP): void {
           "Data, state & TableWidget mistakes: column/cell index mismatch, GrowingJSONModel paging, selection sync with PodContext, SFC status types, internal-vs-public API, manual fetch/XHR vs API clients, context from model path vs PodContext (#23-#24, #27, #29, #34, #51, #72, #73, #74)",
         "common-mistakes-i18n.md":
           "Internationalization mistakes: German SFC→PSN translation, widget metadata i18n key naming (#30)",
+        "deprecated-imports.md":
+          "Exhaustive list of deprecated SAPUI5 pseudo-module import paths — single source of truth for M36 detection",
         "rules-registry.md":
           "Generated metadata registry for every mistake/rule (id, severity, downgradability, provenance) — single source src/rules/registry.ts. Shows which rules are SAP-verified vs inferred-from-example vs unverified; links each to its common-mistakes-* entry for the grep + fix.",
         "migration-suspect-list.md":
@@ -61,12 +63,22 @@ export function registerDocsTools(server: FastMCP): void {
         "error-handling.md": "Error handling, retry patterns, and user feedback",
         "form-patterns.md": "Form validation, input handling, and submit patterns",
         "glossary.md": "POD2 terminology and concept definitions",
-        "PATTERN-INDEX.md": "Quick-reference index by widget type, use case, and complexity",
+        "hotkey-patterns.md":
+          "HotKeyManager API: keyboard shortcut registration for Widgets/Actions, keydown normalization, focus guards",
+        "pattern-index.md": "Quick-reference index by widget type, use case, and complexity",
+        "pod2-enumerations-reference.md":
+          "POD2 internal framework enumerations (sap.dm.dme.pod2.enumeration.*) — SFCStatus, sfcStatusCode, WorkListType, ResourceStatus, etc.; not Public API values",
         "pod2-public-api-pattern.md":
           "REST API calling pattern – RestClient, ApiPaths, PodContext usage for custom widgets/actions",
-        "sapdm-api-reference.md":
-          "Coarse SAP DM REST API overview (handwritten summary). For accurate specs use get_rest_api instead.",
+        "podcontext-model-paths.md":
+          "PodContext ModelPath constants reference — all standard paths with get/set/subscribe usage patterns",
+        "production-errors.md":
+          "Real production bugs and fixes: memory leaks from missing onExit, interval cleanup, timer patterns",
         "sap-dm-languages.md": "SAP DM i18n language reference — all 28 supported UI languages with ISO 639-1 codes",
+        "sap-dm-rest-services-overview.md":
+          "Coarse SAP DM REST API overview by domain (handwritten summary). For accurate specs use get_rest_api instead.",
+        "status-icon-control.md":
+          "StatusIcon control reference — auto-binds icon/color/tooltip from SFC status codes",
         "tablecell-patterns.md": "13 table cell types (text, date, status, actions, charts)",
         "tablewidget-complete.md": "Complete TableWidget guide with pagination and selection sync",
         "tree-patterns.md": "Tree control patterns (hierarchical data display)",
@@ -74,7 +86,7 @@ export function registerDocsTools(server: FastMCP): void {
         "property-editors.md": "PropertyEditor types (StringPropertyEditor, BooleanPropertyEditor, EnumPropertyEditor)",
         "subscribe-patterns.md":
           "PodContext subscribe/unsubscribe lifecycle – ModelPath, isRunMode(), memory leak prevention",
-        "widget-patterns.md": "Router index only — load widget-patterns-core or widget-patterns-advanced directly.",
+        "widget-patterns-index.md": "Router index only — load widget-patterns-core or widget-patterns-advanced directly.",
         "widget-patterns-core.md":
           "Core widget type templates: ControlWidget, LayoutWidget, TableWidget, ContentHandler, EXCLUDE_PROPERTIES, i18n",
         "widget-patterns-advanced.md":
@@ -98,12 +110,12 @@ export function registerDocsTools(server: FastMCP): void {
     name: "get_pattern_doc",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Returns the full content of a POD2 pattern documentation file. Use `summary: true` to get a table of contents (headings only) before committing to loading a large file. Use `section` to load one specific section. Use names like 'widget-patterns-core', 'common-mistakes-lifecycle', 'advanced-patterns', etc.",
+      "Returns the full content of a POD2 pattern documentation file. Use `summary: true` to get a table of contents (headings only) before committing to loading a large file. Use `section` to load one specific section. Use names like 'widget-patterns-core', 'common-mistakes-lifecycle', 'enterprise-patterns', etc.",
     parameters: z.object({
       name: z
         .string()
         .describe(
-          "Document name without .md extension (e.g. 'widget-patterns-core', 'common-mistakes-setup', 'common-mistakes-lifecycle', 'advanced-patterns', 'basics')",
+          "Document name without .md extension (e.g. 'widget-patterns-core', 'common-mistakes-setup', 'common-mistakes-lifecycle', 'enterprise-patterns', 'pod2-core-concepts')",
         ),
       section: z
         .string()
@@ -171,7 +183,7 @@ export function registerDocsTools(server: FastMCP): void {
     name: "search_docs",
     annotations: READONLY_ANNOTATIONS,
     description:
-      "Full-text search across all POD2 pattern documentation files (widget-patterns, common-mistakes-*, advanced-patterns, basics, etc.).",
+      "Full-text search across all POD2 pattern documentation files (widget-patterns-core, common-mistakes-*, enterprise-patterns, pod2-core-concepts, etc.).",
     parameters: z.object({
       query: z.string().describe("Search term (case-insensitive)"),
       maxResults: z.number().optional().describe("Maximum number of files to return (default: 20)"),

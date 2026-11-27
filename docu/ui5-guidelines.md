@@ -9,7 +9,7 @@
 >
 > **Version pin**: matches SAP DM's UI5 target (see [`ui5-api-specs/VERSION.md`](ui5-api-specs/VERSION.md)).
 >
-> **Complements** [`basics.md`](basics.md) §0 (Prime Directive: Standard Controls Before Custom).
+> **Complements** [`pod2-core-concepts.md`](pod2-core-concepts.md) §0 (Prime Directive: Standard Controls Before Custom).
 > Where §0 governs *which* control to pick, this doc governs *how* the code around that pick
 > should be shaped.
 
@@ -118,7 +118,7 @@
 
 ## §4 — Related Reading
 
-- [`basics.md`](basics.md) §0 — the Prime Directive (standard controls before custom). Load first.
+- [`pod2-core-concepts.md`](pod2-core-concepts.md) §0 — the Prime Directive (standard controls before custom). Load first.
   These guidelines specialise §0 for UI-code shape; §0 governs the higher-level "which control".
 - [`common-mistakes-imports.md`](common-mistakes-imports.md) — the concrete detection catalogue
   behind "never use globals / use sap.ui.define" (M36 pseudo-modules, M41 non-existent modules,

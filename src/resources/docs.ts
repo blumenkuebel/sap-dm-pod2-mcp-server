@@ -20,8 +20,8 @@ export function registerResources(server: FastMCP): void {
       "POD2 Pattern Index – Quick reference organized by widget type, use case, technical pattern, and complexity.",
     mimeType: "text/markdown",
     load: async () => {
-      const filePath = path.join(DOCU_DIR, "PATTERN-INDEX.md");
-      const text = fs.existsSync(filePath) ? readFileContent(filePath) : "[PATTERN-INDEX.md not found]";
+      const filePath = path.join(DOCU_DIR, "pattern-index.md");
+      const text = fs.existsSync(filePath) ? readFileContent(filePath) : "[pattern-index.md not found]";
       return { text };
     },
   });
@@ -32,7 +32,7 @@ export function registerResources(server: FastMCP): void {
     description: "POD2 Development Fundamentals – Architecture, Best Practices, extension structure, and coding patterns.",
     mimeType: "text/markdown",
     load: async () => ({
-      text: tryReadFileContent(path.join(DOCU_DIR, "basics.md")) ?? "[Error: basics.md not found in docu/]",
+      text: tryReadFileContent(path.join(DOCU_DIR, "pod2-core-concepts.md")) ?? "[Error: pod2-core-concepts.md not found in docu/]",
     }),
   });
 

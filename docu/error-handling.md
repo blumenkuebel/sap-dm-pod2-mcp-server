@@ -62,7 +62,7 @@ async _refreshDowntimes() {
 }
 ```
 
-> **Note**: In widget code, **always** use `oView.setBusy()` with the verbatim three-line preamble. Do NOT use single-control busy (`oTable.setBusy(...)`, `oList.setBusy(...)`) in a widget — `oView.setBusy()` already blocks the entire widget area including its tables. See [common-mistakes.md #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator).
+> **Note**: In widget code, **always** use `oView.setBusy()` with the verbatim three-line preamble. Do NOT use single-control busy (`oTable.setBusy(...)`, `oList.setBusy(...)`) in a widget — `oView.setBusy()` already blocks the entire widget area including its tables. See [common-mistakes-index.md #33](common-mistakes-lifecycle.md#mistake-33-busyindicator-in-actions-via-view-instead-of-sapuicorebusyindicator).
 
 ### Pattern 3: Warning with Retry
 
@@ -144,4 +144,4 @@ async _deleteDowntimes(oDeleteRequest) {
 
 ---
 
-**See**: [form-patterns.md](form-patterns.md#complex-form-validation-), [dialog-patterns.md](dialog-patterns.md), [advanced-patterns.md](advanced-patterns.md)
+**See**: [form-patterns.md](form-patterns.md#complex-form-validation-), [dialog-patterns.md](dialog-patterns.md), [enterprise-patterns.md](enterprise-patterns.md)

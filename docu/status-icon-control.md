@@ -135,5 +135,5 @@ See `sap/dm/dme/pod2/enumeration/SFCStatusCode` for the full list of status code
 ## Related Documentation
 
 - [Worklist Data Structure](./worklist-data-structure.md)
-- [Enumerations Reference](./enumerations-reference.md)
-- [Widget Patterns](./widget-patterns.md)
+- [Enumerations Reference](./pod2-enumerations-reference.md)
+- [Widget Patterns](./widget-patterns-index.md)

@@ -45,7 +45,7 @@ For EACH category below:
 - For binding-based state: bind `valueState` and `valueStateText` to the view model.
 - Use `sap.ui.core.ValueState` enum constants — not magic strings — when imported.
 
-**Reference**: `docu/form-patterns.md`, `docu/common-mistakes.md`.
+**Reference**: `docu/form-patterns.md`, `docu/common-mistakes-index.md`.
 
 ---
 
@@ -553,7 +553,7 @@ The widget "works" because the DC data appears \u2014 but there is no DOWNTIME d
 | `SAP_MDO_STANDARD_RATE_V` | `STANDARD_RATE` |
 
 **POD 2.0 target pattern**:
-- For MDO views: `sap/dm/dme/pod2/api/odata/ODataV4Client` \u2014 see `basics.md` \u00a7"OData V4 for Custom Queries" and `mdo-extractor-reference.md`.
+- For MDO views: `sap/dm/dme/pod2/api/odata/ODataV4Client` \u2014 see `pod2-core-concepts.md` \u00a7"OData V4 for Custom Queries" and `mdo-extractor-reference.md`.
 - For SAP DM REST APIs: `ApiClient.rest.<service>.<method>` \u2014 see `pod2-public-api-pattern.md`.
 - Never inline URL literals \u2014 go through the API clients.
 
@@ -734,11 +734,11 @@ The widget "works" because the DC data appears \u2014 but there is no DOWNTIME d
 
 ## Category 29 — Custom composite where a standard SAPUI5 control exists
 
-> **Specialisation of [`basics.md`](basics.md) §0 — Prime Directive: Standard Controls Before Custom.** Cat 29 catches the ladder-skip at the composite level — rung 3 (compose standard controls) got replaced by "build a fake standard control out of `VBox` + `Text` + `ObjectStatus` + custom CSS". The 4-rung Escalation Ladder (search alternatives → escalate within family → compose → custom only after team alignment) covers every one of the S1-S7 anti-patterns below; each has a rung-2 or rung-3 replacement.
+> **Specialisation of [`pod2-core-concepts.md`](pod2-core-concepts.md) §0 — Prime Directive: Standard Controls Before Custom.** Cat 29 catches the ladder-skip at the composite level — rung 3 (compose standard controls) got replaced by "build a fake standard control out of `VBox` + `Text` + `ObjectStatus` + custom CSS". The 4-rung Escalation Ladder (search alternatives → escalate within family → compose → custom only after team alignment) covers every one of the S1-S7 anti-patterns below; each has a rung-2 or rung-3 replacement.
 
 **Why often missed**: The migrator's default bias is to reproduce a hand-built HTML5 component (KPI card, timeline strip, "last-indicator" panel, table-totals row) as a composition of `VBox` + `Text` + `ObjectStatus` + custom CSS. Fiori theme tokens don't propagate into hand-drawn compositions, PropertyEditor bindings feel less natural, and the extension ends up visually *close to* Fiori but off-brand. A real HTML5 dashboard migration had to iterate through six refactor rounds — each round swapped more of the hand-built widget body for pure standard controls, halved the CSS, and deleted a whole custom control class. The suspect list below is the post-mortem of those rounds.
 
-**Prime Directive pointer**: The 80%-rule prose lives once, in [`basics.md`](basics.md) §0. Cat 29 is the migration-scoped enforcement of that rule — see §0 for the full 4-rung Escalation Ladder wording.
+**Prime Directive pointer**: The 80%-rule prose lives once, in [`pod2-core-concepts.md`](pod2-core-concepts.md) §0. Cat 29 is the migration-scoped enforcement of that rule — see §0 for the full 4-rung Escalation Ladder wording.
 
 **Detection patterns (`S1`–`S7` from a real migration post-mortem)**:
 
